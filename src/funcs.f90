@@ -31,6 +31,7 @@ module photo
         f_four                 ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area         ,& ! (f), specific leaf area (m2 g-1)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
+        leaf_age_factor        ,& ! (f), effect of leaf age on photosynthetic rate
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
         stomatal_conductance   ,& ! (f), IN DEVELOPMENT - return stomatal conductance
@@ -244,6 +245,19 @@ contains
 
    ! =============================================================
    ! =============================================================
+
+   function leaf_age_factor(mu, acrit, a) result(fa)    ! based in Caldararu et al. 2018
+      use types
+
+      real(r_8), intent(in) :: mu, acrit, a
+      real(r_8) :: fa
+
+      fa = amin1(1.0, exp(mu * (acrit-a)))
+
+   end function
+
+   !=================================================================
+   !=================================================================
 
    function canopy_resistence(vpd_in,f1_in,g1,ca) result(rc2_in)
       ! return stomatal resistence based on Medlyn et al. 2011a
