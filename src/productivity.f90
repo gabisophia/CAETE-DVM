@@ -44,7 +44,8 @@ contains
     real(r_8), intent(in) :: w                    !Soil moisture kg m-2
     real(r_4), intent(in) :: ipar                 !Incident photosynthetic active radiation (w/m2)
     real(r_4), intent(in) :: rh,emax !Relative humidity/MAXIMUM EVAPOTRANSPIRATION
-    real(r_8), intent(in) :: catm, cl1_prod, cf1_prod, ca1_prod        !Carbon in plant tissues (kg/m2)
+    real(r_8), dimension(3),intent(in) :: cl1_prod       !total carbon in each cohort
+    real(r_8), intent(in) :: catm, cf1_prod, ca1_prod        !Carbon in plant tissues (kg/m2)
     real(r_8), intent(in) :: beta_leaf            !npp allocation to carbon pools (kg/m2/day)
     real(r_8), intent(in) :: beta_awood
     real(r_8), intent(in) :: beta_froot, wmax
@@ -65,6 +66,7 @@ contains
     real(r_4), intent(out) :: c_defcit     ! Carbon deficit gm-2 if it is positive, aresp was greater than npp + sto2(1)
     real(r_8), intent(out) :: sla, e        !specific leaf area (m2/kg)
     real(r_8), intent(out) :: vm_out
+
 !     Internal
 !     --------
 
@@ -80,8 +82,14 @@ contains
     integer(i_4) :: c4_int
     real(r_8) :: jl_out
 
-    real(r_8) :: f1       !Leaf level gross photosynthesis (molCO2/m2/s)
+    real(r_8), dimension(3) :: f1, ph_aux      !Leaf level gross photosynthesis (molCO2/m2/s)
     real(r_8) :: f1a      !auxiliar_f1
+    real(r_8), dimension(3) :: umol_penalties = (/-0.4, 1.0, 0.6/)
+    real(r_8), dimension(3) :: age_limits, leaf_age
+    real(r_8), dimension(3) :: penalization_by_age
+    real(r_8):: age_crit
+    real(r_8):: cl_total     ! carbon sum of all the cohots (kg/m2)
+    integer(i_4) :: i
 
 !getting pls parameters
 
@@ -97,11 +105,32 @@ contains
     p2cl = dt(13)
 
 
-    n2cl = n2cl * (cl1_prod * 1D3) ! N in leaf g m-2
-    p2cl = p2cl * (cl1_prod * 1D3) ! P in leaf g m-2
+! Simulation of leaf demography
+   ! Obtain critical age
+    age_crit = (tleaf / 3.0) * 2.0
 
-    c4_int = idnint(c4)
+    ! Obtain age limits
+    age_limits(1) = age_crit / 2.0
+    age_limits(2) = age_crit
+    age_limits(3) = (age_crit / 2.0) * 3
 
+    do  i = 1,3
+       if(i .eq. 1) then
+          leaf_age(i) = age_limits(i) / 2.0
+       else
+          leaf_age(i) = (age_limits(i) + age_limits(i - 1) / 2.0)
+       endif
+    enddo
+
+    do i = 1, 3
+       penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
+    enddo
+
+    ! Obtain total carbon of the leaf cohorts
+    cl_total = sum(cl1_prod)
+
+    n2cl = real(n2cl * (cl_total * 1e3), r_4) ! N in leaf g m-2
+    p2cl = real(p2cl * (cl_total * 1e3), r_4) ! P in leaf g m-2
 
 !     ==============
 !     Photosynthesis
@@ -154,21 +183,26 @@ contains
 !     ----------------------------------------------
 
     if ((temp.ge.-10.0).and.(temp.le.50.0)) then
-       f1 = f1a * f5 ! :water stress factor ! Ancient floating-point underflow spring (from CPTEC-PVM2)
-    else
-       f1 = 0.0      !Temperature above/below photosynthesis windown
-    endif
+        do i = 1,3
+            f1(i) = f1a * f5 * penalization_by_age(i) ! :water stress factor ! Ancient floating-point underflow spring (from CPTEC-PVM2)
+         enddo
+      else
+          f1 = 0.0      !Temperature above/below photosynthesis windown
+      endif
 
 
 
 !     Canopy gross photosynthesis (kgC/m2/yr)
 !     =======================================x
-    ph =  gross_ph(f1,cl1_prod,sla)       ! kg m-2 year-1
+      do i = 1,3
+        ph_aux(i) = gross_ph(f1(i),cl1_prod(i), sla)       ! kg m-2 year-1
+      enddo
+      ph = sum(ph_aux)/3.0
 
 !     Autothrophic respiration
 !     ========================
 !     Maintenance respiration (kgC/m2/yr) (based in Ryan 1991)
-    rm = m_resp(temp,ts,cl1_prod,cf1_prod,ca1_prod &
+    rm = m_resp(temp,ts,cl_total,cf1_prod,ca1_prod &
          &,n2cl_resp,n2cw_resp,n2cf_resp,awood)
 
 ! c     Growth respiration (KgC/m2/yr)(based in Ryan 1991; Sitch et al.
