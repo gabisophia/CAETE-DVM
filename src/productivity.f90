@@ -198,7 +198,7 @@ contains
      do i = 1,3
         ph_aux(i) = gross_ph(f1(i),cl1_prod(i), sla)       ! kg m-2 year-1
       enddo
-      ph = sum(ph_aux)/3.0
+      ph = sum(ph_aux)
 
 !     Autothrophic respiration
 !     ========================

@@ -332,7 +332,7 @@ class grd:
         self.swsoil = np.zeros(shape=(n,), order='F')
         self.rm = np.zeros(shape=(n,), order='F')
         self.rg = np.zeros(shape=(n,), order='F')
-        self.cleaf = np.zeros(shape=(n,), order='F')
+        self.cleaf = np.zeros(shape=(n), order='F')
         self.cawood = np.zeros(shape=(n,), order='F')
         self.cfroot = np.zeros(shape=(n,), order='F')
         self.area = np.zeros(shape=(npls, n))
@@ -555,6 +555,9 @@ class grd:
         self.wmax_mm = np.float64(
             self.wp_sat_water_upper_mm + self.wp_sat_water_lower_mm)
 
+        #self.vp_cltotal = #somar o cleaf
+
+
         # start biomass
         self.vp_cleaf, self.vp_croot, self.vp_cwood = m.spinup2(
             1.0, self.pls_table)
@@ -566,7 +569,7 @@ class grd:
         self.vp_dca = np.zeros(shape=(npls,), order='F')
         self.vp_dcf = np.zeros(shape=(npls,), order='F')
         self.vp_ocp = np.zeros(shape=(npls,), order='F')
-        self.vp_sto = np.zeros(shape=(3, npls), order='F')
+        self.vp_sto = np.zeros(shape=(npls), order='F')
 
         # # # SOIL START
         self.sp_csoil = np.zeros(shape=(4,), order='F') + 1.0
@@ -837,7 +840,7 @@ class grd:
                 self.vp_cleaf = daily_output['cleafavg_pft'][self.vp_lsid]
                 self.vp_cwood = daily_output['cawoodavg_pft'][self.vp_lsid]
                 self.vp_croot = daily_output['cfrootavg_pft'][self.vp_lsid]
-                self.vp_dcl = daily_output['delta_cveg'][0][self.vp_lsid]
+                self.vp_dcl = daily_output['delta_cveg'][0][:, self.vp_lsid]
                 self.vp_dca = daily_output['delta_cveg'][1][self.vp_lsid]
                 self.vp_dcf = daily_output['delta_cveg'][2][self.vp_lsid]
                 self.vp_sto = daily_output['stodbg'][:, self.vp_lsid]
