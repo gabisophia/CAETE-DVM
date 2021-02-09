@@ -814,17 +814,18 @@ module alloc
       ! LEAF LITTER FLUX
       leaf_litter = scl1(3) / tleaf  !/ tleaf ! kg(C) m-2 year-1
       ! LEAF C FLUX BETWEEN COHORTS
-      turnover_c1 = scl1(2) / age_limits(2)
-      turnover_c2 = scl1(1) / age_limits(1)
+      turnover_c1 = scl1(1) / age_limits(1)
+      turnover_c2 = scl1(2) / age_limits(2)
 
       ! ROOT LITTER
       root_litter = scf1 / troot  !/ tfroot! kg(C) m-2 year-1
 
       ! UPDATE C content of each compartment in g m-2 
       ! # conferir unidades de C e ver se scl é 1 ou 2 no meio da equação
+      ! colocar turnover no lugar do cl1(1) e (2)
       scl2(1) = ((1D3 * scl1(1)) + daily_growth(leaf)) - (turnover_c1 * 2.73791075D0)
-      scl2(2) = ((1D3 * scl1(2)) + scl1(1)) - (turnover_c2 * 2.73791075D0)
-      scl2(3) = ((1D3 * scl1(3)) + scl1(2)) - (leaf_litter * 2.73791075D0)
+      scl2(2) = ((1D3 * scl1(2)) + (turnover_c1 * 2.73791075D0)) - (turnover_c2 * 2.73791075D0)
+      scl2(3) = ((1D3 * scl1(3)) + (turnover_c2 * 2.73791075D0)) - (leaf_litter * 2.73791075D0)
 
       scf2 = (1D3 * scf1) + daily_growth(root) - (root_litter * 2.73791075D0)
 
