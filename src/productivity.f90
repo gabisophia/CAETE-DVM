@@ -150,9 +150,9 @@ contains
 !    |____/___\____| |_____|_____/_/   \_\_|
 !     Leaf area index (m2/m2)
     sla = spec_leaf_area(tleaf)
-    ! laia = leaf_area_index(cl1_prod, sla)
-
+    
     laia = 0.2D0 * dexp((2.5D0 * f1a)/p25)
+
 ! VPD
 !========
     vpd = vapor_p_defcit(temp,rh)
@@ -195,10 +195,7 @@ contains
 
 !     Canopy gross photosynthesis (kgC/m2/yr)
 !     =======================================x
-     do i = 1,3
-        ph_aux(i) = gross_ph(f1(i),cl1_prod(i), sla)       ! kg m-2 year-1
-      enddo
-      ph = sum(ph_aux)
+     ph =  gross_ph(f1,cl1_prod,sla)
 
 !     Autothrophic respiration
 !     ========================
