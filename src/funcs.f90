@@ -82,11 +82,10 @@ contains
       real(r_8),intent(in) :: sla   !m2 gC-1
       real(r_4) :: ph
 
-      real(r_8) :: f4sun 
       real(r_8),dimension(3) :: f1in
+      real(r_8) :: f4sun 
       real(r_8) :: f4shade
       real(r_8),dimension(3) :: ph_aux
-
 
       f1in = f1
       f4sun = f_four(1,cleaf,sla)
@@ -111,7 +110,7 @@ contains
       real(r_8) :: lai
 
       real(r_8) :: cl_total
-      cl_total = sum(cleaf(:))
+      cl_total = sum(cleaf)
 
       lai  = cl_total * 1.0D3 * sla  ! Converts cleaf from (KgC m-2) to (gCm-2)
       if(lai .lt. 0.0D0) lai = 0.0D0
