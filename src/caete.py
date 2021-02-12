@@ -379,7 +379,6 @@ class grd:
                      "lai":self.lai,
                      "aresp": self.aresp,
                      'npp': self.npp,
-                     'lai': self.lai,
                      'csoil': self.csoil,
                      'inorg_n': self.inorg_n,
                      'inorg_p': self.inorg_p,
