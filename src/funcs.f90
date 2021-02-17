@@ -31,6 +31,7 @@ module photo
         f_four                 ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area         ,& ! (f), specific leaf area (m2 g-1)
         soil_potential         ,& ! (f), Soil water potential (MPa)
+!       psi_fifty              ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -201,21 +202,37 @@ contains
       use types
     
       !puxar arquivos globais 
-      real(r_4),intent(in) :: psi_sat             !MPa
-      real(r_4),intent(in) :: w                   !mm/h
+      real(r_8),intent(in) :: psi_sat             !MPa
+      real(r_8),intent(in) :: w                   !mm/h
       real(r_8),intent(in) :: wmax
-      real(r_4),intent(in) :: b                   !S/ unidade
-      real(r_4) :: psi_soil                       !MPa
+      real(r_8),intent(in) :: b                   !S/ unidade
+      real(r_8) :: psi_soil                       !MPa
 
       real(r_8) :: wa
       wa = w/wmax
 
       psi_soil = psi_sat * wa ** (-b)
   
-  endfunction soil_potential
+   endfunction soil_potential
 
    !=================================================================
    !=================================================================
+
+!   function psi_fifty(wd) result(psi_50)
+!   ! Returns xylem water potential when the plant loses 50% of their maximum xylem conductance
+!   ! Based in Christoffersen et al. 2016 TFS v.1-Hydro
+!   ! wd will be a variable functional trait
+!   use types
+! 
+!   real(r_4),intent(in) :: wd                !g/cm3
+!   real(r_4) :: psi_50                       !MPa
+!
+!   psi_50 = -((3.57*wd)**1.73)-1.09 
+!
+!   endfunction psi_fifty
+
+   !=================================================================
+   !=================================================================    
 
    function water_stress_modifier(w, cfroot, rc, ep, wmax) result(f5)
       use types, only: r_4, r_8
