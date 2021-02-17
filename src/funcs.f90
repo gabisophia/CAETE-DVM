@@ -34,6 +34,7 @@ module photo
 !       psi_fifty              ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
 !       conductivity_xylemax   ,& ! (f), Maximum xylem conductivity per unit sapwood area (mol m-2 s-1 Mpa-1)
         aleaf_asapwood         ,& ! (f), Leaf to sapwood area ratio (m2/cm2)
+        conductance_xylemax    ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -266,6 +267,32 @@ contains
       al_as = 546*(lma**(-2.14))*alt
   
    endfunction aleaf_asapwood
+
+   !=================================================================
+   !=================================================================
+    !opção 2 para o modelo enquanto o wd está no global
+    !calcular P50 e ks_max aqui dentro
+
+   function conductance_xylemax(al_as) result(krc_max)
+      !Maximum xylem conductance per unit leaf area
+      !Based in Christoffersen et al. 2016 TFS v.1-Hydro with ajustments
+      use types
+      use global_par, only:wd, alt
+    
+      real(r_4),intent(in) :: al_as            !m2/cm2
+      real(r_4) :: krc_max                     !mol m-2 s-1 Mpa-1
+
+      real(r_4) :: psi_50     !MPa
+      real(r_4) :: ks_max     !mol m-2 s-1 Mpa-1
+      real(r_4) :: hv         !cm2/m2 Huber value
+
+      psi_50 = -((3.57*wd)**1.73)-1.09
+      ks_max = 667.07/(1+((-psi_50)/3.19)**3.29)
+      hv=1/al_as
+
+      krc_max = (ks_max*(hv*0.0001)/alt) !(*0.0001 is converting cm2/m2 to m2/m2) 
+  
+   endfunction conductance_xylemax
 
    !=================================================================
    !=================================================================
