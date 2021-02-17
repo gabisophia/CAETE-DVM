@@ -81,7 +81,7 @@ contains
     integer(i_4) :: c4_int
     real(r_8) :: jl_out
 
-    real(r_8), dimension(3) :: f1     !Leaf level gross photosynthesis (molCO2/m2/s)
+    real(r_8), dimension(3) :: f1  !Leaf level gross photosynthesis (molCO2/m2/s)
     real(r_8) :: f1a      !auxiliar_f1
     real(r_8), dimension(3) :: umol_penalties = (/-0.4, 1.0, 0.6/)
     real(r_8), dimension(3) :: age_limits, leaf_age
@@ -175,9 +175,9 @@ contains
          f1 = 0.0      !Temperature above/below photosynthesis windown
      endif
 
-    rc_aux = canopy_resistence(vpd, f1, g1, catm)  ! RCM leaf level -!s m-1
+    rc_aux = canopy_resistence(vpd, sum(f1), g1, catm)  ! RCM leaf level -!s m-1
 
-    wue = water_ue(f1, rc_aux, p0, vpd)
+    wue = water_ue(sum(f1), rc_aux, p0, vpd)
 
     ! Calcula a transpiração em mm/s
     e = transpiration(rc_aux, p0, vpd, 2)
@@ -187,13 +187,13 @@ contains
     ! laia = 0.2D0 * dexp((2.5D0 * f1)/p25)
     sla = spec_leaf_area(tleaf)  ! m2 g-1  ! Convertions made in leaf_area_index &  gross_ph + calls therein
  
-    laia = leaf_area_index(cl1_prod, sla)
+    laia = leaf_area_index(cl1_prod(:), sla)
     rc = rc_aux * real(laia,kind=r_4) ! RCM -!s m-1
 
 
 !     Canopy gross photosynthesis (kgC/m2/yr)
 !     =======================================x
-     ph =  gross_ph(f1(:),cl1_prod(:),sla)
+    ph = gross_ph(f1(:),cl1_prod(:), sla)       ! kg m-2 year-1
 
 !     Autothrophic respiration
 !     ========================
