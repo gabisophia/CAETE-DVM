@@ -359,6 +359,8 @@ contains
    !=================================================================
    !=================================================================
 
+   !preciso conectar com o k_norm
+
    function water_stress_modifier(w, cfroot, rc, ep, wmax) result(f5)
       use types, only: r_4, r_8
       use global_par, only: csru, alfm, gm, rcmin, rcmax
