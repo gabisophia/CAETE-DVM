@@ -30,8 +30,10 @@ module photo
         leaf_area_index        ,& ! (f), leaf area index(m2 m-2)
         f_four                 ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area         ,& ! (f), specific leaf area (m2 g-1)
-        soil_potential         ,& ! (f), Soil water potential (MPa)
+        soil_waterpotential    ,& ! (f), Soil water potential (MPa)
 !       psi_fifty              ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
+!       conductivity_xylemax   ,& ! (f), Maximum xylem conductivity per unit sapwood area (mol m-2 s-1 Mpa-1)
+        aleaf_asapwood         ,& ! (f), Leaf to sapwood area ratio (m2/cm2)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -196,7 +198,7 @@ contains
    !=================================================================
    !=================================================================
 
-   function soil_potential(psi_sat, w, wmax, b) result(psi_soil)
+   function soil_waterpotential(psi_sat, w, wmax, b) result(psi_soil)
       ! Returns soil water potential 
       ! Based in Clapp & Hornberger 1978
       use types
@@ -213,7 +215,7 @@ contains
 
       psi_soil = psi_sat * wa ** (-b)
   
-   endfunction soil_potential
+   endfunction soil_waterpotential
 
    !=================================================================
    !=================================================================
@@ -232,7 +234,41 @@ contains
 !   endfunction psi_fifty
 
    !=================================================================
-   !=================================================================    
+   !================================================================= 
+   
+!   function conductivity_xylemax(psi_50) result(ks_max)
+!      ! Returns Maximum xylem conductivity per unit sapwood area (ks_max,mol m-2 s-1 Mpa-1)
+!      ! This equation was built from data from Van der sande et al. 2019 by Cleiton Eller
+!      use types
+!     
+!      real(r_4),intent(in) :: psi_50             !MPa
+!      real(r_4) :: ks_max                        !mol m-2 s-1 Mpa-1    
+!
+!      ks_max = 667.07/(1+((-psi_50)/3.19)**3.29)
+!  
+!   endfunction conductivity_xylemax
+
+   !=================================================================
+   !=================================================================
+
+   function aleaf_asapwood(sla) result(al_as)
+      !Leaf to sapwood area ratio
+      !Based in Christoffersen et al. 2016 TFS v.1-Hydro
+      use types
+      use global_par, only:alt
+
+      real(r_4),intent(in) :: sla           !gC/m2   provavelmente vou usar o range do trait, pois o que sai do modelo está com valores muito baixos
+      real(r_4) :: al_as                    !m2/cm2
+
+      real(r_4) :: lma       !g/m2 leaf mass area
+      lma = 1/sla
+
+      al_as = 546*(lma**(-2.14))*alt
+  
+   endfunction aleaf_asapwood
+
+   !=================================================================
+   !=================================================================
 
    function water_stress_modifier(w, cfroot, rc, ep, wmax) result(f5)
       use types, only: r_4, r_8
