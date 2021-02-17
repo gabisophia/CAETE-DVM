@@ -35,6 +35,7 @@ module photo
 !       conductivity_xylemax   ,& ! (f), Maximum xylem conductivity per unit sapwood area (mol m-2 s-1 Mpa-1)
         aleaf_asapwood         ,& ! (f), Leaf to sapwood area ratio (m2/cm2)
         conductance_xylemax    ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
+        xylem_waterpotential   ,& ! (f), Xylem water potential (MPa)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -296,6 +297,27 @@ contains
 
    !=================================================================
    !=================================================================
+
+   function xylem_waterpotential(psi_soil,krc_max,e) result(psi_xylem)
+      !Xylem water potential
+      !Based in Eller et al., 2018
+      use types
+      use global_par, only:rho, g, alt
+    
+      real(r_4),intent(in) :: psi_soil          !MPa
+      real(r_4),intent(in) :: krc_max           !mol m-2 s-1 Mpa-1 
+      real(r_4),intent(in) :: e                 !molm-2s-1 transpiration (ver se sai nessa unidade)  
+      real(r_4) :: psi_xylem                    !MPa
+
+      real(r_4) :: psi_g     !MPa - gravitational potential
+      psi_g = rho * g * alt * 1e-6      !converts Pa to MPa
+
+      psi_xylem  = psi_soil - psi_g - (e/krc_max)
+  
+   endfunction xylem_waterpotential
+
+ !=================================================================
+ !=================================================================
 
    function water_stress_modifier(w, cfroot, rc, ep, wmax) result(f5)
       use types, only: r_4, r_8
