@@ -36,6 +36,7 @@ module photo
         aleaf_asapwood         ,& ! (f), Leaf to sapwood area ratio (m2/cm2)
         conductance_xylemax    ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
         xylem_waterpotential   ,& ! (f), Xylem water potential (MPa)
+        xylem_conductance      ,& ! (f), Hydraulic conductance of xylem (mol m-2 s-1 Mpa-1)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -315,6 +316,29 @@ contains
       psi_xylem  = psi_soil - psi_g - (e/krc_max)
   
    endfunction xylem_waterpotential
+
+ !=================================================================
+ !=================================================================
+
+   function xylem_conductance(krc_max,psi_xylem,psi_50) result(k)  
+      !Xylem conductance 
+      !Based in Manzoni et al., 2013
+      use types
+  
+      real(r_4), intent(in) :: krc_max                !mol m-2 s-1 Mpa-1 
+      real(r_4), intent(in) :: psi_xylem              !MPa
+      real(r_4), intent(in) :: psi_50                 !MPa
+      real(r_4) :: k                                  !mol m-2 s-1 MPa-1
+
+      real(r_4) :: stem_slope     !MPa-1 - Slope of the linear portion of the xylem vulnerability function
+      real(r_4) :: a              !vulnerability_curve
+      
+      stem_slope = 65.15*(-psi_50)**(-1.25)
+      a = -4*stem_slope/100*psi_50
+
+      k = krc_max*(1+(psi_xylem/psi_50)**a)**(-1) 
+
+   end function xylem_conductance
 
  !=================================================================
  !=================================================================
