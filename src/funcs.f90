@@ -30,6 +30,7 @@ module photo
         leaf_area_index        ,& ! (f), leaf area index(m2 m-2)
         f_four                 ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area         ,& ! (f), specific leaf area (m2 g-1)
+        soil_potential         ,& ! (f), Soil water potential (MPa)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -104,7 +105,6 @@ contains
       real(r_8),intent(in) :: cleaf !kgC m-2
       real(r_8),intent(in) :: sla   !m2 gC-1
       real(r_8) :: lai
-
 
       lai  = cleaf * 1.0D3 * sla  ! Converts cleaf from (KgC m-2) to (gCm-2)
       if(lai .lt. 0.0D0) lai = 0.0D0
@@ -191,6 +191,28 @@ contains
          return
       endif
    end function f_four
+
+   !=================================================================
+   !=================================================================
+
+   function soil_potential(psi_sat, w, wmax, b) result(psi_soil)
+      ! Returns soil water potential 
+      ! Based in Clapp & Hornberger 1978
+      use types
+    
+      !puxar arquivos globais 
+      real(r_4),intent(in) :: psi_sat             !MPa
+      real(r_4),intent(in) :: w                   !mm/h
+      real(r_8),intent(in) :: wmax
+      real(r_4),intent(in) :: b                   !S/ unidade
+      real(r_4) :: psi_soil                       !MPa
+
+      real(r_8) :: wa
+      wa = w/wmax
+
+      psi_soil = psi_sat * wa ** (-b)
+  
+  endfunction soil_potential
 
    !=================================================================
    !=================================================================
