@@ -37,6 +37,7 @@ module photo
         conductance_xylemax    ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
         xylem_waterpotential   ,& ! (f), Xylem water potential (MPa)
         xylem_conductance      ,& ! (f), Hydraulic conductance of xylem (mol m-2 s-1 Mpa-1)
+        conductance_normalized ,& ! (f), Normalized hydraulic conductance of xylem (dimensionless)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -218,7 +219,7 @@ contains
 
       psi_soil = psi_sat * wa ** (-b)
   
-   endfunction soil_waterpotential
+   end function soil_waterpotential
 
    !=================================================================
    !=================================================================
@@ -268,7 +269,7 @@ contains
 
       al_as = 546*(lma**(-2.14))*alt
   
-   endfunction aleaf_asapwood
+   end function aleaf_asapwood
 
    !=================================================================
    !=================================================================
@@ -294,7 +295,7 @@ contains
 
       krc_max = (ks_max*(hv*0.0001)/alt) !(*0.0001 is converting cm2/m2 to m2/m2) 
   
-   endfunction conductance_xylemax
+   end function conductance_xylemax
 
    !=================================================================
    !=================================================================
@@ -315,10 +316,10 @@ contains
 
       psi_xylem  = psi_soil - psi_g - (e/krc_max)
   
-   endfunction xylem_waterpotential
+   end function xylem_waterpotential
 
- !=================================================================
- !=================================================================
+   !=================================================================
+   !=================================================================
 
    function xylem_conductance(krc_max,psi_xylem,psi_50) result(k)  
       !Xylem conductance 
@@ -340,8 +341,23 @@ contains
 
    end function xylem_conductance
 
- !=================================================================
- !=================================================================
+   !=================================================================
+   !=================================================================
+
+   function conductance_normalized(krc_max,k) result(k_norm)
+      ! Returns normalized xylem conductance 
+      use types
+     
+      real(r_4),intent(in) :: krc_max         !mol m-2 s-1 Mpa-1
+      real(r_4),intent(in) :: k               !mol m-2 s-1 Mpa-1
+      real(r_4) :: k_norm                     !dimensionless   
+
+      k_norm = k/krc_max
+  
+   end function conductance_normalized
+
+   !=================================================================
+   !=================================================================
 
    function water_stress_modifier(w, cfroot, rc, ep, wmax) result(f5)
       use types, only: r_4, r_8
