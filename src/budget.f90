@@ -272,6 +272,15 @@ contains
          dt1 = dt(:,ri) ! Pick up the pls functional attributes list
 
          ! GABI hydro
+
+         !vou chamar 
+         !wa=w/wmax
+         !w = (wsoil + swsoil)/1000   mm para razão vol/vol
+         !wmax = wmax_mm/1000 (já tem calculado mas não está no dicionário)
+
+
+
+
          call prod(dt1, ocp_wood(ri),catm, temp, soil_temp, p0, w, ipar, rh, emax&
                &, cl1_pft(ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
                &, soil_sat, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
@@ -347,6 +356,7 @@ contains
             delta_cveg(2,p) = ca2(p) - ca1_pft(ri)
          endif
          delta_cveg(3,p) = cf2(p) - cf1_pft(ri)
+
 
          ! Mass Balance
 
