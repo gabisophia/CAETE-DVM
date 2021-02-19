@@ -33,8 +33,9 @@ module photo
         soil_waterpotential    ,& ! (f), Soil water potential (MPa)
 !       psi_fifty              ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
         conductivity_xylemleaf ,& ! (f), Maximum xylem conductivity per unit leaf area (kg m-1 s-1 Mpa-1)
-        aleaf_asapwood         ,& ! (f), Leaf to sapwood area ratio (m2/cm2)
+        aleaf_asapwood         ,& ! (f), Leaf to sapwood area ratio (m2 cm-2)
         conductivity_xylemwood ,& ! (f), Maximum xylem conductivity per unit sapwood area (kg m-1 s-1 MPa)
+        conductance_xylemax    ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
         xylem_waterpotential   ,& ! (f), Xylem water potential (MPa)
         xylem_conductance      ,& ! (f), Hydraulic conductance of xylem (mol m-2 s-1 Mpa-1)
         conductance_normalized ,& ! (f), Normalized hydraulic conductance of xylem (dimensionless)
@@ -203,19 +204,19 @@ contains
    !=================================================================
 
    function soil_waterpotential(psi_sat, w, wmax, b) result(psi_soil)
-      ! Returns soil water potential 
+      ! Returns soil water potential (MPa)
       ! Based in Clapp & Hornberger 1978
       use types
     
       !puxar arquivos globais 
-      real(r_8),intent(in) :: psi_sat             !MPa
-      real(r_8),intent(in) :: w                   !mm/h
-      real(r_8),intent(in) :: wmax
-      real(r_8),intent(in) :: b                   !S/ unidade
+      real(r_8),intent(in) :: psi_sat             !MPa  - saturated soil water suction  
+      real(r_8),intent(in) :: w                   !mm/h - soil water
+      real(r_8),intent(in) :: wmax                !mm/h - maximum soil water
+      real(r_8),intent(in) :: b                   !dimensionless - coefficient soil texture
       real(r_8) :: psi_soil                       !MPa
 
       real(r_8) :: wa
-      wa = w/wmax
+      wa = w/wmax                                 !dimensionless - soil moisture
 
       psi_soil = psi_sat * wa ** (-b)
   
@@ -225,48 +226,48 @@ contains
    !=================================================================
 
 !   function psi_fifty(wd) result(psi_50)
-!   ! Returns xylem water potential when the plant loses 50% of their maximum xylem conductance
+!   ! Returns xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
 !   ! Based in Christoffersen et al. 2016 TFS v.1-Hydro
 !   ! wd will be a variable functional trait
 !   use types
 ! 
-!   real(r_4),intent(in) :: wd                !g/cm3
+!   real(r_4),intent(in) :: wd                !g/cm3 - wood sendity
 !   real(r_4) :: psi_50                       !MPa
 !
 !   psi_50 = -((3.57*wd)**1.73)-1.09 
 !
-!   endfunction psi_fifty
+!   end function psi_fifty
 
    !=================================================================
    !================================================================= 
 
    function conductivity_xylemleaf(amax) result(kl_max)
-      !Maximum xylem conductivity per unit leaf area - kl,max
-      !Based in Christoffersen et al. 2016 TFS v.1
+      !Maximum xylem conductivity per unit leaf area (kgm-1s-1MPa-1)
+      !Based in Christoffersen et al. 2016 TFS v.1-Hydro
       use types
       use global_par, only:wd
     
-      !real(r_4),intent(in) :: wd            ! 
-      real(r_4),intent(in) :: amax           !mol m-2 s-1 Mpa-1  
+      !real(r_4),intent(in) :: wd            !g/cm3     - wood density
+      real(r_4),intent(in) :: amax           !molm-2s-1 - light saturated photo rate (confirmar essa unidade)
       real(r_4) :: kl_max                    !kgm-1s-1MPa-1   
 
-      kl_max = 0.0021 * exp(-26.6*wd/amax)  
+      kl_max = 0.0021 * exp(-26.6 * wd/amax)  
   
-  endfunction conductivity_xylemleaf
+   endfunction conductivity_xylemleaf
 
    !=================================================================
    !=================================================================
 
    function aleaf_asapwood(sla) result(al_as)
-      !Leaf to sapwood area ratio
+      !Leaf to sapwood area ratio (m2 cm-2)
       !Based in Christoffersen et al. 2016 TFS v.1-Hydro
       use types
       use global_par, only:alt
 
-      real(r_4),intent(in) :: sla           !gC/m2   provavelmente vou usar o range do trait, pois o que sai do modelo está com valores muito baixos
-      real(r_4) :: al_as                    !m2/cm2
+      real(r_4),intent(in) :: sla           !m2/gC (vou usar o range do trait)
+      real(r_4) :: al_as                    !m2/cm-2
 
-      real(r_4) :: lma       !g/m2 leaf mass area
+      real(r_4) :: lma                      !gC/m2 leaf mass area
       lma = 1/sla
 
       al_as = 546*(lma**(-2.14))*alt
@@ -277,39 +278,38 @@ contains
    !=================================================================
 
    function conductivity_xylemwood(kl_max,al_as) result(ks_max)
-      !Maximum xylem conductivity per unit sapwood area - ks,max
+      !Maximum xylem conductivity per unit sapwood area (kgm-1s-1MPa-1)
       !Based in Christoffersen et al. 2016 TFS v.1
       use types
 
       real(r_4),intent(in) :: kl_max         !kgm-1s-1MPa-1   
-      real(r_4),intent(in) :: al_as          !m2/cm2  
+      real(r_4),intent(in) :: al_as          !m2/cm2 
       real(r_4) :: ks_max                    !kgm-1s-1MPa-1   
 
-      ks_max = kl_max/(al_as)  
+      ks_max = kl_max / al_as  
   
    endfunction conductivity_xylemwood
 
- !=================================================================
- !=================================================================
-    !opção 2 para o modelo enquanto o wd está no global
-    !calcular P50 aqui dentro
+   !=================================================================
+   !=================================================================
+   !opção 2 para o modelo enquanto o wd está no global - calcular P50 aqui dentro
 
    function conductance_xylemax(ks_max) result(krc_max)
-      !Maximum xylem conductance per unit leaf area
-      !Based in Christoffersen et al. 2016 TFS v.1-Hydro with ajustments
+      !Maximum xylem conductance per unit leaf area (molm-2s-1Mpa-1)
+      !Based in Christoffersen et al. 2016 TFS v.1-Hydro
       use types
       use global_par, only:wd, alt
     
-      real(r_4),intent(in) :: ks_max           !kg m-1 s-1 Mpa-1
-      real(r_4) :: krc_max                     !mol m-2 s-1 Mpa-1
+      real(r_4),intent(in) :: ks_max          !kgm-1s-1Mpa-1
+      real(r_4) :: krc_max                    !molm-2s-1Mpa-1
 
-      real(r_4) :: psi_50     !MPa
-      real(r_4) :: al_as1     !kg m-1 s-1 Mpa-1
+      real(r_4) :: psi_50                     !MPa
+      real(r_4) :: al_as1                     !kgm-1s-1Mpa-1
 
       psi_50 = -((3.57*wd)**1.73)-1.09
-      al_as1 = 1.E4 * exp(-0.69) * ks_max ** 0.41  !m2 m-2.
+      al_as1 = 1.E4 * exp(-0.69) * ks_max ** 0.41  !m2m-2.
 
-      krc_max = (ks_max / al_as1 * alt)*(55.55) !converte kg para mol
+      krc_max = (ks_max / al_as1 * alt)*(55.55)    !convert kg to mol
   
    endfunction conductance_xylemax
 
@@ -317,18 +317,18 @@ contains
  !=================================================================
 
    function xylem_waterpotential(psi_soil,krc_max,e) result(psi_xylem)
-      !Xylem water potential
+      !Xylem water potential (MPa)
       !Based in Eller et al., 2018
       use types
       use global_par, only:rho, g, alt
     
       real(r_4),intent(in) :: psi_soil          !MPa
-      real(r_4),intent(in) :: krc_max           !mol m-2 s-1 Mpa-1 
-      real(r_4),intent(in) :: e                 !molm-2s-1 transpiration (ver se sai nessa unidade)  
+      real(r_4),intent(in) :: krc_max           !molm-2s-1Mpa-1 
+      real(r_4),intent(in) :: e                 !molm-2s-1 transpiration  
       real(r_4) :: psi_xylem                    !MPa
 
-      real(r_4) :: psi_g     !MPa - gravitational potential
-      psi_g = rho * g * alt * 1e-6      !converts Pa to MPa
+      real(r_4) :: psi_g                        !MPa - gravitational potential
+      psi_g = rho * g * alt * 1e-6              !converts Pa to MPa
 
       psi_xylem  = psi_soil - psi_g - (e/krc_max)
   
@@ -338,17 +338,17 @@ contains
    !=================================================================
 
    function xylem_conductance(krc_max,psi_xylem,psi_50) result(k)  
-      !Xylem conductance 
+      !Xylem conductance (molm-2s-1MPa-1)
       !Based in Manzoni et al., 2013
       use types
   
-      real(r_4), intent(in) :: krc_max                !mol m-2 s-1 Mpa-1 
+      real(r_4), intent(in) :: krc_max                !molm-2s-1Mpa-1 
       real(r_4), intent(in) :: psi_xylem              !MPa
       real(r_4), intent(in) :: psi_50                 !MPa
-      real(r_4) :: k                                  !mol m-2 s-1 MPa-1
+      real(r_4) :: k                                  !molm-2s-1MPa-1
 
       real(r_4) :: stem_slope     !MPa-1 - Slope of the linear portion of the xylem vulnerability function
-      real(r_4) :: a              !vulnerability_curve
+      real(r_4) :: a              !vulnerability curve
       
       stem_slope = 65.15*(-psi_50)**(-1.25)
       a = -4*stem_slope/100*psi_50
@@ -361,11 +361,11 @@ contains
    !=================================================================
 
    function conductance_normalized(krc_max,k) result(k_norm)
-      ! Returns normalized xylem conductance 
+      !Returns normalized xylem conductance (dimensionless)
       use types
      
-      real(r_4),intent(in) :: krc_max         !mol m-2 s-1 Mpa-1
-      real(r_4),intent(in) :: k               !mol m-2 s-1 Mpa-1
+      real(r_4),intent(in) :: krc_max         !molm-2s-1Mpa-1
+      real(r_4),intent(in) :: k               !molm-2s-1Mpa-1
       real(r_4) :: k_norm                     !dimensionless   
 
       k_norm = k/krc_max
