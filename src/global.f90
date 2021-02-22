@@ -36,7 +36,10 @@ module global_par
    real(r_4),parameter,public :: diffu = 1.036800e14             ! soil thermal diffusivity (m2/mes)
    real(r_4),parameter,public :: tau = (h**2)/(2.0*diffu)        ! e-folding times (months)
    real(r_4),parameter,public :: alt = 20.0                      ! m plant height
+   real(r_4),parameter,public :: wd = 0.8                        ! wood density g/cm3
    real(r_4),parameter,public :: rho = 997.0                     ! Density of water (Kg/m3)
+   real(r_4),parameter,public :: psi_sat = -0.001                ! Saturated soil water suction MPa
+   real(r_4),parameter,public :: soil_texture = 7.0              ! Coefficient soil texture - TESTE
    real(r_4),parameter,public :: g = 9.8                         ! Gravity (m/s2)
    real(r_4),parameter,public :: rcmax = 5000.0                  ! ResistÊncia estomática máxima s/m
    real(r_4),parameter,public :: rcmin = 100                     ! ResistÊncia estomática mínima s/m
@@ -47,7 +50,6 @@ module global_par
    real(r_8),parameter,public :: alfm = 1.391D0                  ! Root attribute
    real(r_8),parameter,public :: gm = 3.26D0 * 86400D0           ! (*86400 transform s/mm to dia/mm)
    real(r_8),parameter,public :: sapwood = 0.05D0                ! Fraction of wood tissues that are sapwood
-   real(r_4),parameter,public :: wd = 0.3                        ! wood density g/cm3
    real(r_4),parameter,public :: ks = 0.25                       ! P Sorption
    integer(i_4),parameter,public :: npls =   100                 ! Number of Plant Life Strategies-PLSs simulated (Defined at compile time)
    integer(i_4),parameter,public :: ntraits = 17                 ! Number of traits for each PLS

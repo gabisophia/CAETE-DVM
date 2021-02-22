@@ -271,7 +271,8 @@ contains
          ri = lp(p)
          dt1 = dt(:,ri) ! Pick up the pls functional attributes list
 
-         ! GABI hydro
+      !     HYDRAULIC
+      
 
          !vou chamar 
          !wa=w/wmax

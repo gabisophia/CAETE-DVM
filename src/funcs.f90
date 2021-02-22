@@ -33,8 +33,6 @@ module photo
         soil_waterpotential    ,& ! (f), Soil water potential (MPa)
 !       psi_fifty              ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
         conductivity_xylemleaf ,& ! (f), Maximum xylem conductivity per unit leaf area (kg m-1 s-1 Mpa-1)
-        aleaf_asapwood         ,& ! (f), Leaf to sapwood area ratio (m2 cm-2)
-        conductivity_xylemwood ,& ! (f), Maximum xylem conductivity per unit sapwood area (kg m-1 s-1 MPa)
         conductance_xylemax    ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
         xylem_waterpotential   ,& ! (f), Xylem water potential (MPa)
         xylem_conductance      ,& ! (f), Hydraulic conductance of xylem (mol m-2 s-1 Mpa-1)
@@ -203,22 +201,23 @@ contains
    !=================================================================
    !=================================================================
 
-   function soil_waterpotential(psi_sat, w, wmax, b) result(psi_soil)
+   function soil_waterpotential(w, wmax) result(psi_soil)
       ! Returns soil water potential (MPa)
       ! Based in Clapp & Hornberger 1978
       use types
+      use global_par, only:psi_sat,soil_texture
     
       !puxar arquivos globais 
-      real(r_8),intent(in) :: psi_sat             !MPa  - saturated soil water suction  
+      !real(r_8),intent(in) :: psi_sat            !MPa  - saturated soil water suction  
       real(r_8),intent(in) :: w                   !mm/h - soil water
       real(r_8),intent(in) :: wmax                !mm/h - maximum soil water
-      real(r_8),intent(in) :: b                   !dimensionless - coefficient soil texture
+      !real(r_8),intent(in) :: b                  !dimensionless - coefficient soil texture
       real(r_8) :: psi_soil                       !MPa
 
       real(r_8) :: wa
       wa = w/wmax                                 !dimensionless - soil moisture
 
-      psi_soil = psi_sat * wa ** (-b)
+      psi_soil = psi_sat * wa ** (-soil_texture)
   
    end function soil_waterpotential
 
@@ -257,59 +256,22 @@ contains
 
    !=================================================================
    !=================================================================
-
-   function aleaf_asapwood(sla) result(al_as)
-      !Leaf to sapwood area ratio (m2 cm-2)
-      !Based in Christoffersen et al. 2016 TFS v.1-Hydro
-      use types
-      use global_par, only:alt
-
-      real(r_4),intent(in) :: sla           !m2/gC (vou usar o range do trait)
-      real(r_4) :: al_as                    !m2/cm-2
-
-      real(r_4) :: lma                      !gC/m2 leaf mass area
-      lma = 1/sla
-
-      al_as = 546*(lma**(-2.14))*alt
-
-   end function aleaf_asapwood
-
-   !=================================================================
-   !=================================================================
-
-   function conductivity_xylemwood(kl_max,al_as) result(ks_max)
-      !Maximum xylem conductivity per unit sapwood area (kgm-1s-1MPa-1)
-      !Based in Christoffersen et al. 2016 TFS v.1
-      use types
-
-      real(r_4),intent(in) :: kl_max         !kgm-1s-1MPa-1   
-      real(r_4),intent(in) :: al_as          !m2/cm2 
-      real(r_4) :: ks_max                    !kgm-1s-1MPa-1   
-
-      ks_max = kl_max / al_as  
-  
-   endfunction conductivity_xylemwood
-
-   !=================================================================
-   !=================================================================
    !opção 2 para o modelo enquanto o wd está no global - calcular P50 aqui dentro
 
-   function conductance_xylemax(ks_max) result(krc_max)
+   function conductance_xylemax(kl_max) result(krc_max)
       !Maximum xylem conductance per unit leaf area (molm-2s-1Mpa-1)
       !Based in Christoffersen et al. 2016 TFS v.1-Hydro
       use types
       use global_par, only:wd, alt
     
-      real(r_4),intent(in) :: ks_max          !kgm-1s-1Mpa-1
+      real(r_4),intent(in) :: kl_max          !kgm-1s-1Mpa-1
       real(r_4) :: krc_max                    !molm-2s-1Mpa-1
 
       real(r_4) :: psi_50                     !MPa
-      real(r_4) :: al_as1                     !kgm-1s-1Mpa-1
 
       psi_50 = -((3.57*wd)**1.73)-1.09
-      al_as1 = 1.E4 * exp(-0.69) * ks_max ** 0.41  !m2m-2.
 
-      krc_max = (ks_max / al_as1 * alt)*(55.55)    !convert kg to mol
+      krc_max = (kl_max / alt)*(55.55)        !convert kg to mol
   
    endfunction conductance_xylemax
 
