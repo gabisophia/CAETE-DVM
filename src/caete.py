@@ -556,10 +556,10 @@ class grd:
             self.wp_sat_water_upper_mm + self.wp_sat_water_lower_mm)
 
         # start biomass
-        self.vp_cleaf[:], self.vp_croot, self.vp_cwood = m.spinup2(
+        self.vp_cleaf[1], self.vp_croot, self.vp_cwood = m.spinup2(
             1.0, self.pls_table)
         a, b, c, d = m.pft_area_frac(
-            self.vp_cleaf[:], self.vp_croot, self.vp_cwood, self.pls_table[6, :])
+            self.vp_cleaf[1], self.vp_croot, self.vp_cwood, self.pls_table[6, :])
         self.vp_lsid = np.where(a > 0.0)[0]
         del a, b, c, d
         self.vp_dcl = np.zeros(shape=(3, npls), order='F')

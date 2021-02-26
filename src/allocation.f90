@@ -122,7 +122,6 @@ module alloc
       real(r_8) :: npp_pot ! potential npp g m-2 day-1
       real(r_8), dimension(3) :: daily_growth ! amount of carbon allocated to leaf/wood/root g m-2 day-1
       real(r_8), dimension(3, 2) :: real_npp
-      real(r_8), dimension(3) :: age_limits
       logical(l_1), dimension(3, 2) :: is_limited
       logical(l_1) :: lim_aux, kappa, test34, test35
 
@@ -814,8 +813,8 @@ module alloc
       ! LEAF LITTER FLUX
       leaf_litter = scl1(3) / tleaf  !/ tleaf ! kg(C) m-2 year-1
       ! LEAF C FLUX BETWEEN COHORTS
-      turnover_c1 = scl1(1) / age_limits(1)
-      turnover_c2 = scl1(2) / age_limits(2)
+      turnover_c1 = scl1(1) / (tleaf/3)
+      turnover_c2 = scl1(2) / (tleaf/3*2)
 
       ! ROOT LITTER
       root_litter = scf1 / troot  !/ tfroot! kg(C) m-2 year-1
