@@ -247,7 +247,7 @@ contains
       use global_par, only:wd
     
       !real(r_4),intent(in) :: wd            !g/cm3     - wood density
-      real(r_4),intent(in) :: amax           !molm-2s-1 - light saturated photo rate (confirmar essa unidade)
+      real(r_4),intent(in) :: amax           !µmolm-2s-1 - light saturated photo rate PRECISO CONVERTER de mol pra µmol
       real(r_4) :: kl_max                    !kgm-1s-1MPa-1   
 
       kl_max = 0.0021 * exp(-26.6 * wd/amax)  

@@ -40,7 +40,8 @@ contains
       use productivity
       use omp_lib
 
-      use photo, only: pft_area_frac, sto_resp
+      use photo, only: pft_area_frac, sto_resp, soil_waterpotential, conductivity_xylemleaf, conductance_xylemax&
+      &, xylem_waterpotential, xylem_conductance, conductance_normalized&
       use water, only: evpot2, penman, available_energy, runoff
 
       !     ----------------------------INPUTS-------------------------------
@@ -272,16 +273,10 @@ contains
          dt1 = dt(:,ri) ! Pick up the pls functional attributes list
 
       !     HYDRAULIC
+   
       
 
-         !vou chamar 
-         !wa=w/wmax
-         !w = (wsoil + swsoil)/1000   mm para razão vol/vol
-         !wmax = wmax_mm/1000 (já tem calculado mas não está no dicionário)
-
-
-
-
+      !     PRODUCTIVITY
          call prod(dt1, ocp_wood(ri),catm, temp, soil_temp, p0, w, ipar, rh, emax&
                &, cl1_pft(ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
                &, soil_sat, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
