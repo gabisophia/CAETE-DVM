@@ -81,8 +81,8 @@ contains
     integer(i_4) :: c4_int
     real(r_8) :: jl_out
 
-    real(r_8), dimension(3) :: f1  !Leaf level gross photosynthesis (molCO2/m2/s)
-    real(r_8) :: f1a      !auxiliar_f1
+    real(r_8), dimension(3) :: f1, ph_aux  !Leaf level gross photosynthesis (molCO2/m2/s)
+    real(r_8) :: f1a               !auxiliar_f1
     real(r_8), dimension(3) :: umol_penalties = (/-0.4, 1.0, 0.6/)
     real(r_8), dimension(3) :: age_limits, leaf_age
     real(r_8), dimension(3) :: penalization_by_age
@@ -193,7 +193,10 @@ contains
 
 !     Canopy gross photosynthesis (kgC/m2/yr)
 !     =======================================x
-    ph = gross_ph(f1(:),cl1_prod(:), sla)       ! kg m-2 year-1
+    ph_aux(:) = gross_ph(f1(:),cl1_prod(:), sla)       ! kg m-2 year-1
+    ph = sum(ph_aux)
+
+    if(ph .lt. 0.0) ph = 0.0
 
 !     Autothrophic respiration
 !     ========================
