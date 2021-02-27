@@ -80,9 +80,10 @@ contains
       real(r_8),intent(in) :: f1    !molCO2 m-2 s-1
       real(r_8),intent(in) :: cleaf !kgC m-2
       real(r_8),intent(in) :: sla   !m2 gC-1
-      real(r_4) :: ph
+      real(r_8) :: ph
 
-      real(r_8) :: f4sun, f1in
+      real(r_8) :: f1in
+      real(r_8) :: f4sun 
       real(r_8) :: f4shade
 
       f1in = f1
@@ -90,7 +91,6 @@ contains
       f4shade = f_four(2,cleaf,sla)
 
       ph = real((0.012D0*31557600.0D0*f1in*f4sun*f4shade), r_4)
-      if(ph .lt. 0.0) ph = 0.0
    end function gross_ph
 
    !=================================================================
@@ -105,7 +105,6 @@ contains
       real(r_8),intent(in) :: cleaf !kgC m-2
       real(r_8),intent(in) :: sla   !m2 gC-1
       real(r_8) :: lai
-
 
       lai  = cleaf * 1.0D3 * sla  ! Converts cleaf from (KgC m-2) to (gCm-2)
       if(lai .lt. 0.0D0) lai = 0.0D0
@@ -245,7 +244,7 @@ contains
 
    ! =============================================================
    ! =============================================================
-   
+
    function leaf_age_factor(mu, acrit, a) result(fa)    ! based in Caldararu et al. 2018
       use types
 
@@ -678,19 +677,19 @@ contains
       real(kind=r_4) :: sensitivity
       real(kind=r_4) :: nppot2
       ! outputs
-      real(kind=r_4),dimension(3),intent(out) :: cleafini
+      real(kind=r_4),intent(out) :: cleafini
       real(kind=r_4),intent(out) :: cawoodini
       real(kind=r_4),intent(out) :: cfrootini
 
       ! more internal
-      real(kind=r_4),dimension(3,ntl) :: cleafi_aux
+      real(kind=r_4),dimension(ntl) :: cleafi_aux
       real(kind=r_4),dimension(ntl) :: cfrooti_aux
       real(kind=r_4),dimension(ntl) :: cawoodi_aux
 
-      real(kind=r_4),dimension(3) :: aux_leaf
+      real(kind=r_4) :: aux_leaf
       real(kind=r_4) :: aux_wood
       real(kind=r_4) :: aux_root
-      real(kind=r_4),dimension(3) :: out_leaf
+      real(kind=r_4) :: out_leaf
       real(kind=r_4) :: out_wood
       real(kind=r_4) :: out_root
 
@@ -717,24 +716,24 @@ contains
       nppot2 = nppot !/real(npls,kind=r_4)
       do k=1,ntl
          if (k.eq.1) then
-            cleafi_aux (1,k) =  aleaf * nppot2
+            cleafi_aux (k) =  aleaf * nppot2
             cawoodi_aux(k) = aawood * nppot2
             cfrooti_aux(k) = afroot * nppot2
          else
-            aux_leaf(1) = cleafi_aux(1,k-1) + (aleaf * nppot2)
+            aux_leaf = cleafi_aux(k-1) + (aleaf * nppot2)
             aux_wood = cawoodi_aux(k-1) + (aleaf * nppot2)
             aux_root = cfrooti_aux(k-1) + (afroot * nppot2)
 
-            out_leaf(1) = aux_leaf(1) - (cleafi_aux(1,k-1) / tleaf)
+            out_leaf = aux_leaf - (cleafi_aux(k-1) / tleaf)
             out_wood = aux_wood - (cawoodi_aux(k-1) / tawood)
             out_root = aux_root - (cfrooti_aux(k-1) / tfroot)
 
             if(iswoody) then
-               cleafi_aux(1,k) = amax1(0.0, out_leaf(1))
+               cleafi_aux(k) = amax1(0.0, out_leaf)
                cawoodi_aux(k) = amax1(0.0, out_wood)
                cfrooti_aux(k) = amax1(0.0, out_root)
             else
-               cleafi_aux(1,k) = amax1(0.0, out_leaf(1))
+               cleafi_aux(k) = amax1(0.0, out_leaf)
                cfrooti_aux(k) = amax1(0.0, out_root)
                cawoodi_aux(k) = 0.0
             endif
@@ -742,10 +741,10 @@ contains
             kk =  floor(k*0.66)
             if(iswoody) then
                if((cfrooti_aux(k)/cfrooti_aux(kk).lt.sensitivity).and.&
-                    &(cleafi_aux(1,k)/cleafi_aux(1,kk).lt.sensitivity).and.&
+                    &(cleafi_aux(k)/cleafi_aux(kk).lt.sensitivity).and.&
                     &(cawoodi_aux(k)/cawoodi_aux(kk).lt.sensitivity)) then
 
-                  cleafini(1) = cleafi_aux(1,k) ! carbon content (kg m-2)
+                  cleafini = cleafi_aux(k) ! carbon content (kg m-2)
                   cfrootini = cfrooti_aux(k)
                   cawoodini = cawoodi_aux(k)
                   !  print *, 'woody exitet in', k
@@ -754,9 +753,9 @@ contains
             else
                if((cfrooti_aux(k)&
                     &/cfrooti_aux(kk).lt.sensitivity).and.&
-                    &(cleafi_aux(1,k)/cleafi_aux(1,kk).lt.sensitivity)) then
+                    &(cleafi_aux(k)/cleafi_aux(kk).lt.sensitivity)) then
 
-                  cleafini(1) = cleafi_aux(1,k) ! carbon content (kg m-2)
+                  cleafini = cleafi_aux(k) ! carbon content (kg m-2)
                   cfrootini = cfrooti_aux(k)
                   cawoodini = 0.0
                   !  print *, 'grass exitet in', k
@@ -788,19 +787,19 @@ contains
       real(kind=r_4) :: sensitivity
       real(kind=r_4) :: nppot2
       ! outputs
-      real(kind=r_4),dimension(3,npls),intent(out) :: cleafini
+      real(kind=r_4),dimension(npls),intent(out) :: cleafini
       real(kind=r_4),dimension(npls),intent(out) :: cfrootini
       real(kind=r_4),dimension(npls),intent(out) :: cawoodini
 
       ! more internal
-      real(kind=r_4),dimension(3,ntl) :: cleafi_aux
+      real(kind=r_4),dimension(ntl) :: cleafi_aux
       real(kind=r_4),dimension(ntl) :: cfrooti_aux
       real(kind=r_4),dimension(ntl) :: cawoodi_aux
 
-      real(kind=r_4),dimension(3) :: aux_leaf
+      real(kind=r_4) :: aux_leaf
       real(kind=r_4) :: aux_wood
       real(kind=r_4) :: aux_root
-      real(kind=r_4),dimension(3) :: out_leaf
+      real(kind=r_4) :: out_leaf
       real(kind=r_4) :: out_wood
       real(kind=r_4) :: out_root
 
@@ -827,25 +826,25 @@ contains
          iswoody = ((aawood(i6) .gt. 0.0) .and. (tawood(i6) .gt. 0.0))
          do k=1,ntl
             if (k .eq. 1) then
-               cleafi_aux (1,k) =  aleaf(i6) * nppot2
+               cleafi_aux (k) =  aleaf(i6) * nppot2
                cawoodi_aux(k) = aawood(i6) * nppot2
                cfrooti_aux(k) = afroot(i6) * nppot2
 
             else
-               aux_leaf(1) = cleafi_aux(1,k-1) + (aleaf(i6) * nppot2)
+               aux_leaf = cleafi_aux(k-1) + (aleaf(i6) * nppot2)
                aux_wood = cawoodi_aux(k-1) + (aleaf(i6) * nppot2)
                aux_root = cfrooti_aux(k-1) + (afroot(i6) * nppot2)
 
-               out_leaf(1) = aux_leaf(1) - (cleafi_aux(1,k-1) / tleaf(i6))
+               out_leaf = aux_leaf - (cleafi_aux(k-1) / tleaf(i6))
                out_wood = aux_wood - (cawoodi_aux(k-1) / tawood(i6))
                out_root = aux_root - (cfrooti_aux(k-1) / tfroot(i6))
 
                if(iswoody) then
-                  cleafi_aux(1,k) = amax1(0.0, out_leaf(1))
+                  cleafi_aux(k) = amax1(0.0, out_leaf)
                   cawoodi_aux(k) = amax1(0.0, out_wood)
                   cfrooti_aux(k) = amax1(0.0, out_root)
                else
-                  cleafi_aux(1,k) = amax1(0.0, out_leaf(1))
+                  cleafi_aux(k) = amax1(0.0, out_leaf)
                   cawoodi_aux(k) = 0.0
                   cfrooti_aux(k) = amax1(0.0, out_root)
                endif
@@ -853,10 +852,10 @@ contains
                kk =  floor(k*0.66)
                if(iswoody) then
                   if((cfrooti_aux(k)/cfrooti_aux(kk).lt.sensitivity).and.&
-                       &(cleafi_aux(1,k)/cleafi_aux(1,kk).lt.sensitivity).and.&
+                       &(cleafi_aux(k)/cleafi_aux(kk).lt.sensitivity).and.&
                        &(cawoodi_aux(k)/cawoodi_aux(kk).lt.sensitivity)) then
 
-                     cleafini(1,i6) = cleafi_aux(1,k) ! carbon content (kg m-2)
+                     cleafini(i6) = cleafi_aux(k) ! carbon content (kg m-2)
                      cfrootini(i6) = cfrooti_aux(k)
                      cawoodini(i6) = cawoodi_aux(k)
                      exit
@@ -864,9 +863,9 @@ contains
                else
                   if((cfrooti_aux(k)&
                        &/cfrooti_aux(kk).lt.sensitivity).and.&
-                       &(cleafi_aux(1,k)/cleafi_aux(1,kk).lt.sensitivity)) then
+                       &(cleafi_aux(k)/cleafi_aux(kk).lt.sensitivity)) then
 
-                     cleafini(1,i6) = cleafi_aux(1,k) ! carbon content (kg m-2)
+                     cleafini(i6) = cleafi_aux(k) ! carbon content (kg m-2)
                      cfrootini(i6) = cfrooti_aux(k)
                      cawoodini(i6) = 0.0
                      exit
@@ -881,7 +880,7 @@ contains
   !===================================================================
   !===================================================================
 
-   function m_resp(temp, ts,cl1_mr,cf1_mr,ca1_mr,&
+   function m_resp(temp,ts,cl1_mr,cf1_mr,ca1_mr,&
         & n2cl,n2cw,n2cf,aawood_mr) result(rm)
 
       use types, only: r_4,r_8
@@ -889,7 +888,7 @@ contains
       !implicit none
 
       real(r_4), intent(in) :: temp, ts
-      real(r_8), intent(in) :: cl1_mr
+      real(r_8),dimension(3),intent(in) :: cl1_mr
       real(r_8), intent(in) :: cf1_mr
       real(r_8), intent(in) :: ca1_mr
       real(r_8), intent(in) :: n2cl
@@ -898,6 +897,7 @@ contains
       real(r_8), intent(in) :: aawood_mr
       real(r_4) :: rm
 
+      real(r_8) :: cl_total
       real(r_8) :: csa, rm64, rml64
       real(r_8) :: rmf64, rms64
 
@@ -914,9 +914,11 @@ contains
          rms64 = 0.0
       endif
 
-      rml64 = ((n2cl * (cl1_mr * 1D3)) * 27.0D0 * dexp(0.07D0*temp))
+      cl_total = sum(cl1_mr(:))
 
-      rmf64 = ((n2cf * (cf1_mr * 1D3)) * 27.0D0 * dexp(0.07D0*ts))
+      rml64 = ((n2cl * (cl_total * 1D3)) * 27.0D0 * dexp(0.07D0*temp))
+
+      rmf64 = ((n2cf * (cl_total * 1D3)) * 27.0D0 * dexp(0.07D0*ts))
 
       rm64 = (rml64 + rmf64 + rms64) * 1D-3
 
@@ -1061,15 +1063,13 @@ contains
 
       integer(kind=i_4),parameter :: npft = npls ! plss futuramente serao
 
-      real(kind=r_8),dimension(3,npft),intent(in) :: cleaf1
-      real(kind=r_8),dimension(npft),intent(in) :: cfroot1, cawood1, awood
+      real(kind=r_8),dimension(npft),intent(in) :: cleaf1, cfroot1, cawood1, awood
       real(kind=r_8),dimension(npft),intent(out) :: ocp_coeffs
       logical(kind=l_1),dimension(npft),intent(out) :: ocp_wood
       integer(kind=i_4),dimension(npft),intent(out) :: run_pls
       real(kind=r_8), dimension(npls), intent(out) :: c_to_soil
       logical(kind=l_1),dimension(npft) :: is_living
-      real(kind=r_8),dimension(3,npft) :: cleaf
-      real(kind=r_8),dimension(npft) :: cawood, cfroot
+      real(kind=r_8),dimension(npft) :: cleaf, cawood, cfroot
       real(kind=r_8),dimension(npft) :: total_biomass_pft,total_w_pft
       integer(kind=i_4) :: p,i
       integer(kind=i_4),dimension(1) :: max_index
@@ -1099,18 +1099,16 @@ contains
 
       ! check for nan in cleaf cawood cfroot
       do p = 1,npft
-         if(isnan(cleaf(1,p))) cleaf(1,p) = 0.0D0
-         if(isnan(cleaf(2,p))) cleaf(2,p) = 0.0D0
-         if(isnan(cleaf(3,p))) cleaf(3,p) = 0.0D0
+         if(isnan(cleaf(p))) cleaf(p) = 0.0D0
          if(isnan(cfroot(p))) cfroot(p) = 0.0D0
          if(isnan(cawood(p))) cawood(p) = 0.0D0
       enddo
 
       do p = 1,npft
-         if(sum(cleaf(:,p)) .lt. cmin .and. cfroot(p) .lt. cmin) then
+         if(cleaf(p) .lt. cmin .and. cfroot(p) .lt. cmin) then
             is_living(p) = .false.
-            c_to_soil(p) = sum(cleaf(:,p)) + cawood(p) + cfroot(p)
-            cleaf(:,p) = 0.0D0
+            c_to_soil(p) = cleaf(p) + cawood(p) + cfroot(p)
+            cleaf(p) = 0.0D0
             cawood(p) = 0.0D0
             cfroot(p) = 0.0D0
          else
@@ -1120,7 +1118,7 @@ contains
       enddo
 
       do p = 1,npft
-         total_biomass_pft(p) = sum(cleaf(:,p)) + cfroot(p) + (sapwood * cawood(p)) ! only sapwood?
+         total_biomass_pft(p) = cleaf(p) + cfroot(p) + (sapwood * cawood(p)) ! only sapwood?
          total_biomass = total_biomass + total_biomass_pft(p)
          total_wood = total_wood + cawood(p)
          total_w_pft(p) = cawood(p)
