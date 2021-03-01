@@ -31,7 +31,6 @@ module photo
         f_four                 ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area         ,& ! (f), specific leaf area (m2 g-1)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
-        leaf_age_factor        ,& ! (f), effect of leaf age on photosynthetic rate
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
         stomatal_conductance   ,& ! (f), IN DEVELOPMENT - return stomatal conductance
@@ -80,10 +79,9 @@ contains
       real(r_8),intent(in) :: f1    !molCO2 m-2 s-1
       real(r_8),intent(in) :: cleaf !kgC m-2
       real(r_8),intent(in) :: sla   !m2 gC-1
-      real(r_8) :: ph
+      real(r_4) :: ph
 
-      real(r_8) :: f1in
-      real(r_8) :: f4sun 
+      real(r_8) :: f4sun, f1in
       real(r_8) :: f4shade
 
       f1in = f1
@@ -91,6 +89,7 @@ contains
       f4shade = f_four(2,cleaf,sla)
 
       ph = real((0.012D0*31557600.0D0*f1in*f4sun*f4shade), r_4)
+      if(ph .lt. 0.0) ph = 0.0
    end function gross_ph
 
    !=================================================================
@@ -244,19 +243,6 @@ contains
 
    ! =============================================================
    ! =============================================================
-
-   function leaf_age_factor(mu, acrit, a) result(fa)    ! based in Caldararu et al. 2018
-      use types
-
-      real(r_8), intent(in) :: mu, acrit, a
-      real(r_8) :: fa
-
-      fa = amin1(1.0, exp(mu * (acrit-a)))
-
-   end function
-
-   !=================================================================
-   !=================================================================
 
    function canopy_resistence(vpd_in,f1_in,g1,ca) result(rc2_in)
       ! return stomatal resistence based on Medlyn et al. 2011a
@@ -880,7 +866,7 @@ contains
   !===================================================================
   !===================================================================
 
-   function m_resp(temp,ts,cl1_mr,cf1_mr,ca1_mr,&
+   function m_resp(temp, ts,cl1_mr,cf1_mr,ca1_mr,&
         & n2cl,n2cw,n2cf,aawood_mr) result(rm)
 
       use types, only: r_4,r_8
@@ -888,7 +874,7 @@ contains
       !implicit none
 
       real(r_4), intent(in) :: temp, ts
-      real(r_8),dimension(3),intent(in) :: cl1_mr
+      real(r_8), intent(in) :: cl1_mr
       real(r_8), intent(in) :: cf1_mr
       real(r_8), intent(in) :: ca1_mr
       real(r_8), intent(in) :: n2cl
@@ -897,7 +883,6 @@ contains
       real(r_8), intent(in) :: aawood_mr
       real(r_4) :: rm
 
-      real(r_8) :: cl_total
       real(r_8) :: csa, rm64, rml64
       real(r_8) :: rmf64, rms64
 
@@ -914,11 +899,9 @@ contains
          rms64 = 0.0
       endif
 
-      cl_total = sum(cl1_mr(:))
+      rml64 = ((n2cl * (cl1_mr * 1D3)) * 27.0D0 * dexp(0.07D0*temp))
 
-      rml64 = ((n2cl * (cl_total * 1D3)) * 27.0D0 * dexp(0.07D0*temp))
-
-      rmf64 = ((n2cf * (cl_total * 1D3)) * 27.0D0 * dexp(0.07D0*ts))
+      rmf64 = ((n2cf * (cf1_mr * 1D3)) * 27.0D0 * dexp(0.07D0*ts))
 
       rm64 = (rml64 + rmf64 + rms64) * 1D-3
 
@@ -1063,13 +1046,15 @@ contains
 
       integer(kind=i_4),parameter :: npft = npls ! plss futuramente serao
 
-      real(kind=r_8),dimension(npft),intent(in) :: cleaf1, cfroot1, cawood1, awood
+      real(kind=r_8),dimension(3,npft),intent(in) :: cleaf1
+      real(kind=r_8),dimension(npft),intent(in) :: cfroot1, cawood1, awood
       real(kind=r_8),dimension(npft),intent(out) :: ocp_coeffs
       logical(kind=l_1),dimension(npft),intent(out) :: ocp_wood
       integer(kind=i_4),dimension(npft),intent(out) :: run_pls
       real(kind=r_8), dimension(npls), intent(out) :: c_to_soil
       logical(kind=l_1),dimension(npft) :: is_living
-      real(kind=r_8),dimension(npft) :: cleaf, cawood, cfroot
+      real(kind=r_8),dimension(3,npft) :: cleaf
+      real(kind=r_8),dimension(npft) :: cawood, cfroot
       real(kind=r_8),dimension(npft) :: total_biomass_pft,total_w_pft
       integer(kind=i_4) :: p,i
       integer(kind=i_4),dimension(1) :: max_index
@@ -1099,16 +1084,18 @@ contains
 
       ! check for nan in cleaf cawood cfroot
       do p = 1,npft
-         if(isnan(cleaf(p))) cleaf(p) = 0.0D0
+         if(isnan(cleaf(1,p))) cleaf(1,p) = 0.0D0
+         if(isnan(cleaf(2,p))) cleaf(2,p) = 0.0D0
+         if(isnan(cleaf(3,p))) cleaf(3,p) = 0.0D0
          if(isnan(cfroot(p))) cfroot(p) = 0.0D0
          if(isnan(cawood(p))) cawood(p) = 0.0D0
       enddo
 
       do p = 1,npft
-         if(cleaf(p) .lt. cmin .and. cfroot(p) .lt. cmin) then
+         if(sum(cleaf(:,p)) .lt. cmin .and. cfroot(p) .lt. cmin) then
             is_living(p) = .false.
-            c_to_soil(p) = cleaf(p) + cawood(p) + cfroot(p)
-            cleaf(p) = 0.0D0
+            c_to_soil(p) = sum(cleaf(:,p)) + cawood(p) + cfroot(p)
+            cleaf(:,p) = 0.0D0
             cawood(p) = 0.0D0
             cfroot(p) = 0.0D0
          else
@@ -1118,7 +1105,7 @@ contains
       enddo
 
       do p = 1,npft
-         total_biomass_pft(p) = cleaf(p) + cfroot(p) + (sapwood * cawood(p)) ! only sapwood?
+         total_biomass_pft(p) = sum(cleaf(:,p)) + cfroot(p) + (sapwood * cawood(p)) ! only sapwood?
          total_biomass = total_biomass + total_biomass_pft(p)
          total_wood = total_wood + cawood(p)
          total_w_pft(p) = cawood(p)
