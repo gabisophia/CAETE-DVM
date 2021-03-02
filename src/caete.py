@@ -225,6 +225,8 @@ class grd:
         self.swsoil = None
         self.rm = None
         self.rg = None
+        self.cleaf_aux = None
+        self.cltotal = None
         self.cleaf = None
         self.cawood = None
         self.cfroot = None
@@ -288,6 +290,8 @@ class grd:
         self.sp_sorganic_p = None
 
         # CVEG POOLS
+        self.vp_cleaf_aux = None
+        self.vp_cltotal = None
         self.vp_cleaf = None
         self.vp_croot = None
         self.vp_cwood = None
@@ -332,6 +336,7 @@ class grd:
         self.swsoil = np.zeros(shape=(n,), order='F')
         self.rm = np.zeros(shape=(n,), order='F')
         self.rg = np.zeros(shape=(n,), order='F')
+        self.cltotal = np.zeros(shape=(n,), order='F')
         self.cleaf = np.zeros(shape=(3,n), order='F')
         self.cawood = np.zeros(shape=(n,), order='F')
         self.cfroot = np.zeros(shape=(n,), order='F')
@@ -394,6 +399,7 @@ class grd:
                      'swsoil': self.swsoil,
                      'rm': self.rm,
                      'rg': self.rg,
+                     'cltotal': self.cltotal,
                      'cleaf': self.cleaf,
                      'cawood': self.cawood,
                      'cfroot': self.cfroot,
@@ -442,6 +448,7 @@ class grd:
         self.swsoil = None
         self.rm = None
         self.rg = None
+        self.cltotal = None
         self.cleaf = None
         self.cawood = None
         self.cfroot = None
@@ -527,6 +534,7 @@ class grd:
         self.pls_table = pls_table.copy()
         self.neighbours = neighbours_index(self.pos, mask)
         self.soil_temp = st.soil_temp_sub(self.tas[:1095] - 273.15)
+        self.cltotal = sum(self.cleaf[:])
 
         # Prepare co2 inputs (we have annually means)
         self.co2_data = copy.deepcopy(co2)
@@ -556,10 +564,10 @@ class grd:
             self.wp_sat_water_upper_mm + self.wp_sat_water_lower_mm)
 
         # start biomass
-        self.vp_cleaf, self.vp_croot, self.vp_cwood = m.spinup2(
+        self.vp_cleaf_aux, self.vp_croot, self.vp_cwood = m.spinup2(
             1.0, self.pls_table)
         a, b, c, d = m.pft_area_frac(
-            self.vp_cleaf, self.vp_croot, self.vp_cwood, self.pls_table[6, :])
+            self.vp_cltotal, self.vp_croot, self.vp_cwood, self.pls_table[6, :])
         self.vp_lsid = np.where(a > 0.0)[0]
         del a, b, c, d
         self.vp_dcl = np.zeros(shape=(3, npls), order='F')
@@ -807,6 +815,16 @@ class grd:
                     cleaf[:,n] = self.vp_cleaf[:,c]
                     cwood[n] = self.vp_cwood[c]
                     croot[n] = self.vp_croot[c]
+                    if step == lb: #first day: leaf carbon from spinup to young leaves
+                        cleaf[1,n] = self.vp_cleaf_aux[c]
+                        cwood[n] = self.vp_cwood[c]
+                        croot[n] = self.vp_croot[c]
+                    else: #cleaf in each cohort calculated by allometric restrictions
+                        cleaf[:,n] = self.vp_cleaf[:,c]
+                        cwood[n] = self.vp_cwood[c]
+                        croot[n] = self.vp_croot[c]
+                        #print('lb dif. 0','csap 1=',csap[n],'cheart 1=',cheart[n],'cwood 1=', cwood[n],'n',n)
+
                     dcl[:,n] = self.vp_dcl[:,c]
                     dca[n] = self.vp_dca[c]
                     dcf[n] = self.vp_dcf[c]
