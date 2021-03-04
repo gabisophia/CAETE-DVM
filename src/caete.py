@@ -290,7 +290,7 @@ class grd:
         self.sp_sorganic_p = None
 
         # CVEG POOLS
-        self.vp_cleafaux
+        self.vp_cleafaux = None
         self.vp_cltotal = None
         self.vp_cleaf = None
         self.vp_croot = None
@@ -568,7 +568,7 @@ class grd:
 #        self.vp_cleaf[3] = 0.3
 #        self.vp_cltotal = sum(self.vp_cleaf[:])
 
-        self.vp_cltotal, self.vp_croot, self.vp_cwood = m.spinup2(
+        self.vp_cleafaux, self.vp_croot, self.vp_cwood = m.spinup2(
             1.0, self.pls_table)
         a, b, c, d = m.pft_area_frac(
             self.vp_cleaf, self.vp_croot, self.vp_cwood, self.pls_table[6, :])
@@ -816,18 +816,19 @@ class grd:
                 assert self.vp_lsid.size == self.vp_cleaf.size, 'different shapes'
                 c = 0
                 for n in self.vp_lsid:
-                   # cleaf[:,n] = self.vp_cleaf[:,c]
-                   # cwood[n] = self.vp_cwood[c]
-                   # croot[n] = self.vp_croot[c]
-                   # if step == lb: #first day: leaf carbon from spinup to young leaves
-                   #     cleaf[1,n] = self.vp_cleaf_aux[c]
-                   #     cwood[n] = self.vp_cwood[c]
-                   #     croot[n] = self.vp_croot[c]
-                   # else: #cleaf in each cohort calculated by allometric restrictions
                     cleaf[:,n] = self.vp_cleaf[:,c]
-                    print('cleaf 1=', cleaf[1,n], 'cleaf 2=', cleaf[2,n], 'cleaf 3=', cleaf[3,n])
                     cwood[n] = self.vp_cwood[c]
-                    croot[n] = self.vp_croot[c]    
+                    croot[n] = self.vp_croot[c]
+                    if step == lb: #first day: leaf carbon from spinup to young leaves
+                        cleaf[1,n] = self.vp_cleaf_aux[c]
+                        cwood[n] = self.vp_cwood[c]
+                        croot[n] = self.vp_croot[c]
+                    else: #cleaf in each cohort calculated by allometric restrictions
+                        cleaf[:,n] = self.vp_cleaf[:,c]
+                    #   print('cleaf 1=', cleaf[1,n], 'cleaf 2=', cleaf[2,n], 'cleaf 3=', cleaf[3,n])
+                        cwood[n] = self.vp_cwood[c]
+                        croot[n] = self.vp_croot[c]   
+
                     dcl[:,n] = self.vp_dcl[:,c]
                     dca[n] = self.vp_dca[c]
                     dcf[n] = self.vp_dcf[c]

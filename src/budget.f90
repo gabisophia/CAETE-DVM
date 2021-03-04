@@ -167,7 +167,7 @@ contains
       real(r_8),dimension(:,:),allocatable :: storage_out_bdgt ! d0 = 3
 
       integer(i_2),dimension(:,:),allocatable   :: limitation_status ! D0=3
-      integer(i_4), dimension(:, :),allocatable :: uptk_strat        ! D0=2
+      integer(i_4), dimension(:,:),allocatable :: uptk_strat        ! D0=2
       INTEGER(i_4), dimension(:), allocatable :: lp ! index of living PLSs
 
       real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs
