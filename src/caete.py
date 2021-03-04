@@ -563,11 +563,6 @@ class grd:
             self.wp_sat_water_upper_mm + self.wp_sat_water_lower_mm)
 
         # start biomass
-#        self.vp_cleaf[1] = 0.2
-#        self.vp_cleaf[2] = 0.4
-#        self.vp_cleaf[3] = 0.3
-#        self.vp_cltotal = sum(self.vp_cleaf[:])
-
         self.vp_cleafaux, self.vp_croot, self.vp_cwood = m.spinup2(
             1.0, self.pls_table)
         a, b, c, d = m.pft_area_frac(
