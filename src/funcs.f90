@@ -46,6 +46,7 @@ module photo
         spinup3                ,& ! (s), SPINUP function to check the viability of Allocation/residence time combinations
         g_resp                 ,& ! (f), growth Respiration (kg m-2 yr-1)
         pft_area_frac          ,& ! (s), area fraction by biomass
+        pft_area_frac_start    ,& ! (s), area fraction by biomass to the beginning of the vegetation
         water_ue               ,&
         leap
 
@@ -1088,7 +1089,6 @@ contains
          endif
       enddo
 
-
       do p = 1,npft
          total_w_pft(p) = 0.0D0
          total_biomass_pft(p) = 0.0D0
@@ -1166,6 +1166,119 @@ contains
       endif
 
    end subroutine pft_area_frac
+
+   !====================================================================
+   !====================================================================
+
+   subroutine pft_area_frac_start(cleaf1, cfroot1, cawood1, awood,&
+                          & ocp_coeffs, ocp_wood, run_pls, c_to_soil)
+      use types, only: l_1, i_4, r_8
+      use global_par, only: npls, cmin, sapwood
+      !implicit none
+
+      integer(kind=i_4),parameter :: npft = npls ! plss futuramente serao
+
+      real(kind=r_8),dimension(npft),intent( in) :: cleaf1, cfroot1, cawood1, awood
+      real(kind=r_8),dimension(npft),intent(out) :: ocp_coeffs
+      logical(kind=l_1),dimension(npft),intent(out) :: ocp_wood
+      integer(kind=i_4),dimension(npft),intent(out) :: run_pls
+      real(kind=r_8), dimension(npls), intent(out) :: c_to_soil
+      logical(kind=l_1),dimension(npft) :: is_living
+      real(kind=r_8),dimension(npft) :: cleaf, cawood, cfroot
+      real(kind=r_8),dimension(npft) :: total_biomass_pft,total_w_pft
+      integer(kind=i_4) :: p,i
+      integer(kind=i_4),dimension(1) :: max_index
+      real(kind=r_8) :: total_biomass, total_wood
+      integer(kind=i_4) :: five_percent
+
+      total_biomass = 0.0D0
+      total_wood = 0.0D0
+
+      cleaf = cleaf1
+      cfroot = cfroot1
+      cawood = cawood1
+
+      do p = 1, npft
+         if(awood(p) .le. 0.0D0) then
+            cawood(p) = 0.0D0
+         endif
+      enddo
+
+      do p = 1,npft
+         total_w_pft(p) = 0.0D0
+         total_biomass_pft(p) = 0.0D0
+         ocp_coeffs(p) = 0.0D0
+         ocp_wood(p) = .false.
+      enddo
+
+      ! check for nan in cleaf cawood cfroot
+      do p = 1,npft
+         if(isnan(cleaf(p))) cleaf(p) = 0.0D0
+         if(isnan(cfroot(p))) cfroot(p) = 0.0D0
+         if(isnan(cawood(p))) cawood(p) = 0.0D0
+      enddo
+
+      do p = 1,npft
+         if(cleaf(p) .lt. cmin .and. cfroot(p) .lt. cmin) then
+            is_living(p) = .false.
+            c_to_soil(p) = cleaf(p) + cawood(p) + cfroot(p)
+            cleaf(p) = 0.0D0
+            cawood(p) = 0.0D0
+            cfroot(p) = 0.0D0
+         else
+            is_living(p) = .true.
+            c_to_soil(p) = 0.0D0
+         endif
+      enddo
+
+      do p = 1,npft
+         total_biomass_pft(p) = cleaf(p) + cfroot(p) + (sapwood * cawood(p)) ! only sapwood?
+         total_biomass = total_biomass + total_biomass_pft(p)
+         total_wood = total_wood + cawood(p)
+         total_w_pft(p) = cawood(p)
+      enddo
+
+      !     grid cell occupation coefficients
+      if(total_biomass .gt. 0.0D0) then
+         do p = 1,npft
+            ocp_coeffs(p) = total_biomass_pft(p) / total_biomass
+            if(ocp_coeffs(p) .lt. 0.0D0) ocp_coeffs(p) = 0.0D0
+
+            if(ocp_coeffs(p) .gt. 0.0D0 .and. is_living(p)) then
+               run_pls(p) = 1
+            else
+               run_pls(p) = 0
+            endif
+            !if(isnan(ocp_coeffs(p))) ocp_coeffs(p) = 0.0
+         enddo
+      else
+         do p = 1,npft
+            ocp_coeffs(p) = 0.0D0
+            run_pls(p) = 0
+         enddo
+      endif
+
+      !     gridcell pft ligth limitation by wood content
+      five_percent = nint(real(npft) * 0.05)
+      if(five_percent .eq. 0) five_percent = 1
+      if(five_percent .eq. 1) then
+         if(total_wood .gt. 0.0) then
+            max_index = maxloc(total_w_pft)
+            i = max_index(1)
+            ocp_wood(i) = .true.
+         endif
+      else
+         do p = 1,five_percent
+            if(total_wood .gt. 0.0D0) then
+               max_index = maxloc(total_w_pft)
+               i = max_index(1)
+               total_w_pft(i) = 0.0D0
+               ocp_wood(i) = .true.
+            endif
+         enddo
+      endif
+
+   end subroutine pft_area_frac_start
 
    !====================================================================
    !====================================================================

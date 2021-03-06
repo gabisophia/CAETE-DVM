@@ -231,22 +231,22 @@ contains
       allocate(c_def(nlen))
       allocate(vcmax(nlen))
       allocate(specific_la(nlen))
-      allocate(storage_out_bdgt(3, nlen))
+      allocate(storage_out_bdgt(3,nlen))
       allocate(tra(nlen))
       allocate(nupt(2, nlen))
       allocate(pupt(3, nlen))
       allocate(litter_l(nlen))
       allocate(cwd(nlen))
       allocate(litter_fr(nlen))
-      allocate(lit_nut_content(6, nlen))
-      allocate(delta_cveg(3, nlen))
+      allocate(lit_nut_content(6,nlen))
+      allocate(delta_cveg(3,nlen))
       allocate(npp2pay(nlen))
       allocate(limitation_status(3,nlen))
       allocate(uptk_strat(2,nlen))
-      allocate(cl1_int(3, nlen))
+      allocate(cl1_int(3,nlen))
       allocate(cf1_int(nlen))
       allocate(ca1_int(nlen))
-      allocate(cl2(3, nlen))
+      allocate(cl2(3,nlen))
       allocate(cf2(nlen))
       allocate(ca2(nlen))
       allocate(day_storage(3,nlen))
@@ -312,7 +312,7 @@ contains
             &, mineral_n,labile_p, on, sop, op, cl1_pft(:,ri),ca1_pft(ri)&
             &, cf1_pft(ri),storage_out_bdgt(:,p),day_storage(:,p),cl2(:,p),ca2(p)&
             &, cf2(p),litter_l(p),cwd(p), litter_fr(p),nupt(:,p),pupt(:,p)&
-            &, lit_nut_content(:,p), limitation_status(:,p), npp2pay(p), uptk_strat(:, p))
+            &, lit_nut_content(:,p), limitation_status(:,p), npp2pay(p), uptk_strat(:,p))
 
          ! Estimate growth of storage C pool
          ! print*, uptk_strat(:,p)
@@ -341,6 +341,7 @@ contains
             cue(p) = nppa(p)/ph(p)
          endif
 
+         !ARRUMAR!!!!!!!!
          delta_cveg(1,p) = sum(cl2(:,p)) - sum(cl1_pft(:,ri))  !kg m-2
          if(dt1(4) .le. 0) then
             delta_cveg(2,p) = 0.0D0
@@ -459,8 +460,8 @@ contains
       cleafavg_pft(:,:) = 0.0D0
       cawoodavg_pft(:) = 0.0D0
       cfrootavg_pft(:) = 0.0D0
-      delta_cveg_1(:, :) = 0.0D0
-      storage_out_bdgt_1(:, :) = 0.0D0
+      delta_cveg_1(:,:) = 0.0D0
+      storage_out_bdgt_1(:,:) = 0.0D0
       limitation_status_1(:,:) = 0
       uptk_strat_1(:,:) = 0
       npp2pay_1(:) = 0.0

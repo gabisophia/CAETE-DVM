@@ -565,8 +565,8 @@ class grd:
         # start biomass
         self.vp_cleafaux, self.vp_croot, self.vp_cwood = m.spinup2(
             1.0, self.pls_table)
-        a, b, c, d = m.pft_area_frac(
-            self.vp_cleaf, self.vp_croot, self.vp_cwood, self.pls_table[6, :])
+        a, b, c, d = m.pft_area_frac_start(
+            self.vp_cleafaux, self.vp_croot, self.vp_cwood, self.pls_table[6, :])
         self.vp_lsid = np.where(a > 0.0)[0]
         del a, b, c, d
         self.vp_dcl = np.zeros(shape=(3, npls), order='F')
@@ -810,12 +810,12 @@ class grd:
                 # Just Check the integrity of the data
                 assert self.vp_lsid.size == self.vp_cleaf.size, 'different shapes'
                 c = 0
-                for n in self.vp_lsid:
-                    cleaf[:,n] = self.vp_cleaf[:,c]
-                    cwood[n] = self.vp_cwood[c]
-                    croot[n] = self.vp_croot[c]
-                    if step == lb: #first day: leaf carbon from spinup to young leaves
-                        cleaf[1,n] = self.vp_cleaf_aux[c]
+                
+                for n in self.vp_lsid: 
+                    if step == 0: #first day: leaf carbon from spinup
+                        cleaf[0,n] = self.vp_cleafaux[c]/3
+                        cleaf[1,n] = self.vp_cleafaux[c]/3
+                        cleaf[2,n] = self.vp_cleafaux[c]/3
                         cwood[n] = self.vp_cwood[c]
                         croot[n] = self.vp_croot[c]
                     else: #cleaf in each cohort calculated by allometric restrictions
@@ -823,12 +823,11 @@ class grd:
                     #   print('cleaf 1=', cleaf[1,n], 'cleaf 2=', cleaf[2,n], 'cleaf 3=', cleaf[3,n])
                         cwood[n] = self.vp_cwood[c]
                         croot[n] = self.vp_croot[c]   
-
-                    dcl[:,n] = self.vp_dcl[:,c]
-                    dca[n] = self.vp_dca[c]
-                    dcf[n] = self.vp_dcf[c]
-                    uptk_costs[n] = self.sp_uptk_costs[c]
-                    c += 1
+                        dcl[:,n] = self.vp_dcl[:,c]
+                        dca[n] = self.vp_dca[c]
+                        dcf[n] = self.vp_dcf[c]
+                        uptk_costs[n] = self.sp_uptk_costs[c]
+                        c += 1
                 ton = self.sp_organic_n + self.sp_sorganic_n
                 top = self.sp_organic_p + self.sp_sorganic_p
                 out = model.daily_budget(self.pls_table, self.wp_water_upper_mm, self.wp_water_lower_mm,
