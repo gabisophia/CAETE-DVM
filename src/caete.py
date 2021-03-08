@@ -226,7 +226,6 @@ class grd:
         self.rm = None
         self.rg = None
         self.cleafaux = None
-        self.cltotal = None
         self.cleaf = None
         self.cawood = None
         self.cfroot = None
@@ -291,7 +290,6 @@ class grd:
 
         # CVEG POOLS
         self.vp_cleafaux = None
-        self.vp_cltotal = None
         self.vp_cleaf = None
         self.vp_croot = None
         self.vp_cwood = None
@@ -336,7 +334,6 @@ class grd:
         self.swsoil = np.zeros(shape=(n,), order='F')
         self.rm = np.zeros(shape=(n,), order='F')
         self.rg = np.zeros(shape=(n,), order='F')
-        self.cltotal = np.zeros(shape=(n,), order='F')
         self.cleaf = np.zeros(shape=(3,n), order='F')
         self.cawood = np.zeros(shape=(n,), order='F')
         self.cfroot = np.zeros(shape=(n,), order='F')
@@ -399,7 +396,6 @@ class grd:
                      'swsoil': self.swsoil,
                      'rm': self.rm,
                      'rg': self.rg,
-                     'cltotal': self.cltotal,
                      'cleaf': self.cleaf,
                      'cawood': self.cawood,
                      'cfroot': self.cfroot,
@@ -448,7 +444,6 @@ class grd:
         self.swsoil = None
         self.rm = None
         self.rg = None
-        self.cltotal = None
         self.cleaf = None
         self.cawood = None
         self.cfroot = None
@@ -807,6 +802,15 @@ class grd:
                 sto[0, self.vp_lsid] = self.vp_sto[0, :]
                 sto[1, self.vp_lsid] = self.vp_sto[1, :]
                 sto[2, self.vp_lsid] = self.vp_sto[2, :]
+
+#                cleaf[0, self.vp_lsid] = self.vp_cleaf[0, :]
+#                cleaf[1, self.vp_lsid] = self.vp_cleaf[1, :]
+#                cleaf[2, self.vp_lsid] = self.vp_cleaf[2, :]
+#
+#                dcl[0, self.vp_lsid] = self.vp_dcl[0, :]
+#                dcl[1, self.vp_lsid] = self.vp_dcl[1, :]
+#                dcl[2, self.vp_lsid] = self.vp_dcl[2, :]
+
                 # Just Check the integrity of the data
                 assert self.vp_lsid.size == self.vp_cleaf.size, 'different shapes'
                 c = 0
@@ -1095,7 +1099,7 @@ class grd:
         lnco = []
 
         sto = self.vp_sto
-        cleaf = self.vp_cleaf
+        cleaf = self.vp_cleafaux
         cwood = self.vp_cwood
         croot = self.vp_croot
         dcl = self.vp_dcl

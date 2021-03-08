@@ -1178,7 +1178,7 @@ contains
 
       integer(kind=i_4),parameter :: npft = npls ! plss futuramente serao
 
-      real(kind=r_8),dimension(npft),intent( in) :: cleaf1, cfroot1, cawood1, awood
+      real(kind=r_8),dimension(npft),intent(in) :: cleaf1, cfroot1, cawood1, awood
       real(kind=r_8),dimension(npft),intent(out) :: ocp_coeffs
       logical(kind=l_1),dimension(npft),intent(out) :: ocp_wood
       integer(kind=i_4),dimension(npft),intent(out) :: run_pls

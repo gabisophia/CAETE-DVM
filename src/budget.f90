@@ -58,7 +58,6 @@ contains
       real(r_8),intent(in) :: on, sop, op          ! Organic N, isoluble inorganic P, Organic P g m-2
       real(r_8),intent(in) :: catm, wmax_in                 ! ATM CO2 concentration ppm
 
-
       real(r_8),dimension(3,npls),intent(in)  :: sto_budg_in ! Rapid Storage Pool (C,N,P)  g m-2
       real(r_8),dimension(3,npls),intent(in) :: cl1_in  ! initial BIOMASS cleaf compartment kgm-2
       real(r_8),dimension(npls),intent(in) :: cf1_in  !                 froot
@@ -173,6 +172,8 @@ contains
       real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs
       real(r_8), dimension(3,npls) :: sto_budg
       real(r_8) :: soil_sat
+
+
       !     START
       !     --------------
       !     Grid cell area fraction 0-1
@@ -271,6 +272,7 @@ contains
          sr = 0.0D0
          ri = lp(p)
          dt1 = dt(:,ri) ! Pick up the pls functional attributes list
+
 
          ! GABI hydro
          call prod(dt1, ocp_wood(ri),catm, temp, soil_temp, p0, w, ipar, rh, emax&
