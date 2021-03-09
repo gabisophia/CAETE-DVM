@@ -31,7 +31,7 @@ contains
         &, laiavg, rcavg, f5avg, rmavg, rgavg, cleafavg_pft, cawoodavg_pft&
         &, cfrootavg_pft, storage_out_bdgt_1, ocpavg, wueavg, cueavg, c_defavg&
         &, vcmax_1, specific_la_1, nupt_1, pupt_1, litter_l_1, cwd_1, litter_fr_1, npp2pay_1, lit_nut_content_1&
-        &, delta_cveg_1, limitation_status_1, uptk_strat_1, cp)
+        &, delta_cveg_1, delta_cveg_2, delta_cveg_3, limitation_status_1, uptk_strat_1, cp)
 
 
       use types
@@ -97,6 +97,8 @@ contains
       real(r_8),dimension(npls),intent(out) :: cfrootavg_pft  !
       real(r_8),dimension(npls),intent(out) :: ocpavg         ! [0-1] Gridcell occupation
       real(r_8),dimension(3,npls),intent(out) :: delta_cveg_1
+      real(r_8),dimension(npls),intent(out) :: delta_cveg_2
+      real(r_8),dimension(npls),intent(out) :: delta_cveg_3
       real(r_8),dimension(3,npls),intent(out) :: storage_out_bdgt_1
       integer(i_2),dimension(3,npls),intent(out) :: limitation_status_1
       integer(i_4),dimension(2,npls),intent(out) :: uptk_strat_1
@@ -162,7 +164,9 @@ contains
       real(r_8),dimension(:),allocatable   :: litter_fr        ! g m-2
       real(r_8),dimension(:),allocatable   :: npp2pay          ! G M-2
       real(r_8),dimension(:,:),allocatable :: lit_nut_content  ! d0=6 g(Nutrient)m-2 ! Lit_nut_content variables         [(lln),(rln),(cwdn),(llp),(rl),(cwdp)]
-      real(r_8),dimension(:,:),allocatable :: delta_cveg       ! d0 = 3
+      real(r_8),dimension(:,:),allocatable :: delta_cvegl       ! d0 = 3
+      real(r_8),dimension(:),allocatable :: delta_cvega       ! 
+      real(r_8),dimension(:),allocatable :: delta_cvegf       ! 
       real(r_8),dimension(:,:),allocatable :: storage_out_bdgt ! d0 = 3
 
       integer(i_2),dimension(:,:),allocatable   :: limitation_status ! D0=3
@@ -240,7 +244,9 @@ contains
       allocate(cwd(nlen))
       allocate(litter_fr(nlen))
       allocate(lit_nut_content(6,nlen))
-      allocate(delta_cveg(3,nlen))
+      allocate(delta_cvegl(3,nlen))
+      allocate(delta_cvega(nlen))
+      allocate(delta_cvegf(nlen))
       allocate(npp2pay(nlen))
       allocate(limitation_status(3,nlen))
       allocate(uptk_strat(2,nlen))
@@ -344,13 +350,15 @@ contains
          endif
 
          !ARRUMAR!!!!!!!!
-         delta_cveg(1,p) = sum(cl2(:,p)) - sum(cl1_pft(:,ri))  !kg m-2
+         delta_cvegl(1,p) = cl2(1,p) - cl1_pft(1,ri)  !kg m-2
+         delta_cvegl(2,p) = cl2(2,p) - cl1_pft(2,ri)  !kg m-2
+         delta_cvegl(3,p) = cl2(3,p) - cl1_pft(3,ri)  !kg m-2
          if(dt1(4) .le. 0) then
-            delta_cveg(2,p) = 0.0D0
+            delta_cvega(p) = 0.0D0
          else
-            delta_cveg(2,p) = ca2(p) - ca1_pft(ri)
+            delta_cvega(p) = ca2(p) - ca1_pft(ri)
          endif
-         delta_cveg(3,p) = cf2(p) - cf1_pft(ri)
+         delta_cvegf(p) = cf2(p) - cf1_pft(ri)
 
          ! Mass Balance
 
@@ -463,6 +471,8 @@ contains
       cawoodavg_pft(:) = 0.0D0
       cfrootavg_pft(:) = 0.0D0
       delta_cveg_1(:,:) = 0.0D0
+      delta_cveg_2(:) = 0.0D0
+      delta_cveg_3(:) = 0.0D0
       storage_out_bdgt_1(:,:) = 0.0D0
       limitation_status_1(:,:) = 0
       uptk_strat_1(:,:) = 0
@@ -554,7 +564,9 @@ contains
          cleafavg_pft(:,ri)  = cl1_int(:,p)
          cawoodavg_pft(ri) = ca1_int(p)
          cfrootavg_pft(ri) = cf1_int(p)
-         delta_cveg_1(:,ri) = delta_cveg(:,p)
+         delta_cveg_1(:,ri) = delta_cvegl(:,p)
+         delta_cveg_2(ri) = delta_cvega(p)
+         delta_cveg_3(ri) = delta_cvegf(p)
          storage_out_bdgt_1(:,ri) = storage_out_bdgt(:,p)
          limitation_status_1(:,ri) = limitation_status(:,p)
          uptk_strat_1(:,ri) = uptk_strat(:,p)
@@ -594,7 +606,9 @@ contains
       deallocate(cwd)
       deallocate(litter_fr)
       deallocate(lit_nut_content)
-      deallocate(delta_cveg)
+      deallocate(delta_cvegl)
+      deallocate(delta_cvega)
+      deallocate(delta_cvegf)
       deallocate(npp2pay)
       deallocate(limitation_status)
       deallocate(uptk_strat)

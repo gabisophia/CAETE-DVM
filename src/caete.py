@@ -98,8 +98,8 @@ def catch_out_budget(out):
     lst = ["evavg", "epavg", "phavg", "aravg", "nppavg",
            "laiavg", "rcavg", "f5avg", "rmavg", "rgavg", "cleafavg_pft", "cawoodavg_pft",
            "cfrootavg_pft", "stodbg", "ocpavg", "wueavg", "cueavg", "c_defavg", "vcmax",
-           "specific_la", "nupt", "pupt", "litter_l", "cwd", "litter_fr", "npp2pay", "lnc", "delta_cveg",
-           "limitation_status", "uptk_strat", 'cp']
+           "specific_la", "nupt", "pupt", "litter_l", "cwd", "litter_fr", "npp2pay", "lnc", "delta_cvegl",
+           "delta_cvega", "delta_cvegf", "limitation_status", "uptk_strat", 'cp']
 
     return dict(zip(lst, out))
 
@@ -803,13 +803,13 @@ class grd:
                 sto[1, self.vp_lsid] = self.vp_sto[1, :]
                 sto[2, self.vp_lsid] = self.vp_sto[2, :]
 
-#                cleaf[0, self.vp_lsid] = self.vp_cleaf[0, :]
-#                cleaf[1, self.vp_lsid] = self.vp_cleaf[1, :]
-#                cleaf[2, self.vp_lsid] = self.vp_cleaf[2, :]
-#
-#                dcl[0, self.vp_lsid] = self.vp_dcl[0, :]
-#                dcl[1, self.vp_lsid] = self.vp_dcl[1, :]
-#                dcl[2, self.vp_lsid] = self.vp_dcl[2, :]
+                cleaf[0, self.vp_lsid] = self.vp_cleaf[0, :]
+                cleaf[1, self.vp_lsid] = self.vp_cleaf[1, :]
+                cleaf[2, self.vp_lsid] = self.vp_cleaf[2, :]
+
+                dcl[0, self.vp_lsid] = self.vp_dcl[0, :]
+                dcl[1, self.vp_lsid] = self.vp_dcl[1, :]
+                dcl[2, self.vp_lsid] = self.vp_dcl[2, :]
 
                 # Just Check the integrity of the data
                 assert self.vp_lsid.size == self.vp_cleaf.size, 'different shapes'
@@ -823,7 +823,8 @@ class grd:
                         cwood[n] = self.vp_cwood[c]
                         croot[n] = self.vp_croot[c]
                     else: #cleaf in each cohort calculated by allometric restrictions
-                        cleaf[:,n] = self.vp_cleaf[:,c]
+                    #    cleaf[:,n] = self.vp_cleaf[:,c]
+                        cleaf[:,n] = 0.3
                     #   print('cleaf 1=', cleaf[1,n], 'cleaf 2=', cleaf[2,n], 'cleaf 3=', cleaf[3,n])
                         cwood[n] = self.vp_cwood[c]
                         croot[n] = self.vp_croot[c]   
@@ -831,7 +832,7 @@ class grd:
                         dca[n] = self.vp_dca[c]
                         dcf[n] = self.vp_dcf[c]
                         uptk_costs[n] = self.sp_uptk_costs[c]
-                        c += 1
+                    c += 1
                 ton = self.sp_organic_n + self.sp_sorganic_n
                 top = self.sp_organic_p + self.sp_sorganic_p
                 out = model.daily_budget(self.pls_table, self.wp_water_upper_mm, self.wp_water_lower_mm,
@@ -857,9 +858,9 @@ class grd:
                 self.vp_cleaf = daily_output['cleafavg_pft'][:, self.vp_lsid]
                 self.vp_cwood = daily_output['cawoodavg_pft'][self.vp_lsid]
                 self.vp_croot = daily_output['cfrootavg_pft'][self.vp_lsid]
-                self.vp_dcl = daily_output['delta_cveg'][0][:, self.vp_lsid]
-                self.vp_dca = daily_output['delta_cveg'][1][self.vp_lsid]
-                self.vp_dcf = daily_output['delta_cveg'][2][self.vp_lsid]
+                self.vp_dcl = daily_output['delta_cvegl'][:, self.vp_lsid]
+                self.vp_dca = daily_output['delta_cvega'][self.vp_lsid]
+                self.vp_dcf = daily_output['delta_cvegf'][self.vp_lsid]
                 self.vp_sto = daily_output['stodbg'][:, self.vp_lsid]
                 self.sp_uptk_costs = daily_output['npp2pay'][self.vp_lsid]
 
@@ -1099,7 +1100,7 @@ class grd:
         lnco = []
 
         sto = self.vp_sto
-        cleaf = self.vp_cleafaux
+        cleaf = self.vp_cleaf
         cwood = self.vp_cwood
         croot = self.vp_croot
         dcl = self.vp_dcl
