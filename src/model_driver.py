@@ -101,7 +101,7 @@ if sombrero:
 
 else:
     grid_mn = []
-    for Y in range(168, 171):
+    for Y in range(168, 169):
         for X in range(225, 228):
             if not mask[Y, X]:
                 grid_mn.append(grd(X, Y))
