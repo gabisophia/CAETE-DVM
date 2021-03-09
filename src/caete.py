@@ -98,8 +98,8 @@ def catch_out_budget(out):
     lst = ["evavg", "epavg", "phavg", "aravg", "nppavg",
            "laiavg", "rcavg", "f5avg", "rmavg", "rgavg", "cleafavg_pft", "cawoodavg_pft",
            "cfrootavg_pft", "stodbg", "ocpavg", "wueavg", "cueavg", "c_defavg", "vcmax",
-           "specific_la", "nupt", "pupt", "litter_l", "cwd", "litter_fr", "npp2pay", "lnc", "delta_cvegl",
-           "delta_cvega", "delta_cvegf", "limitation_status", "uptk_strat", 'cp']
+           "specific_la", "nupt", "pupt", "litter_l", "cwd", "litter_fr", "npp2pay", "lnc", "delta_cveg",
+           "limitation_status", "uptk_strat", 'cp']
 
     return dict(zip(lst, out))
 
@@ -225,7 +225,6 @@ class grd:
         self.swsoil = None
         self.rm = None
         self.rg = None
-        self.cleafaux = None
         self.cleaf = None
         self.cawood = None
         self.cfroot = None
@@ -289,7 +288,6 @@ class grd:
         self.sp_sorganic_p = None
 
         # CVEG POOLS
-        self.vp_cleafaux = None
         self.vp_cleaf = None
         self.vp_croot = None
         self.vp_cwood = None
@@ -334,7 +332,7 @@ class grd:
         self.swsoil = np.zeros(shape=(n,), order='F')
         self.rm = np.zeros(shape=(n,), order='F')
         self.rg = np.zeros(shape=(n,), order='F')
-        self.cleaf = np.zeros(shape=(3,n), order='F')
+        self.cleaf = np.zeros(shape=(3, n), order='F')
         self.cawood = np.zeros(shape=(n,), order='F')
         self.cfroot = np.zeros(shape=(n,), order='F')
         self.area = np.zeros(shape=(npls, n))
@@ -558,17 +556,22 @@ class grd:
             self.wp_sat_water_upper_mm + self.wp_sat_water_lower_mm)
 
         # start biomass
-        self.vp_cleafaux, self.vp_croot, self.vp_cwood = m.spinup2(
+        self.vp_cleaf = np.zeros(shape=(3, npls), order='F')
+        cleafaux, self.vp_croot, self.vp_cwood = m.spinup2(
             1.0, self.pls_table)
-        a, b, c, d = m.pft_area_frac_start(
-            self.vp_cleafaux, self.vp_croot, self.vp_cwood, self.pls_table[6, :])
+        self.vp_cleaf[0,:] = cleafaux/3
+        self.vp_cleaf[1,:] = cleafaux/3
+        self.vp_cleaf[2,:] = cleafaux/3
+        a, b, c, d = m.pft_area_frac(
+            self.vp_cleaf, self.vp_croot, self.vp_cwood, self.pls_table[6, :])
         self.vp_lsid = np.where(a > 0.0)[0]
         del a, b, c, d
-        self.vp_dcl = np.zeros(shape=(3, npls), order='F')
+        self.vp_dcl = np.zeros(shape=(npls,), order='F')
         self.vp_dca = np.zeros(shape=(npls,), order='F')
         self.vp_dcf = np.zeros(shape=(npls,), order='F')
         self.vp_ocp = np.zeros(shape=(npls,), order='F')
         self.vp_sto = np.zeros(shape=(3, npls), order='F')
+    
 
         # # # SOIL START
         self.sp_csoil = np.zeros(shape=(4,), order='F') + 1.0
@@ -794,7 +797,7 @@ class grd:
                 cleaf = np.zeros(shape=(3, npls), order='F')
                 cwood = np.zeros(npls, order='F')
                 croot = np.zeros(npls, order='F')
-                dcl = np.zeros(shape=(3, npls), order='F')
+                dcl = np.zeros(shape=(npls), order='F')
                 dca = np.zeros(npls, order='F')
                 dcf = np.zeros(npls, order='F')
                 uptk_costs = np.zeros(npls, order='F')
@@ -803,35 +806,22 @@ class grd:
                 sto[1, self.vp_lsid] = self.vp_sto[1, :]
                 sto[2, self.vp_lsid] = self.vp_sto[2, :]
 
-                cleaf[0, self.vp_lsid] = self.vp_cleaf[0, :]
-                cleaf[1, self.vp_lsid] = self.vp_cleaf[1, :]
-                cleaf[2, self.vp_lsid] = self.vp_cleaf[2, :]
-
-                dcl[0, self.vp_lsid] = self.vp_dcl[0, :]
-                dcl[1, self.vp_lsid] = self.vp_dcl[1, :]
-                dcl[2, self.vp_lsid] = self.vp_dcl[2, :]
+#                cleaf[0, self.vp_lsid] = self.vp_cleaf[0, :]
+#                cleaf[1, self.vp_lsid] = self.vp_cleaf[1, :]
+#                cleaf[2, self.vp_lsid] = self.vp_cleaf[2, :]
 
                 # Just Check the integrity of the data
-                assert self.vp_lsid.size == self.vp_cleaf.size, 'different shapes'
+               assert self.vp_lsid.size == self.vp_cleaf.size, 'different shapes'
                 c = 0
                 
                 for n in self.vp_lsid: 
-                    if step == 0: #first day: leaf carbon from spinup
-                        cleaf[0,n] = self.vp_cleafaux[c]/3
-                        cleaf[1,n] = self.vp_cleafaux[c]/3
-                        cleaf[2,n] = self.vp_cleafaux[c]/3
-                        cwood[n] = self.vp_cwood[c]
-                        croot[n] = self.vp_croot[c]
-                    else: #cleaf in each cohort calculated by allometric restrictions
-                    #    cleaf[:,n] = self.vp_cleaf[:,c]
-                        cleaf[:,n] = 0.3
-                    #   print('cleaf 1=', cleaf[1,n], 'cleaf 2=', cleaf[2,n], 'cleaf 3=', cleaf[3,n])
-                        cwood[n] = self.vp_cwood[c]
-                        croot[n] = self.vp_croot[c]   
-                        dcl[:,n] = self.vp_dcl[:,c]
-                        dca[n] = self.vp_dca[c]
-                        dcf[n] = self.vp_dcf[c]
-                        uptk_costs[n] = self.sp_uptk_costs[c]
+                    cleaf[:,n] = self.vp_cleaf[:]
+                    cwood[n] = self.vp_cwood[c]
+                    croot[n] = self.vp_croot[c]   
+                    dcl[n] = self.vp_dcl[c]
+                    dca[n] = self.vp_dca[c]
+                    dcf[n] = self.vp_dcf[c]
+                    uptk_costs[n] = self.sp_uptk_costs[c]
                     c += 1
                 ton = self.sp_organic_n + self.sp_sorganic_n
                 top = self.sp_organic_p + self.sp_sorganic_p
@@ -858,9 +848,9 @@ class grd:
                 self.vp_cleaf = daily_output['cleafavg_pft'][:, self.vp_lsid]
                 self.vp_cwood = daily_output['cawoodavg_pft'][self.vp_lsid]
                 self.vp_croot = daily_output['cfrootavg_pft'][self.vp_lsid]
-                self.vp_dcl = daily_output['delta_cvegl'][:, self.vp_lsid]
-                self.vp_dca = daily_output['delta_cvega'][self.vp_lsid]
-                self.vp_dcf = daily_output['delta_cvegf'][self.vp_lsid]
+                self.vp_dcl = daily_output['delta_cveg'][0][self.vp_lsid]
+                self.vp_dca = daily_output['delta_cveg'][1][self.vp_lsid]
+                self.vp_dcf = daily_output['delta_cveg'][2][self.vp_lsid]
                 self.vp_sto = daily_output['stodbg'][:, self.vp_lsid]
                 self.sp_uptk_costs = daily_output['npp2pay'][self.vp_lsid]
 
