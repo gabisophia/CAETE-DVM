@@ -349,10 +349,10 @@ contains
             cue(p) = nppa(p)/ph(p)
          endif
 
-         !ARRUMAR!!!!!!!!
-         delta_cvegl(1,p) = cl2(1,p) - cl1_pft(1,ri)  !kg m-2
-         delta_cvegl(2,p) = cl2(2,p) - cl1_pft(2,ri)  !kg m-2
-         delta_cvegl(3,p) = cl2(3,p) - cl1_pft(3,ri)  !kg m-2
+!         delta_cvegl(1,p) = cl2(1,p) - cl1_pft(1,ri)  !kg m-2
+!         delta_cvegl(2,p) = cl2(2,p) - cl1_pft(2,ri)  !kg m-2
+!         delta_cvegl(3,p) = cl2(3,p) - cl1_pft(3,ri)  !kg m-2
+         delta_cvegl(:,p) = cl2(:,p) - cl1_pft(:,ri)  !kg m-2
          if(dt1(4) .le. 0) then
             delta_cvega(p) = 0.0D0
          else
@@ -363,6 +363,7 @@ contains
          ! Mass Balance
 
          if(c_def(p) .gt. 0.0) then
+            ! Maybe I can put here just for 3 cohort (?) for penalization
             if(dt1(7) .gt. 0.0) then
                cl1_int(:,p) = cl2(:,p) - ((c_def(p) * 1e-3) * 0.333333333)
                ca1_int(p) = ca2(p) - ((c_def(p) * 1e-3) * 0.333333333)

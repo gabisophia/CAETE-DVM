@@ -188,7 +188,7 @@ module alloc
       ! initialize ALL outputs
       storage_out_alloc            = (/0.0D0, 0.0D0, 0.0D0/)
       litter_nutrient_content = (/0.0D0, 0.0D0, 0.0D0, 0.0D0, 0.0D0, 0.0D0/)
-      scl2 (:)               = 0.0D0
+      scl2(:)                = 0.0D0
       scf2                   = 0.0D0
       sca2                   = 0.0D0
       cwd                    = 0.0D0
