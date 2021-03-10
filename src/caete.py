@@ -288,7 +288,6 @@ class grd:
         self.sp_sorganic_p = None
 
         # CVEG POOLS
-        self.vp_cleafaux = None
         self.vp_cleaf = None
         self.vp_croot = None
         self.vp_cwood = None
@@ -558,10 +557,10 @@ class grd:
             self.wp_sat_water_upper_mm + self.wp_sat_water_lower_mm)
 
         # start biomass
-        self.vp_cleafaux, self.vp_croot, self.vp_cwood = m.spinup2(
+        self.vp_cleaf, self.vp_croot, self.vp_cwood = m.spinup2(
             1.0, self.pls_table)
-        a, b, c, d = m.pft_area_frac_start(
-            self.vp_cleafaux, self.vp_croot, self.vp_cwood, self.pls_table[6, :])
+        a, b, c, d = m.pft_area_frac(
+            self.vp_cleaf, self.vp_croot, self.vp_cwood, self.pls_table[6, :])
         self.vp_lsid = np.where(a > 0.0)[0]
         del a, b, c, d
         self.vp_dcl = np.zeros(shape=(npls,), order='F')
@@ -803,26 +802,16 @@ class grd:
                 sto[1, self.vp_lsid] = self.vp_sto[1, :]
                 sto[2, self.vp_lsid] = self.vp_sto[2, :]
                 # Just Check the integrity of the data
-#                assert self.vp_lsid.size == self.vp_cleaf.size, 'different shapes'
-                assert self.vp_lsid.size == self.vp_cleafaux.size, 'different shapes'
+                assert self.vp_lsid.size == self.vp_cleaf.size, 'different shapes'
                 c = 0
                 for n in self.vp_lsid:
-                    if step == 0:
-                        cleaf[n] = self.vp_cleafaux[c]
-                        cwood[n] = self.vp_cwood[c]
-                        croot[n] = self.vp_croot[c]
-                        dcl[n] = self.vp_dcl[c]
-                        dca[n] = self.vp_dca[c]
-                        dcf[n] = self.vp_dcf[c]
-                        uptk_costs[n] = self.sp_uptk_costs[c]
-                    else:
-                        cleaf[n] = 0.3
-                        cwood[n] = self.vp_cwood[c]
-                        croot[n] = self.vp_croot[c]
-                        dcl[n] = self.vp_dcl[c]
-                        dca[n] = self.vp_dca[c]
-                        dcf[n] = self.vp_dcf[c]
-                        uptk_costs[n] = self.sp_uptk_costs[c]
+                    cleaf[n] = self.vp_cleaf[c]
+                    cwood[n] = self.vp_cwood[c]
+                    croot[n] = self.vp_croot[c]
+                    dcl[n] = self.vp_dcl[c]
+                    dca[n] = self.vp_dca[c]
+                    dcf[n] = self.vp_dcf[c]
+                    uptk_costs[n] = self.sp_uptk_costs[c]
                     c += 1
                 ton = self.sp_organic_n + self.sp_sorganic_n
                 top = self.sp_organic_p + self.sp_sorganic_p
@@ -846,7 +835,7 @@ class grd:
                     prec[step], daily_output['evavg'])
 
                 # UPDATE vegetation pools ! ABLE TO USE SPARSE MATRICES
-                self.vp_cleafaux = daily_output['cleafavg_pft'][self.vp_lsid]
+                self.vp_cleaf = daily_output['cleafavg_pft'][self.vp_lsid]
                 self.vp_cwood = daily_output['cawoodavg_pft'][self.vp_lsid]
                 self.vp_croot = daily_output['cfrootavg_pft'][self.vp_lsid]
                 self.vp_dcl = daily_output['delta_cveg'][0][self.vp_lsid]
@@ -1091,7 +1080,7 @@ class grd:
         lnco = []
 
         sto = self.vp_sto
-        cleaf = self.vp_cleafaux
+        cleaf = self.vp_cleaf
         cwood = self.vp_cwood
         croot = self.vp_croot
         dcl = self.vp_dcl
