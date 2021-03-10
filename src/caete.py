@@ -806,16 +806,16 @@ class grd:
                 sto[1, self.vp_lsid] = self.vp_sto[1, :]
                 sto[2, self.vp_lsid] = self.vp_sto[2, :]
 
-#                cleaf[0, self.vp_lsid] = self.vp_cleaf[0, :]
-#                cleaf[1, self.vp_lsid] = self.vp_cleaf[1, :]
-#                cleaf[2, self.vp_lsid] = self.vp_cleaf[2, :]
+                cleaf[0, self.vp_lsid] = self.vp_cleaf[0, :]
+                cleaf[1, self.vp_lsid] = self.vp_cleaf[1, :]
+                cleaf[2, self.vp_lsid] = self.vp_cleaf[2, :]
 
                 # Just Check the integrity of the data
-               assert self.vp_lsid.size == self.vp_cleaf.size, 'different shapes'
+#               assert self.vp_lsid.size == self.vp_cleaf.size, 'different shapes'
                 c = 0
                 
                 for n in self.vp_lsid: 
-                    cleaf[:,n] = self.vp_cleaf[:]
+                    cleaf[:,n] = self.vp_cleaf[:,c]
                     cwood[n] = self.vp_cwood[c]
                     croot[n] = self.vp_croot[c]   
                     dcl[n] = self.vp_dcl[c]
