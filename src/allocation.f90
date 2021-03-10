@@ -377,6 +377,7 @@ module alloc
          npp_wood = 0.0
       endif
 
+      ! Ver se eu vou mexer aqui - colocar pra coorte de folhas jovens? pensar na dinâmica da alocação
       ! POTENTIAL NUTRIENT UPTAKE
       nscl = npp_leaf * leaf_n2c    ! NITROGEN TO ALLOCATE LEAF NPP g(N)m⁻²
       pscl = npp_leaf * leaf_p2c    ! g(P)m⁻²
