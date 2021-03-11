@@ -815,7 +815,7 @@ module alloc
       leaf_litter = scl1(3) / tleaf  !/ tleaf ! kg(C) m-2 year-1
       ! LEAF C FLUX BETWEEN COHORTS
       turnover_c1 = scl1(1) / (tleaf/3)
-      turnover_c2 = scl1(2) / (tleaf/3*2)
+      turnover_c2 = scl1(2) / (tleaf/3)*2
 
       ! ROOT LITTER
       root_litter = scf1 / troot  !/ tfroot! kg(C) m-2 year-1

@@ -199,6 +199,8 @@ contains
       enddo
       ph = sum(ph_aux)
 
+!      ph = gross_ph(f1(:),cl1_prod(:), sla)        ! kg m-2 year-1
+
 !     Autothrophic respiration
 !     ========================
 !     Maintenance respiration (kgC/m2/yr) (based in Ryan 1991)
