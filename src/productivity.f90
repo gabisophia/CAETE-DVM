@@ -82,7 +82,7 @@ contains
     integer(i_4) :: c4_int
     real(r_8) :: jl_out
 
-    real(r_8), dimension(3) :: f1, ph_aux      !Leaf level gross photosynthesis (molCO2/m2/s)
+    real(r_8), dimension(3) :: f1      !Leaf level gross photosynthesis (molCO2/m2/s)
     real(r_8) :: f1a      !auxiliar_f1
     real(r_8), dimension(3) :: umol_penalties = (/-0.4, 1.0, 0.6/)
     real(r_8), dimension(3) :: age_limits, leaf_age
@@ -194,17 +194,12 @@ contains
 
 !     Canopy gross photosynthesis (kgC/m2/yr)
 !     =======================================x
-      do i = 1,3
-        ph_aux(i) = gross_ph(f1(i),cl1_prod(i), sla)       ! kg m-2 year-1
-      enddo
-      ph = sum(ph_aux)
-
-!      ph = gross_ph(f1(:),cl1_prod(:), sla)        ! kg m-2 year-1
+    ph = gross_ph(f1(:),cl1_prod(:), sla)        ! kg m-2 year-1
 
 !     Autothrophic respiration
 !     ========================
 !     Maintenance respiration (kgC/m2/yr) (based in Ryan 1991)
-    rm = m_resp(temp,ts,cl_total,cf1_prod,ca1_prod &
+    rm = m_resp(temp,ts,cl1_prod(:),cf1_prod,ca1_prod &
          &,n2cl_resp,n2cw_resp,n2cf_resp,awood)
 
 ! c     Growth respiration (KgC/m2/yr)(based in Ryan 1991; Sitch et al.
