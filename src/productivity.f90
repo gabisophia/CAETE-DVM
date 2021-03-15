@@ -87,13 +87,12 @@ contains
     real(r_8), dimension(3) :: umol_penalties = (/-0.4, 1.0, 0.6/)
     real(r_8), dimension(3) :: age_limits, leaf_age
     real(r_8), dimension(3) :: penalization_by_age
-    real(r_8):: age_crit
-    real(r_8):: cl_total     ! carbon sum of all the cohots (kg/m2)
+    real(r_8) :: age_crit
+    real(r_8) :: cl_total     ! carbon sum of all the cohots (kg/m2)
+    real(r_4) :: rc_pot, rc_aux
     integer(i_4) :: i
 
-!getting pls parameters
-
-
+!   getting pls parameters
     g1  = dt(1)
     tleaf = dt(3)
     awood = dt(7)
@@ -105,8 +104,8 @@ contains
     p2cl = dt(13)
 
 
-! Simulation of leaf demography
-   ! Obtain critical age
+!   Simulation of leaf demography
+    ! Obtain critical age
     age_crit = (tleaf / 3.0) * 2.0
 
     ! Obtain age limits
@@ -147,40 +146,22 @@ contains
 !    |  _ \| | |  _  | |   |  _|   / _ \ | |_
 !    | |_)|| | |_| | | |___| |___ / ___ \|  _|
 !    |____/___\____| |_____|_____/_/   \_\_|
-!     Leaf area index (m2/m2)
-    sla = spec_leaf_area(tleaf)
-    ! laia = leaf_area_index(cl1_prod, sla)
 
-    laia = 0.2D0 * dexp((2.5D0 * f1a)/p25)
-! VPD
-!========
+!   VPD
+!   ========
     vpd = vapor_p_defcit(temp,rh)
 
-!Stomatal resistence
-!===================
-    rc = canopy_resistence(vpd, f1a, g1, catm) * real(laia, kind=r_4)!s m-1
+!   Stomatal resistence
+!   ===================
+    rc_pot = canopy_resistence_pot(vpd, f1a, g1, catm) ! Potential RCM leaf level - s m-1
 
-! Novo calculo da WUE
-
-    wue = water_ue(f1a, rc, p0, vpd)
-
-!     calcula a transpiração em mm/s
-
-    e = transpiration(rc, p0, vpd, 2)
-
-!     Water stress response modifier (dimensionless)
-!     ----------------------------------------------
-    ! print*,cf1_prod, 'CF in F5'
-    ! print*, w, 'w'
-    ! print*, rc, 'rc'
-    ! print*, emax, 'emax'
-
-    ! wsoil + h +
-    f5 =  water_stress_modifier(w, cf1_prod, rc, emax, wmax)
+!   Water stress response modifier (dimensionless)
+!   ==============================================
+    f5 =  water_stress_modifier(w, cf1_prod, rc_pot, emax, wmax)
 
 
-!     Photosysthesis minimum and maximum temperature
-!     ----------------------------------------------
+!   Photosysthesis minimum and maximum temperature
+!   ----------------------------------------------
 
     if ((temp.ge.-10.0).and.(temp.le.50.0)) then
         do i = 1,3
@@ -191,38 +172,55 @@ contains
       endif
 
 
+    rc_aux = canopy_resistence_real(vpd, f1(:), g1, catm)  ! RCM leaf level -!s m-1
 
-!     Canopy gross photosynthesis (kgC/m2/yr)
-!     =======================================x
+    wue = water_ue(f1(:), rc_aux, p0, vpd)
+
+    ! calcula a transpiração em mm/s
+    e = transpiration(rc_aux, p0, vpd, 2)
+
+    ! Leaf area index (m2/m2)
+    ! recalcula rc e escalona para dossel
+    ! laia = 0.2D0 * dexp((2.5D0 * f1)/p25)
+    sla = spec_leaf_area(tleaf)  ! m2 g-1  ! Convertions made in leaf_area_index &  gross_ph + calls therein
+
+    laia = leaf_area_index(cl1_prod, sla)
+    rc = rc_aux * real(laia,kind=r_4) ! RCM -!s m-1
+
+
+!   Canopy gross photosynthesis (kgC/m2/yr)
+!   =======================================x
     ph = gross_ph(f1(:),cl1_prod(:), sla)        ! kg m-2 year-1
 
-!     Autothrophic respiration
-!     ========================
-!     Maintenance respiration (kgC/m2/yr) (based in Ryan 1991)
+
+!   Autothrophic respiration
+!   ========================
+    ! Maintenance respiration (kgC/m2/yr) (based in Ryan 1991)
     rm = m_resp(temp,ts,cl1_prod(:),cf1_prod,ca1_prod &
          &,n2cl_resp,n2cw_resp,n2cf_resp,awood)
 
-! c     Growth respiration (KgC/m2/yr)(based in Ryan 1991; Sitch et al.
-! c     2003; Levis et al. 2004)
+    ! c Growth respiration (KgC/m2/yr)(based in Ryan 1991; Sitch et al.
+    ! c 2003; Levis et al. 2004)
     rg = g_resp(beta_leaf,beta_awood, beta_froot,awood)
 
     if (rg.lt.0) then
        rg = 0.0
     endif
 
-!     c Autotrophic (plant) respiration -ar- (kgC/m2/yr)
-!     Respiration minimum and maximum temperature
-!     -------------------------------------------
+    ! c Autotrophic (plant) respiration -ar- (kgC/m2/yr)
+    ! Respiration minimum and maximum temperature
+    !-------------------------------------------
     if ((temp.ge.-10.0).and.(temp.le.50.0)) then
        ar = rm + rg
     else
        ar = 0.0               !Temperature above/below respiration windown
     endif
-!     Net primary productivity(kgC/m2/yr)
-!     ====================================
+
+!   Net primary productivity(kgC/m2/yr)
+!   ====================================
     nppa = ph - ar
-! this operation affects the model mass balance
-! If ar is bigger than ph, what is the source or respired C?
+    ! this operation affects the model mass balance
+    ! If ar is bigger than ph, what is the source or respired C?
 
     if(ar .gt. ph) then
        c_defcit = ((ar - ph) * 2.73791) ! tranform kg m-2 year-1 in  g m-2 day-1

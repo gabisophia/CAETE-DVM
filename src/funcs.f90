@@ -25,28 +25,30 @@ module photo
    private
 
    ! functions(f) and subroutines(s) defined here
-   public ::                    &
-        gross_ph               ,& ! (f), gross photosynthesis (kgC m-2 y-1)
-        leaf_area_index        ,& ! (f), leaf area index(m2 m-2)
-        f_four                 ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
-        spec_leaf_area         ,& ! (f), specific leaf area (m2 g-1)
-        water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
-        leaf_age_factor        ,& ! (f), effect of leaf age on photosynthetic rate
-        photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
-        canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
-        stomatal_conductance   ,& ! (f), IN DEVELOPMENT - return stomatal conductance
-        vapor_p_defcit         ,& ! (f), Vapor pressure defcit  (kPa)
-        transpiration          ,&
-        tetens                 ,& ! (f), Maximum vapor pressure (hPa)
-        nrubisco               ,& ! (f), Fraction of N not in lignin (disponible to rubisco)
-        m_resp                 ,& ! (f), maintenance respiration (plants)
-        sto_resp               ,&
-        realized_npp           ,&
-        spinup2                ,& ! (s), SPINUP function for CVEG pools
-        spinup3                ,& ! (s), SPINUP function to check the viability of Allocation/residence time combinations
-        g_resp                 ,& ! (f), growth Respiration (kg m-2 yr-1)
-        pft_area_frac          ,& ! (s), area fraction by biomass
-        water_ue               ,&
+   public ::                      &
+        gross_ph                 ,& ! (f), gross photosynthesis (kgC m-2 y-1)
+        leaf_area_index          ,& ! (f), leaf area index(m2 m-2)
+        f_four                   ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
+        spec_leaf_area           ,& ! (f), specific leaf area (m2 g-1)
+        water_stress_modifier    ,& ! (f), F5 - water stress modifier (dimensionless)
+        leaf_age_factor          ,& ! (f), effect of leaf age on photosynthetic rate
+        photosynthesis_rate      ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
+        canopy_resistence_pot    ,& ! (f), Potential Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
+        canopy_resistence_real   ,& ! (f), Real Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
+        stomatal_conductance_pot ,& ! (f), IN DEVELOPMENT - return potential stomatal conductance
+        stomatal_conductance_real,& ! (f), IN DEVELOPMENT - return real stomatal conductance
+        vapor_p_defcit           ,& ! (f), Vapor pressure defcit  (kPa)
+        transpiration            ,&
+        tetens                   ,& ! (f), Maximum vapor pressure (hPa)
+        nrubisco                 ,& ! (f), Fraction of N not in lignin (disponible to rubisco)
+        m_resp                   ,& ! (f), maintenance respiration (plants)
+        sto_resp                 ,&
+        realized_npp             ,&
+        spinup2                  ,& ! (s), SPINUP function for CVEG pools
+        spinup3                  ,& ! (s), SPINUP function to check the viability of Allocation/residence time combinations
+        g_resp                   ,& ! (f), growth Respiration (kg m-2 yr-1)
+        pft_area_frac            ,& ! (s), area fraction by biomass
+        water_ue                 ,&
         leap
 
 contains
@@ -265,7 +267,7 @@ contains
    !=================================================================
    !=================================================================
 
-   function canopy_resistence(vpd_in,f1_in,g1,ca) result(rc2_in)
+   function canopy_resistence_pot(vpd_in,f1_in,g1,ca) result(rc2_in)
       ! return stomatal resistence based on Medlyn et al. 2011a
       ! Coded by Helena Alves do Prado
 
@@ -298,12 +300,52 @@ contains
       gs = 0.003 + 1.6D0 * (1.0D0 + (g1/D1)) * ((f1_in * 1.0e6)/ca) ! mol m-2 s-1
       gs = gs * (1.0D0 / 44.6D0)! convrt from  mol/m²/s to m s-1
       rc2_in = real( 1.0D0 / gs, r_4)  !  s m-1
-   end function canopy_resistence
+   end function canopy_resistence_pot
 
    !=================================================================
    !=================================================================
 
-   function stomatal_conductance(vpd_in,f1_in,g1,ca) result(gs)
+   function canopy_resistence_real(vpd_in,f1,g1,ca) result(rc2_in)
+      ! return stomatal resistence based on Medlyn et al. 2011a
+      ! Coded by Helena Alves do Prado
+
+      use types, only: r_4 ,r_8
+
+
+      !implicit none
+
+      real(r_8),dimension(3),intent(in) :: f1    !Photosynthesis real (molCO2/m2/s)
+      real(r_4),intent(in) :: vpd_in   !hPa
+      real(r_8),intent(in) :: g1       ! model m (slope) (sqrt(kPa))
+      real(r_8),intent(in) :: ca
+      real(r_4) :: rc2_in              !Canopy resistence (sm-1)
+
+      !     Internal
+      !     --------
+      real(r_8),dimension(3) :: gs_aux   !Canopy conductance (molCO2 m-2 s-1)
+      real(r_8) :: gs       !Canopy conductance (molCO2 m-2 s-1)
+      real(r_8) :: D1       !sqrt(kPA)
+      real(r_4) :: vapour_p_d
+
+      vapour_p_d = vpd_in
+      ! Assertions
+      if(vpd_in .le. 0.0) vapour_p_d = 0.001
+      if(vpd_in .gt. 4.0) vapour_p_d = 4.0
+      ! print *, 'vpd going mad in canopy_resistence'
+      ! stop
+      ! endif
+
+      D1 = sqrt(vapour_p_d)
+      gs_aux(:) = 0.003 + 1.6D0 * (1.0D0 + (g1/D1)) * ((f1(:) * 1.0e6)/ca) ! mol m-2 s-1
+      gs = sum(gs_aux(:))
+      gs = gs * (1.0D0 / 44.6D0)! convrt from  mol/m²/s to m s-1
+      rc2_in = real( 1.0D0 / gs, r_4)  !  s m-1
+   end function canopy_resistence_real
+
+   !=================================================================
+   !=================================================================
+
+   function stomatal_conductance_pot(vpd_in,f1_in,g1,ca) result(gs)
     ! return stomatal resistence based on Medlyn et al. 2011a
     ! Coded by Helena Alves do Prado
 
@@ -331,29 +373,66 @@ contains
 
     D1 = sqrt(vapour_p_d)
     gs = 1.6 * (1.0 + (g1/D1)) * (f1_in/ca) !mol m-2 s-1
- end function stomatal_conductance
+   end function stomatal_conductance_pot
 
- !=================================================================
- !=================================================================
+   !=================================================================
+   !=================================================================
+
+   function stomatal_conductance_real(vpd_in,f1,g1,ca) result(gs)
+      ! return stomatal resistence based on Medlyn et al. 2011a
+      ! Coded by Helena Alves do Prado
+
+      use types, only: r_4 ,r_8
+
+      !implicit none
+
+      real(r_4),dimension(3),intent(in) :: f1    !Photosynthesis (molCO2/m2/s)
+      real(r_4),intent(in) :: vpd_in   !hPa
+      real(r_4),intent(in) :: g1       ! model m (slope) (sqrt(kPa))
+      real(r_8),intent(in) :: ca
+      real(r_8) :: gs       !Canopy conductance (molCO2 m-2 s-1)
+      !     Internal
+      !     --------
+      real(r_8) :: D1       !sqrt(kPA)
+      real(r_4) :: vapour_p_d
+      real(r_4),dimension(3) :: gs_aux
+
+      vapour_p_d = vpd_in
+      ! Assertions
+      if(vpd_in .le. 0.0) vapour_p_d = 0.001
+      if(vpd_in .gt. 4.0) vapour_p_d = 4.0
+      ! print *, 'vpd going mad in canopy_resistence'
+      ! stop
+      ! endif
+
+      D1 = sqrt(vapour_p_d)
+      gs_aux(:) = 1.6 * (1.0 + (g1/D1)) * (f1(:)/ca) !mol m-2 s-1
+      gs = sum(gs_aux(:))
+      if(gs .lt. 0.0) gs = 0.0
+   end function stomatal_conductance_real
+
+   !=================================================================
+   !=================================================================
 
    function water_ue(a, g, p0, vpd) result(wue)
       use types
       !implicit none
-      real(r_8),intent(in) :: a
+      real(r_8),dimension(3),intent(in) :: a
       real(r_4),intent(in) :: g, p0, vpd
       ! a = assimilacao; g = resistencia; p0 = pressao atm; vpd = vpd
       real(r_4) :: wue
 
-      real(r_4) :: g_in, p0_in, e_in
+      real(r_4) :: g_in, p0_in, e_in, a_aux
 
+      a_aux = sum(a(:))
       g_in = (1./g) * 40.87 ! convertendo a resistencia (s m-1) em condutancia mol m-2 s-1
       p0_in = p0 /10. ! convertendo pressao atm (mbar/hPa) em kPa
       e_in = g_in * (vpd/p0_in) ! calculando transpiracao mol H20 m-2 s-1
 
-      if(a .eq. 0 .or. e_in .eq. 0) then
+      if(a_aux .eq. 0 .or. e_in .eq. 0) then
          wue = 0
       else
-         wue = real(a, kind=r_4)/e_in
+         wue = real(a_aux, kind=r_4)/e_in
       endif
    end function water_ue
 
@@ -383,7 +462,6 @@ contains
          e = 18.0 * e_in * 1e-3    ! g m-2 s-1 * 1d-3  == Kg m-2 s-1  == mm s-1
       endif
    end function transpiration
-
 
    !=================================================================
    !=================================================================
