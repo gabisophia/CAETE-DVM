@@ -230,8 +230,8 @@ contains
 !   ! wd will be a variable functional trait
 !   use types
 ! 
-!   real(r_4),intent(in) :: wd                !g/cm3 - wood sendity
-!   real(r_4) :: psi_50                       !MPa
+!   real(r_8),intent(in) :: wd                !g/cm3 - wood sendity
+!   real(r_8) :: psi_50                       !MPa
 !
 !   psi_50 = -((3.57*wd)**1.73)-1.09 
 !
@@ -246,9 +246,9 @@ contains
       use types
       use global_par, only:wd
     
-      !real(r_4),intent(in) :: wd            !g/cm3     - wood density
-      real(r_4),intent(in) :: amax           !µmolm-2s-1 - light saturated photo rate PRECISO CONVERTER de mol pra µmol
-      real(r_4) :: kl_max                    !kgm-1s-1MPa-1   
+      !real(r_8),intent(in) :: wd            !g/cm3     - wood density
+      real(r_8),intent(in) :: amax           !µmolm-2s-1 - light saturated photo rate PRECISO CONVERTER de mol pra µmol
+      real(r_8) :: kl_max                    !kgm-1s-1MPa-1   
 
       kl_max = 0.0021 * exp(-26.6 * wd/amax)  
   
@@ -264,10 +264,10 @@ contains
       use types
       use global_par, only:wd, alt
     
-      real(r_4),intent(in) :: kl_max          !kgm-1s-1Mpa-1
-      real(r_4) :: krc_max                    !molm-2s-1Mpa-1
+      real(r_8),intent(in) :: kl_max          !kgm-1s-1Mpa-1
+      real(r_8) :: krc_max                    !molm-2s-1Mpa-1
 
-      real(r_4) :: psi_50                     !MPa
+      real(r_8) :: psi_50                     !MPa
 
       psi_50 = -((3.57*wd)**1.73)-1.09
 
@@ -284,12 +284,12 @@ contains
       use types
       use global_par, only:rho, g, alt
     
-      real(r_4),intent(in) :: psi_soil          !MPa
-      real(r_4),intent(in) :: krc_max           !molm-2s-1Mpa-1 
-      real(r_4),intent(in) :: e                 !molm-2s-1 transpiration  
-      real(r_4) :: psi_xylem                    !MPa
+      real(r_8),intent(in) :: psi_soil          !MPa
+      real(r_8),intent(in) :: krc_max           !molm-2s-1Mpa-1 
+      real(r_8),intent(in) :: e                 !molm-2s-1 transpiration  
+      real(r_8) :: psi_xylem                    !MPa
 
-      real(r_4) :: psi_g                        !MPa - gravitational potential
+      real(r_8) :: psi_g                        !MPa - gravitational potential
       psi_g = rho * g * alt * 1e-6              !converts Pa to MPa
 
       psi_xylem  = psi_soil - psi_g - (e/krc_max)
@@ -304,13 +304,13 @@ contains
       !Based in Manzoni et al., 2013
       use types
   
-      real(r_4), intent(in) :: krc_max                !molm-2s-1Mpa-1 
-      real(r_4), intent(in) :: psi_xylem              !MPa
-      real(r_4), intent(in) :: psi_50                 !MPa
-      real(r_4) :: k                                  !molm-2s-1MPa-1
+      real(r_8), intent(in) :: krc_max                !molm-2s-1Mpa-1 
+      real(r_8), intent(in) :: psi_xylem              !MPa
+      real(r_8), intent(in) :: psi_50                 !MPa
+      real(r_8) :: k                                  !molm-2s-1MPa-1
 
-      real(r_4) :: stem_slope     !MPa-1 - Slope of the linear portion of the xylem vulnerability function
-      real(r_4) :: a              !vulnerability curve
+      real(r_8) :: stem_slope     !MPa-1 - Slope of the linear portion of the xylem vulnerability function
+      real(r_8) :: a              !vulnerability curve
       
       stem_slope = 65.15*(-psi_50)**(-1.25)
       a = -4*stem_slope/100*psi_50
@@ -326,9 +326,9 @@ contains
       !Returns normalized xylem conductance (dimensionless)
       use types
      
-      real(r_4),intent(in) :: krc_max         !molm-2s-1Mpa-1
-      real(r_4),intent(in) :: k               !molm-2s-1Mpa-1
-      real(r_4) :: k_norm                     !dimensionless   
+      real(r_8),intent(in) :: krc_max         !molm-2s-1Mpa-1
+      real(r_8),intent(in) :: k               !molm-2s-1Mpa-1
+      real(r_8) :: k_norm                     !dimensionless   
 
       k_norm = k/krc_max
   
@@ -339,32 +339,33 @@ contains
 
    !preciso conectar com o k_norm
 
-   function water_stress_modifier(w, cfroot, rc, ep, wmax) result(f5)
+   function water_stress_modifier(k_norm, cfroot, rc, ep) result(f5)
       use types, only: r_4, r_8
       use global_par, only: csru, alfm, gm, rcmin, rcmax
       !implicit none
 
-      real(r_8),intent(in) :: w      !soil water mm
+!     real(r_8),intent(in) :: w      !soil water mm
+      real(r_8),intent(in) :: k_norm !soil water mm
       real(r_8),intent(in) :: cfroot !carbon in fine roots kg m-2
       real(r_4),intent(in) :: rc     !Canopy resistence 1/(micromol(CO2) m-2 s-1)
       real(r_4),intent(in) :: ep
-      real(r_8),intent(in) :: wmax     !potential evapotranspiration
+!     real(r_8),intent(in) :: wmax     !potential evapotranspiration
       real(r_8) :: f5
 
 
       real(r_8) :: pt, rc_aux, rcmin_aux, ep_aux
       real(r_8) :: gc
-      real(r_8) :: wa
+!     real(r_8) :: wa
       real(r_8) :: d
       real(r_8) :: f5_64
 
-      wa = w/wmax
+!     wa = w/wmax
       rc_aux = real(rc, kind=r_8)
       rcmin_aux = real(rcmin, kind=r_8)
       ep_aux = real(ep, kind=r_8)
       if (rc .gt. rcmax) rc_aux = real(rcmax, r_8)
 
-      pt = csru*(cfroot*1000.0D0) * wa  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
+      pt = csru*(cfroot*1000.0D0) * k_norm  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
       if(rc_aux .gt. rcmin) then
          gc = (1.0D0/(rc_aux * 1.15741D-08))  ! s/m
       else
@@ -379,7 +380,8 @@ contains
          f5_64 = exp((f5_64 * (-0.1D0)))
          f5_64 = 1.0D0 - f5_64
       else
-         f5_64 = wa
+!        f5_64 = wa
+         f5_64 = k_norm
       endif
 
       f5 = f5_64

@@ -40,8 +40,9 @@ contains
       use productivity
       use omp_lib
 
-      use photo, only: pft_area_frac, sto_resp, soil_waterpotential, conductivity_xylemleaf, conductance_xylemax&
-      &, xylem_waterpotential, xylem_conductance, conductance_normalized&
+!      use photo, only: pft_area_frac, sto_resp, soil_waterpotential, conductivity_xylemleaf, conductance_xylemax&
+!      &, xylem_waterpotential, xylem_conductance, conductance_normalized&
+      use photo, only: pft_area_frac, sto_resp
       use water, only: evpot2, penman, available_energy, runoff
 
       !     ----------------------------INPUTS-------------------------------
@@ -173,6 +174,8 @@ contains
       real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs
       real(r_8), dimension(3,npls) :: sto_budg
       real(r_8) :: soil_sat
+
+
       !     START
       !     --------------
       !     Grid cell area fraction 0-1
@@ -273,8 +276,8 @@ contains
          dt1 = dt(:,ri) ! Pick up the pls functional attributes list
 
       !     HYDRAULIC
-   
-      
+
+
 
       !     PRODUCTIVITY
          call prod(dt1, ocp_wood(ri),catm, temp, soil_temp, p0, w, ipar, rh, emax&
