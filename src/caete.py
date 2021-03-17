@@ -563,7 +563,7 @@ class grd:
         self.vp_cleaf[1,:] = cleafaux/3
         self.vp_cleaf[2,:] = cleafaux/3
         a, b, c, d = m.pft_area_frac(
-            self.vp_cleaf, self.vp_croot, self.vp_cwood, self.pls_table[6, :])
+            self.vp_cleaf[:], self.vp_croot, self.vp_cwood, self.pls_table[6, :])
         self.vp_lsid = np.where(a > 0.0)[0]
         del a, b, c, d
         self.vp_dcl = np.zeros(shape=(npls,), order='F')
