@@ -355,6 +355,7 @@ contains
 
          if(c_def(p) .gt. 0.0) then
             ! Maybe I can put here just for 3 cohort (?) for penalization
+            ! I did this /\ and the results were terrible. I will have to think in other conection/penalization with hydraulic
             if(dt1(7) .gt. 0.0) then
                cl1_int(:,p) = cl2(:,p) - ((c_def(p) * 1e-3) * 0.333333333)
                ca1_int(p) = ca2(p) - ((c_def(p) * 1e-3) * 0.333333333)
