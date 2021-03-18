@@ -41,15 +41,14 @@ module productivity
       real(r_8),dimension(ntraits),intent(in) :: dt ! PLS data
       real(r_4), intent(in) :: temp, ts                 !Mean monthly temperature (oC)
       real(r_4), intent(in) :: p0                   !Mean surface pressure (hPa)
-!     real(r_8), intent(in) :: w                    !Soil moisture mm
-!     real(r_8), intent(in) :: wmax                 !Maximum Soil moisture mm
+      real(r_8), intent(in) :: w                    !Soil moisture mm
+      real(r_8), intent(in) :: wmax                 !Maximum Soil moisture mm
       real(r_4), intent(in) :: ipar                 !Incident photosynthetic active radiation (w/m2)
       real(r_4), intent(in) :: rh,emax !Relative humidity/MAXIMUM EVAPOTRANSPIRATION
       real(r_8), intent(in) :: catm, cl1_prod, cf1_prod, ca1_prod        !Carbon in plant tissues (kg/m2)
       real(r_8), intent(in) :: beta_leaf            !npp allocation to carbon pools (kg/m2/day)
       real(r_8), intent(in) :: beta_awood
       real(r_8), intent(in) :: beta_froot
-      real(r_8), intent(in) :: k_norm
       logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
   
   !     Output
@@ -67,6 +66,8 @@ module productivity
       real(r_4), intent(out) :: c_defcit     ! Carbon deficit gm-2 if it is positive, aresp was greater than npp + sto2(1)
       real(r_8), intent(out) :: sla, e        !specific leaf area (m2/kg)
       real(r_8), intent(out) :: vm_out
+
+
   !     Internal
   !     --------
   
@@ -85,10 +86,19 @@ module productivity
       real(r_8) :: f1       !Leaf level gross photosynthesis (molCO2/m2/s)
       real(r_8) :: f1a      !auxiliar_f1
       real(r_4) :: rc_pot, rc_aux
-  
+
+      !hydraulic - internal
+      real(r_8) :: psi_soil
+      real(r_8) :: kl_max
+      real(r_8) :: krc_max
+      real(r_8) :: psi_xylem
+      real(r_8) :: k
+      real(r_8) :: k_norm
+      real(r_8) :: psi_50
+
+
   !getting pls parameters
-  
-  
+
       g1  = dt(1)
       tleaf = dt(3)
       awood = dt(7)
@@ -104,7 +114,40 @@ module productivity
       p2cl = p2cl * (cl1_prod * 1D3) ! P in leaf g m-2
   
       c4_int = idnint(c4)
-  
+
+      
+!        ===============
+!           HYDRAULIC
+!        ===============
+
+      ! Soil water potential
+      !=====================
+      psi_soil = soil_waterpotential(w, wmax)
+
+      !         P50
+      !======================
+      
+      ! Maximum xylem conductivity per unit leaf area
+      !==============================================
+
+      kl_max = conductivity_xylemleaf(jl_out)
+
+      ! Maximum xylem conductance
+      !==========================
+      krc_max = conductance_xylemax(kl_max)
+
+      ! Xylem water potential
+      !======================
+      psi_xylem = xylem_waterpotential(psi_soil,krc_max,rc_aux,p0,vpd)
+
+      ! Xylem conductance
+      !=====================
+      k = xylem_conductance(krc_max,psi_xylem,psi_50)
+
+      ! Conductance normalized
+      !=======================
+      k_norm = conductance_normalized(krc_max,k)
+
   
   !     ==============
   !     Photosynthesis

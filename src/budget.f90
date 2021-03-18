@@ -40,8 +40,6 @@ contains
       use productivity
       use omp_lib
 
-!      use photo, only: pft_area_frac, sto_resp, soil_waterpotential, conductivity_xylemleaf, conductance_xylemax&
-!      &, xylem_waterpotential, xylem_conductance, conductance_normalized&
       use photo, only: pft_area_frac, sto_resp
       use water, only: evpot2, penman, available_energy, runoff
 

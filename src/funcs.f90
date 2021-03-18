@@ -278,21 +278,27 @@ contains
  !=================================================================
  !=================================================================
 
-   function xylem_waterpotential(psi_soil,krc_max,e) result(psi_xylem)
+   function xylem_waterpotential(psi_soil,krc_max,g,p0,vpd) result(psi_xylem)
       !Xylem water potential (MPa)
       !Based in Eller et al., 2018
       use types
-      use global_par, only:rho, g, alt
+      use global_par, only:rho,grav, alt
     
       real(r_8),intent(in) :: psi_soil          !MPa
       real(r_8),intent(in) :: krc_max           !molm-2s-1Mpa-1 
-      real(r_8),intent(in) :: e                 !molm-2s-1 transpiration  
+      real(r_4),intent(in) :: g, p0, vpd        !to calculate transpiration in molm-2s-1  
       real(r_8) :: psi_xylem                    !MPa
 
+      real(r_4) :: g_in, p0_in, e_in
       real(r_8) :: psi_g                        !MPa - gravitational potential
+
+      g_in = (1./g) * 40.87 ! convertendo a resistencia (s m-1) em condutancia mol m-2 s-1
+      p0_in = p0 /10. ! convertendo pressao atm (mbar/hPa) em kPa
+      e_in = g_in * (vpd/p0_in) ! calculando transpiracao mol H20 m-2 s-1
+
       psi_g = rho * g * alt * 1e-6              !converts Pa to MPa
 
-      psi_xylem  = psi_soil - psi_g - (e/krc_max)
+      psi_xylem  = psi_soil - psi_g - (e_in/krc_max)
   
    end function xylem_waterpotential
 

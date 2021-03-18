@@ -40,7 +40,7 @@ module global_par
    real(r_4),parameter,public :: rho = 997.0                     ! Density of water (Kg/m3)
    real(r_4),parameter,public :: psi_sat = -0.001                ! Saturated soil water suction MPa
    real(r_4),parameter,public :: soil_texture = 7.0              ! Coefficient soil texture - TESTE
-   real(r_4),parameter,public :: g = 9.8                         ! Gravity (m/s2)
+   real(r_4),parameter,public :: grav = 9.8                      ! Gravity (m/s2)
    real(r_4),parameter,public :: rcmax = 5000.0                  ! ResistÊncia estomática máxima s/m
    real(r_4),parameter,public :: rcmin = 100                     ! ResistÊncia estomática mínima s/m
    real(r_8),parameter,public :: cmin = 1.0D-3                   ! Minimum to survive kg m-2
