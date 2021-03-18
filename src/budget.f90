@@ -28,10 +28,10 @@ contains
    subroutine daily_budget(dt, w1, w2, ts, temp, p0, ipar, rh&
         &, mineral_n, labile_p, on, sop, op, catm, sto_budg_in, cl1_in, ca1_in, cf1_in, dleaf_in, dwood_in&
         &, droot_in, uptk_costs_in, wmax_in, evavg, epavg, phavg, aravg, nppavg&
-        &, laiavg, rcavg, f5avg, rmavg, rgavg, cleafavg_pft, cawoodavg_pft&
+        &, laiavg, rcavg, f5avg, rmavg, rgavg, cltotalavg_pft, cleafavg_pft, cawoodavg_pft&
         &, cfrootavg_pft, storage_out_bdgt_1, ocpavg, wueavg, cueavg, c_defavg&
         &, vcmax_1, specific_la_1, nupt_1, pupt_1, litter_l_1, cwd_1, litter_fr_1, npp2pay_1, lit_nut_content_1&
-        &, delta_cveg_1, limitation_status_1, uptk_strat_1, cp)
+        &, delta_cveg_1, limitation_status_1, uptk_strat_1, clavg, cp)
 
 
       use types
@@ -92,6 +92,7 @@ contains
       real(r_8),dimension(6),intent(out) :: lit_nut_content_1 ! g(Nutrient)m-2 ! Lit_nut_content variables         [(lln),(rln),(cwdn),(llp),(rl),(cwdp)]
 
       ! FULL OUTPUT
+      real(r_8),dimension(npls),intent(out) :: cltotalavg_pft
       real(r_8),dimension(3,npls),intent(out) :: cleafavg_pft   !Carbon in plant tissues (kg m-2)
       real(r_8),dimension(npls),intent(out) :: cawoodavg_pft  !
       real(r_8),dimension(npls),intent(out) :: cfrootavg_pft  !
@@ -101,6 +102,7 @@ contains
       integer(i_2),dimension(3,npls),intent(out) :: limitation_status_1
       integer(i_4),dimension(2,npls),intent(out) :: uptk_strat_1
       real(r_8),dimension(npls),intent(out) ::  npp2pay_1
+      real(r_8),dimension(npls),intent(out) :: clavg
       real(r_8),dimension(3),intent(out) :: cp
 
       !     -----------------------Internal Variables------------------------
@@ -460,6 +462,7 @@ contains
       ! g2(:) = 0.0
       ! s2(:) = 0.0
       ! wp(:) = 0.0D0
+      cltotalavg_pft(:) = 0.0D0
       cleafavg_pft(:,:) = 0.0D0
       cawoodavg_pft(:) = 0.0D0
       cfrootavg_pft(:) = 0.0D0
@@ -495,7 +498,7 @@ contains
       litter_l_1 = sum(litter_l * ocp_coeffs, mask= .not. isnan(litter_l))
       cwd_1 = sum(cwd * ocp_coeffs, mask= .not. isnan(cwd))
       litter_fr_1 = sum(litter_fr * ocp_coeffs, mask= .not. isnan(litter_fr))
-
+      clavg = sum(sum(cl1_int) * ocp_coeffs, mask= .not. isnan(sum(cl1_int)))
       ! wp(1) = sum(w * ocp_coeffs, mask= .not. isnan(w))
       ! wp(2) = sum(g * ocp_coeffs, mask= .not. isnan(g))
       ! wp(3) = sum(s * ocp_coeffs, mask= .not. isnan(s))
@@ -552,6 +555,7 @@ contains
          ! w2(ri) = w(p)
          ! g2(ri) = g(p)
          ! s2(ri) = s(p)
+         cltotalavg_pft(ri) = sum(cl1_int(:,p))
          cleafavg_pft(:,ri)  = cl1_int(:,p)
          cawoodavg_pft(ri) = ca1_int(p)
          cfrootavg_pft(ri) = cf1_int(p)
