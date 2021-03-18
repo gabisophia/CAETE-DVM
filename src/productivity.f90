@@ -26,8 +26,8 @@ module productivity
   
   contains
   
-    subroutine prod(dt,light_limit,catm,temp,ts,p0,ipar,rh,emax,cl1_prod,&
-         & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,k_norm,ph,ar,&
+    subroutine prod(dt,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
+         & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,k_norm,wmax,ph,ar,&
          & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla, e)
   
       use types

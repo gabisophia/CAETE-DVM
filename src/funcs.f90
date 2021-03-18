@@ -250,7 +250,7 @@ contains
       real(r_8),intent(in) :: amax           !µmolm-2s-1 - light saturated photo rate PRECISO CONVERTER de mol pra µmol
       real(r_8) :: kl_max                    !kgm-1s-1MPa-1   
 
-      kl_max = 0.0021 * exp(-26.6 * wd/amax)  
+      kl_max = 0.0021 * exp(-26.6 * wd/(amax * 1e6))  ! µmol m-2 s-1 - 1e6 converts mol to µmol  
   
    endfunction conductivity_xylemleaf
 
