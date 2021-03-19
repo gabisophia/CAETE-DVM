@@ -96,10 +96,10 @@ def neighbours_index(pos, matrix):
 
 def catch_out_budget(out):
     lst = ["evavg", "epavg", "phavg", "aravg", "nppavg",
-           "laiavg", "rcavg", "f5avg", "rmavg", "rgavg", "cltotalavg_pft", "cleafavg_pft", "cawoodavg_pft",
+           "laiavg", "rcavg", "f5avg", "rmavg", "rgavg", "cleafavg_pft", "cawoodavg_pft",
            "cfrootavg_pft", "stodbg", "ocpavg", "wueavg", "cueavg", "c_defavg", "vcmax",
            "specific_la", "nupt", "pupt", "litter_l", "cwd", "litter_fr", "npp2pay", "lnc", "delta_cveg",
-           "limitation_status", "uptk_strat", 'clavg', 'cp']
+           "limitation_status", "uptk_strat", 'cp']
 
     return dict(zip(lst, out))
 
@@ -225,7 +225,6 @@ class grd:
         self.swsoil = None
         self.rm = None
         self.rg = None
-        self.cltotal = None
         self.cleaf = None
         self.cawood = None
         self.cfroot = None
@@ -289,7 +288,6 @@ class grd:
         self.sp_sorganic_p = None
 
         # CVEG POOLS
-        self.vp_cltotal = None
         self.vp_cleaf = None
         self.vp_croot = None
         self.vp_cwood = None
@@ -334,7 +332,6 @@ class grd:
         self.swsoil = np.zeros(shape=(n,), order='F')
         self.rm = np.zeros(shape=(n,), order='F')
         self.rg = np.zeros(shape=(n,), order='F')
-        self.cltotal = np.zeros(shape=(n,), order='F')
         self.cleaf = np.zeros(shape=(3, n), order='F')
         self.cawood = np.zeros(shape=(n,), order='F')
         self.cfroot = np.zeros(shape=(n,), order='F')
@@ -397,7 +394,6 @@ class grd:
                      'swsoil': self.swsoil,
                      'rm': self.rm,
                      'rg': self.rg,
-                     'cltotal': self.cltotal,
                      'cleaf': self.cleaf,
                      'cawood': self.cawood,
                      'cfroot': self.cfroot,
@@ -446,7 +442,6 @@ class grd:
         self.swsoil = None
         self.rm = None
         self.rg = None
-        self.cltotal = None
         self.cleaf = None
         self.cawood = None
         self.cfroot = None
@@ -571,7 +566,6 @@ class grd:
             self.vp_cleaf[:], self.vp_croot, self.vp_cwood, self.pls_table[6, :])
         self.vp_lsid = np.where(a > 0.0)[0]
         del a, b, c, d
-        self.vp_cltotal = np.zeros(shape=(npls,), order='F')
         self.vp_dcl = np.zeros(shape=(npls,), order='F')
         self.vp_dca = np.zeros(shape=(npls,), order='F')
         self.vp_dcf = np.zeros(shape=(npls,), order='F')
@@ -800,7 +794,6 @@ class grd:
 
                 # INFLATe VARS
                 sto = np.zeros(shape=(3, npls), order='F')
-                cltotal = np.zeros(npls, order='F')
                 cleaf = np.zeros(shape=(3, npls), order='F')
                 cwood = np.zeros(npls, order='F')
                 croot = np.zeros(npls, order='F')
@@ -813,7 +806,7 @@ class grd:
                 sto[1, self.vp_lsid] = self.vp_sto[1, :]
                 sto[2, self.vp_lsid] = self.vp_sto[2, :]
 
-                #ta redundante aqui?? 
+                # I have to see here, I don't know if it's not redundant 
                 cleaf[0, self.vp_lsid] = self.vp_cleaf[0, :]
                 cleaf[1, self.vp_lsid] = self.vp_cleaf[1, :]
                 cleaf[2, self.vp_lsid] = self.vp_cleaf[2, :]
@@ -823,11 +816,10 @@ class grd:
                 c = 0
                 
                 for n in self.vp_lsid: 
-                    cltotal[n] = self.vp_cltotal[c]
                     cleaf[:,n] = self.vp_cleaf[:,c]
-#                    print('cleaf jovem=',cleaf[0,n])
-#                    print('cleaf madura=',cleaf[1,n])
-#                    print('cleaf senescente=',cleaf[2,n])
+                    print('cleaf jovem=',cleaf[0,n])
+                    print('cleaf madura=',cleaf[1,n])
+                    print('cleaf senescente=',cleaf[2,n])
                     cwood[n] = self.vp_cwood[c]
                     croot[n] = self.vp_croot[c]   
                     dcl[n] = self.vp_dcl[c]
@@ -840,10 +832,10 @@ class grd:
                 out = model.daily_budget(self.pls_table, self.wp_water_upper_mm, self.wp_water_lower_mm,
                                          self.soil_temp, temp[step], p_atm[step],
                                          ipar[step], ru[step], self.sp_available_n, self.sp_available_p,
-                                         ton, top, self.sp_organic_p, co2, sto, cltotal, cleaf, cwood, croot,
+                                         ton, top, self.sp_organic_p, co2, sto, cleaf, cwood, croot,
                                          dcl, dca, dcf, uptk_costs, self.wmax_mm)
 
-                del sto, cltotal, cleaf, cwood, croot, dcl, dca, dcf, uptk_costs
+                del sto, cleaf, cwood, croot, dcl, dca, dcf, uptk_costs
                 # Create a dict with the function output
                 daily_output = catch_out_budget(out)
 
@@ -857,7 +849,6 @@ class grd:
                     prec[step], daily_output['evavg'])
 
                 # UPDATE vegetation pools ! ABLE TO USE SPARSE MATRICES
-                self.vp_cltotal = daily_output['cltotalavg_pft'][self.vp_lsid]
                 self.vp_cleaf = daily_output['cleafavg_pft'][:, self.vp_lsid]
                 self.vp_cwood = daily_output['cawoodavg_pft'][self.vp_lsid]
                 self.vp_croot = daily_output['cfrootavg_pft'][self.vp_lsid]
@@ -1002,7 +993,6 @@ class grd:
                 self.cdef[step] = daily_output['c_defavg']
                 self.vcmax[step] = daily_output['vcmax']
                 self.specific_la[step] = daily_output['specific_la']
-                self.cltotal[step] = daily_output['clavg']
                 self.cleaf[:, step] = daily_output['cp'][0]
                 self.cawood[step] = daily_output['cp'][1]
                 self.cfroot[step] = daily_output['cp'][2]
@@ -1104,7 +1094,6 @@ class grd:
         lnco = []
 
         sto = self.vp_sto
-        cltotal = self.vp_cltotal
         cleaf = self.vp_cleaf
         cwood = self.vp_cwood
         croot = self.vp_croot
@@ -1138,7 +1127,7 @@ class grd:
                                      ipar[step], ru[step], self.sp_available_n, self.sp_available_p,
                                      self.sp_snc[:4].sum(
                                      ), self.sp_so_p, self.sp_snc[4:].sum(),
-                                     co2, sto, cltotal, cleaf, cwood, croot,
+                                     co2, sto, cleaf, cwood, croot,
                                      dcl, dca, dcf, uptk_costs, self.wmax_mm)
 
             # Create a dict with the function output
