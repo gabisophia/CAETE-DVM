@@ -254,13 +254,19 @@ contains
    ! =============================================================
    ! =============================================================
 
-   function leaf_age_factor(mu, acrit, a) result(fa)    ! based in Caldararu et al. 2018
+   function leaf_age_factor(mu, acrit, leaf_age) result(fa)    ! based in Caldararu et al. 2018
       use types
 
-      real(r_8), intent(in) :: mu, acrit, a
+      real(r_8), intent(in) :: mu, acrit, leaf_age
       real(r_8) :: fa
 
       fa = amin1(1.0, exp(mu * (acrit-a)))
+
+   !   real(r_8),intent(in) :: acrit
+   !   real(r_8),dimension(3), intent(in) :: mu, leaf_age
+   !   real(r_8),dimension(3) :: fa
+
+   !   fa(:) = amin1(1.0, exp(mu(:) * (acrit-leaf_age(:))))
 
    end function
 

@@ -827,6 +827,10 @@ module alloc
       scl2(2) = ((1D3 * scl1(2)) + (turnover_c1 * 2.73791075D0)) - (turnover_c2 * 2.73791075D0)
       scl2(3) = ((1D3 * scl1(3)) + (turnover_c2 * 2.73791075D0)) - (leaf_litter * 2.73791075D0)
 
+      print*,'scl2 jovem',scl2(1)
+      print*,'scl2 madura',scl2(2)
+      print*,'scl2 senescente',scl2(3)
+
       scf2 = (1D3 * scf1) + daily_growth(root) - (root_litter * 2.73791075D0)
 
       ! ## if it's a woody strategy:

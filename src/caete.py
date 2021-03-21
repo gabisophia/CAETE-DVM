@@ -812,9 +812,9 @@ class grd:
                 
                 for n in self.vp_lsid: 
                     cleaf[:,n] = self.vp_cleaf[:,c]
-                    print('cleaf jovem=',cleaf[0,n])
-                    print('cleaf madura=',cleaf[1,n])
-                    print('cleaf senescente=',cleaf[2,n])
+#                    print('cleaf jovem=',cleaf[0,n])
+#                    print('cleaf madura=',cleaf[1,n])
+#                    print('cleaf senescente=',cleaf[2,n])
                     cwood[n] = self.vp_cwood[c]
                     croot[n] = self.vp_croot[c]   
                     dcl[n] = self.vp_dcl[c]
