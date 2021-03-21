@@ -806,11 +806,6 @@ class grd:
                 sto[1, self.vp_lsid] = self.vp_sto[1, :]
                 sto[2, self.vp_lsid] = self.vp_sto[2, :]
 
-                # I have to see here, I don't know if it's not redundant 
-                cleaf[0, self.vp_lsid] = self.vp_cleaf[0, :]
-                cleaf[1, self.vp_lsid] = self.vp_cleaf[1, :]
-                cleaf[2, self.vp_lsid] = self.vp_cleaf[2, :]
-
                 # Just Check the integrity of the data
 #               assert self.vp_lsid.size == self.vp_cleaf.size, 'different shapes'
                 c = 0

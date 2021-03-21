@@ -122,8 +122,16 @@ contains
     enddo
 
     do i = 1, 3
-       penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
+       if (i .le. age_limits(1)) then 
+          penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
+          if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
+          penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
+          else 
+          penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
+          endif
+        endif 
     enddo
+
 
     ! Obtain total carbon of the leaf cohorts
     cl_total = sum(cl1_prod)

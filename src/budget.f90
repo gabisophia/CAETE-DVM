@@ -382,6 +382,10 @@ contains
          if(ca1_int(p) .lt. 0.0D0) ca1_int(p) = 0.0D0
          if(cf1_int(p) .lt. 0.0D0) cf1_int(p) = 0.0D0
 
+         print*,'cleaf1',cl1_int(1,p)
+         print*,'cleaf2',cl1_int(2,p)
+         print*,'cleaf3',cl1_int(3,p)
+
          ! WATER BALANCE - GABRIEL
          ! !     Precipitation
          ! !     =============
