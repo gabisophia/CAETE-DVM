@@ -77,7 +77,7 @@ module photo_par
         p22 = 2.0D0          ,&          !Rubisco carboxylation rate
         p23 = 0.30D0         ,&          !Rubisco carboxylation rate
         p24 = 36.0D0         ,&          !Rubisco carboxylation rate (oC)
-        p25 = 1.17D-5         ,&          !Maximum gross photosynthesis rate (molCO2/m2/s)0.000008
+        p25 = 1.17D-5        ,&          !Maximum gross photosynthesis rate (molCO2/m2/s)0.000008
         p26 = 0.50D0         ,&          !light extinction coefficient for IPAR/sun (0.5/sen90)
         p27 = 1.50D0         ,&          !light extinction coefficient for IPAR/shade (0.5/sen20)
         alphap = 0.0913D0    ,&          ! 0.0913 parameter for v4m. Hard to explain. See Chen et al. 1994
