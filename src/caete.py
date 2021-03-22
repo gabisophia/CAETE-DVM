@@ -99,7 +99,7 @@ def catch_out_budget(out):
            "laiavg", "rcavg", "f5avg", "rmavg", "rgavg", "cleafavg_pft", "cawoodavg_pft",
            "cfrootavg_pft", "stodbg", "ocpavg", "wueavg", "cueavg", "c_defavg", "vcmax",
            "specific_la", "nupt", "pupt", "litter_l", "cwd", "litter_fr", "npp2pay", "lnc", "delta_cveg",
-           "limitation_status", "uptk_strat", 'cp']
+           "limitation_status", "uptk_strat", "cleafavg", 'cp']
 
     return dict(zip(lst, out))
 
@@ -398,7 +398,9 @@ class grd:
                      'rm': self.rm,
                      'rg': self.rg,
                      'cltotal': self.cltotal,
-                     'cleaf': self.cleaf,
+                     'cleaf_j': self.cleaf[0],
+                     'cleaf_m': self.cleaf[1],
+                     'cleaf_s': self.cleaf[2],
                      'cawood': self.cawood,
                      'cfroot': self.cfroot,
                      'area': self.area,
@@ -568,7 +570,7 @@ class grd:
         self.vp_cleaf[1,:] = cleafaux/3
         self.vp_cleaf[2,:] = cleafaux/3
         a, b, c, d = m.pft_area_frac(
-            self.vp_cleaf, self.vp_croot, self.vp_cwood, self.pls_table[6, :])
+            self.vp_cleaf[:,:], self.vp_croot, self.vp_cwood, self.pls_table[6, :])
         self.vp_lsid = np.where(a > 0.0)[0]
         del a, b, c, d
         self.vp_dcl = np.zeros(shape=(npls,), order='F')
@@ -820,6 +822,7 @@ class grd:
                 
                 for n in self.vp_lsid: 
                     cltotal[n] = self.vp_cltotal[c]
+                    print('cltotal caete.py=',cltotal[n])
                     cleaf[:,n] = self.vp_cleaf[:,c]
                     print('cleaf jovem caete.py=',cleaf[0,n])
                     print('cleaf madura caete.py=',cleaf[1,n])
@@ -998,7 +1001,9 @@ class grd:
                 self.vcmax[step] = daily_output['vcmax']
                 self.specific_la[step] = daily_output['specific_la']
                 self.cltotal[step] = daily_output['cp'][0]
-                self.cleaf[:, step] = daily_output['cp'][0]
+                self.cleaf[0, step] = daily_output['cleafavg'][0]
+                self.cleaf[1, step] = daily_output['cleafavg'][1]
+                self.cleaf[2, step] = daily_output['cleafavg'][2]
                 self.cawood[step] = daily_output['cp'][1]
                 self.cfroot[step] = daily_output['cp'][2]
                 self.hresp[step] = soil_out['hr']

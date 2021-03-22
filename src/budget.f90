@@ -31,7 +31,7 @@ contains
         &, laiavg, rcavg, f5avg, rmavg, rgavg, cleafavg_pft, cawoodavg_pft&
         &, cfrootavg_pft, storage_out_bdgt_1, ocpavg, wueavg, cueavg, c_defavg&
         &, vcmax_1, specific_la_1, nupt_1, pupt_1, litter_l_1, cwd_1, litter_fr_1, npp2pay_1, lit_nut_content_1&
-        &, delta_cveg_1, limitation_status_1, uptk_strat_1, cp)
+        &, delta_cveg_1, limitation_status_1, uptk_strat_1, cleafavg, cp)
 
 
       use types
@@ -87,6 +87,9 @@ contains
       real(r_8),intent(out) :: litter_l_1       ! g m-2
       real(r_8),intent(out) :: cwd_1            ! g m-2
       real(r_8),intent(out) :: litter_fr_1      ! g m-2
+!      real(r_8),intent(out) :: cleafavg_j     
+!      real(r_8),intent(out) :: cleafavg_m      
+!      real(r_8),intent(out) :: cleafavg_s      
       real(r_8),dimension(2),intent(out) :: nupt_1         ! g m-2 (1) from Soluble (2) from organic
       real(r_8),dimension(3),intent(out) :: pupt_1         ! g m-2
       real(r_8),dimension(6),intent(out) :: lit_nut_content_1 ! g(Nutrient)m-2 ! Lit_nut_content variables         [(lln),(rln),(cwdn),(llp),(rl),(cwdp)]
@@ -101,7 +104,7 @@ contains
       integer(i_2),dimension(3,npls),intent(out) :: limitation_status_1
       integer(i_4),dimension(2,npls),intent(out) :: uptk_strat_1
       real(r_8),dimension(npls),intent(out) ::  npp2pay_1
-      real(r_8),dimension(3),intent(out) :: cp
+      real(r_8),dimension(3),intent(out) :: cp, cleafavg
 
       !     -----------------------Internal Variables------------------------
       integer(i_4) :: p, counter, nlen, ri, i, j
@@ -499,6 +502,9 @@ contains
       litter_l_1 = sum(litter_l * ocp_coeffs, mask= .not. isnan(litter_l))
       cwd_1 = sum(cwd * ocp_coeffs, mask= .not. isnan(cwd))
       litter_fr_1 = sum(litter_fr * ocp_coeffs, mask= .not. isnan(litter_fr))
+      cleafavg(1) = sum(cl1_int(1,:) * ocp_coeffs, mask= .not. isnan(cl1_int(1,:)))
+      cleafavg(2) = sum(cl1_int(2,:) * ocp_coeffs, mask= .not. isnan(cl1_int(2,:)))
+      cleafavg(3) = sum(cl1_int(3,:) * ocp_coeffs, mask= .not. isnan(cl1_int(3,:)))
 
       ! wp(1) = sum(w * ocp_coeffs, mask= .not. isnan(w))
       ! wp(2) = sum(g * ocp_coeffs, mask= .not. isnan(g))
