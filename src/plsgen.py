@@ -143,10 +143,8 @@ def table_gen(NPLS):
         if pool == 'leaf' or pool == 'root':
             pass
         else:
-#            pool_n2c = np.linspace(0.002, 0.025, 500) / 10.0
-#            pool_p2c = np.linspace(0.00025, 0.0025, 500) / 10.0
-            pool_n2c /= 150.0
-            pool_p2c /= 250.0
+            pool_n2c = np.linspace(0.002, 0.025, 500) / 10.0
+            pool_p2c = np.linspace(0.00025, 0.0025, 500) / 10.0
 
         x = [[a, b] for a in pool_n2c for b in pool_p2c if (
             (a / b) >= 3.0) and ((a / b) <= 50.0)]
@@ -185,8 +183,7 @@ def table_gen(NPLS):
     # Creating woody plants (maybe herbaceous)
     index1 = 0
     rtime_wood = vec_ranging(np.random.normal(
-#        1.0, 10.0, r_ceil), 0.083333333333, 100.0)
-         2, 4, r_ceil), 0.083333333333, 99.9999)
+        1.0, 10.0, r_ceil), 0.083333333333, 100.0)
     while index1 < diffw:
         restime = np.zeros(shape=(3,), dtype=np.float64)
         allocatio = plsa_wood[np.random.randint(0, plsa_wood.shape[0])]
