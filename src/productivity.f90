@@ -172,7 +172,7 @@ contains
 
     rc_aux = canopy_resistence(vpd, f1, g1, catm)  ! RCM leaf level -!s m-1
 
-    wue = water_ue(f1, rc_aux, p0, vpd)
+    wue = water_ue(f1(:), rc_aux, p0, vpd)
 
 
     !     calcula a transpiração em mm/s

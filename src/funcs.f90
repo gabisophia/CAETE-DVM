@@ -338,24 +338,25 @@ contains
    function water_ue(a, g, p0, vpd) result(wue)
       use types
       !implicit none
-      real(r_8),intent(in) :: a
+      real(r_8),dimension(3),intent(in) :: a
       real(r_4),intent(in) :: g, p0, vpd
       ! a = assimilacao; g = resistencia; p0 = pressao atm; vpd = vpd
       real(r_4) :: wue
 
-      real(r_4) :: g_in, p0_in, e_in
+      real(r_4) :: g_in, p0_in, e_in, a_aux
+
+      a_aux = sum(a(:))
 
       g_in = (1./g) * 40.87 ! convertendo a resistencia (s m-1) em condutancia mol m-2 s-1
       p0_in = p0 /10. ! convertendo pressao atm (mbar/hPa) em kPa
       e_in = g_in * (vpd/p0_in) ! calculando transpiracao mol H20 m-2 s-1
 
-      if(a .eq. 0 .or. e_in .eq. 0) then
+      if(a_aux .eq. 0 .or. e_in .eq. 0) then
          wue = 0
       else
-         wue = real(a, kind=r_4)/e_in
+         wue = real(a_aux, kind=r_4)/e_in
       endif
    end function water_ue
-
 
  !=================================================================
  !=================================================================
