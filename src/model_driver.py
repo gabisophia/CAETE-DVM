@@ -8,10 +8,10 @@ import _pickle as pkl
 import bz2
 import copy
 import multiprocessing as mp
-from os import mkdir
 from pathlib import Path
-import joblib
+from random import shuffle
 
+import joblib
 from netCDF4 import Dataset
 import numpy as np
 
@@ -43,6 +43,12 @@ def check_start():
 
 
 sombrero = check_start()
+outf = input("Give a name to your run: ")
+dump_folder = Path(f'../outputs/{outf}').resolve()
+nc_outputs = Path(os.path.join(dump_folder, Path("nc_outputs"))).resolve()
+print(
+    f"The raw model results & the PLS table will be saved at: {dump_folder}\n")
+print(f"The final netCDF files will be stored at: {nc_outputs}\n")
 
 # Water saturation, field capacity & wilting point
 # Topsoil
@@ -85,7 +91,7 @@ with open(os.path.join(s_data, "co2/historical_CO2_annual_1765_2018.txt")) as fh
     co2_data = fh.readlines()
 
 # FUNCTIONAL TRAITS DATA
-pls_table = pls.table_gen(npls)
+pls_table = pls.table_gen(npls, dump_folder)
 
 # # Create the gridcell objects
 if sombrero:
@@ -94,19 +100,26 @@ if sombrero:
     for Y in range(360):
         for X in range(720):
             if not mask[Y, X]:
-                grid_mn.append(grd(X, Y))
+                grid_mn.append(grd(X, Y, outf))
 
 else:
     grid_mn = []
-    for Y in range(168, 171):
-        for X in range(225, 228):
+    for Y in range(168, 175):
+        for X in range(225, 230):
             if not mask[Y, X]:
-                grid_mn.append(grd(X, Y))
+                grid_mn.append(grd(X, Y, outf))
 
 
 def apply_init(grid):
     grid.init_caete_dyn(input_path, stime, co2_data, pls_table, tsoil, ssoil)
     return grid
+
+
+def chunks(lst, chunck_size):
+    shuffle(lst)
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), chunck_size):
+        yield lst[i:i + chunck_size]
 
 
 # # START GRIDCELLS
@@ -134,7 +147,7 @@ def apply_fun(grid):
 
 def apply_fun0(grid):
     grid.run_caete('19790101', '19881231', spinup=45,
-                   fix_co2='1983', save=False)
+                   fix_co2='1979', save=False)
     return grid
 
 
@@ -164,6 +177,7 @@ if __name__ == "__main__":
     if output_path.exists():
         pass
     else:
+        from os import mkdir
         mkdir(output_path)
 
     import time
@@ -197,6 +211,11 @@ if __name__ == "__main__":
                 result = p.starmap(fun, input)
             else:
                 result = p.map(fun, input)
+                # # Divide in chunks to leverage the work
+                # result = []
+                # for l in chunks(input, n_proc * 2):
+                #     r1 = p.map(fun, input)
+                # result += r1
         end_spinup = time.time() - start
         fh.writelines(f"MODEL EXEC - spinup coup END after (s){end_spinup}\n",)
         return result
@@ -213,8 +232,10 @@ if __name__ == "__main__":
     del result
 
     # Save Ground 0
-    with open("RUN0.pkz", 'wb') as fh2:
-        print("Saving gridcells with init state in RUN0.pkz")
+    g0_path = Path(os.path.join(
+        dump_folder, Path(f"RUN_{outf}_.pkz"))).resolve()
+    with open(g0_path, 'wb') as fh2:
+        print(f"Saving gridcells with init state in: {g0_path}\n")
         joblib.dump(result1, fh2, compress=('zlib', 1), protocol=4)
 
     result = result1
@@ -226,9 +247,10 @@ if __name__ == "__main__":
 
     fh.close()
 
-    print(time.ctime())
-    print("Saving db - This will take some hours")
-    write_h5()
+    print("\nEND OF MODEL EXECUTION ", time.ctime(), "\n\n")
+    print("Saving db - This will take some hours\n")
+    write_h5(dump_folder)
     print("\n\nSaving netCDF4 files")
-    h52nc("../outputs/CAETE.h5")
+    h5path = Path(os.path.join(dump_folder, Path('CAETE.h5'))).resolve()
+    h52nc(h5path, nc_outputs)
     print(time.ctime())

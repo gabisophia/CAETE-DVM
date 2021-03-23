@@ -133,19 +133,19 @@ def turnover_combinations(verbose=False):
     return a1, a2
 
 
-def table_gen(NPLS):
+def table_gen(NPLS, fpath=None):
     """AKA main - generate a trait table for CAETÊ - save it to a .csv"""
 
     def calc_ratios(pool):
 
-        pool_n2c = np.linspace(0.002, 0.025, 500)
-        pool_p2c = np.linspace(0.0002, 0.0025, 500)
+        pool_n2c = np.linspace(0.003, 0.04, 500)
+        pool_p2c = np.linspace(1e-5, 0.005, 500)
 
         if pool == 'leaf' or pool == 'root':
             pass
         else:
-            pool_n2c = np.linspace(0.002, 0.025, 500) / 10.0
-            pool_p2c = np.linspace(0.00025, 0.0025, 500) / 10.0
+            pool_n2c /= 75.0
+            pool_p2c /= 75.0
 
         x = [[a, b] for a in pool_n2c for b in pool_p2c if (
             (a / b) >= 3.0) and ((a / b) <= 50.0)]
@@ -162,8 +162,9 @@ def table_gen(NPLS):
 
 # REVER O TEMPO DE RESIDÊNCIA DAS RAÌZES FINAS - VARIAR ENTRE 1 mes e 2 anos
     index0 = 0
-    rtime = vec_ranging(np.random.normal(
-        0.0, 10.0, r_ceil), 0.083333, 8.333333333333)
+    # rtime = vec_ranging(np.random.beta(2, 4, r_ceil),
+    #                     0.083333, 2)
+    rtime = np.random.uniform(0.08333333333333333, 4.0, r_ceil)
     print("CREATE GRASSy STRATEGIES - Checking potential npp/alocation")
     while index0 < diffg:
         restime = np.zeros(shape=(3,), dtype=np.float64)
@@ -183,8 +184,9 @@ def table_gen(NPLS):
     print("CREATE WOODY STRATEGIES - Checking potential npp/alocation")
     # Creating woody plants (maybe herbaceous)
     index1 = 0
-    rtime_wood = vec_ranging(np.random.normal(
-        1.0, 10.0, r_ceil), 0.083333333333, 100.0)
+    # rtime_wood = vec_ranging(np.random.beta(
+    # 2, 4, r_ceil), 1.0, 150)
+    rtime_wood = np.random.uniform(2.0, 120.0, r_ceil)
     while index1 < diffw:
         restime = np.zeros(shape=(3,), dtype=np.float64)
         allocatio = plsa_wood[np.random.randint(0, plsa_wood.shape[0])]
@@ -237,12 +239,15 @@ def table_gen(NPLS):
     froot_p2c = root[:, 1]
 
     # new traits
-    pdia = np.random.uniform(0.0, 0.1e-7, NPLS)
+    pdia = np.random.uniform(0.01, 0.2, NPLS)
     np.place(pdia, test, 0.0)
-    woods = np.where(alloc[:, 4] > 0.0)
+    woods = np.where(alloc[:, 4] > 0.0)[0]
+    # return woods
+
     for i in woods:
         if np.random.normal() > 0:
             pdia[i] = 0.0
+
     amp = np.random.uniform(0.001, 0.999, NPLS)
 
     pls_id = np.arange(NPLS)
@@ -256,17 +261,20 @@ def table_gen(NPLS):
             'leaf_n2c', 'awood_n2c', 'froot_n2c', 'leaf_p2c', 'awood_p2c', 'froot_p2c',
             'amp', 'pdia']
 
-    pls_table = np.vstack(stack)
+    if fpath is not None:
 
-    # # ___side_effects
-    if not Path("../outputs").exists():
-        os.mkdir("../outputs")
-    with open('../outputs/pls_attrs.csv', mode='w') as fh:
-        writer = csv.writer(fh, delimiter=',')
-        writer.writerow(head)
-        for x in range(pls_table.shape[1]):
-            writer.writerow(list(pls_table[:, x]))
-        # writer.writerows(pls_table)
+        pls_table = np.vstack(stack)
+
+        # # ___side_effects
+        if not fpath.exists():
+            os.system(f" mkdir -p {fpath.resolve()}")
+        fnp = Path(os.path.join(fpath, 'pls_attrs.csv')).resolve()
+        with open(fnp, mode='w') as fh:
+            writer = csv.writer(fh, delimiter=',')
+            writer.writerow(head)
+            for x in range(pls_table.shape[1]):
+                writer.writerow(list(pls_table[:, x]))
+            # writer.writerows(pls_table)
 
     pls_table = np.vstack(stack[1:])
     return np.asfortranarray(pls_table, dtype=np.float64)
