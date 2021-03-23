@@ -389,7 +389,7 @@ class grd:
         self.swsoil = np.zeros(shape=(n,), order='F')
         self.rm = np.zeros(shape=(n,), order='F')
         self.rg = np.zeros(shape=(n,), order='F')
-        self.cleaf = np.zeros(shape=(n,), order='F')
+        self.cleaf = np.zeros(shape=(3, n), order='F')
         self.cawood = np.zeros(shape=(n,), order='F')
         self.cfroot = np.zeros(shape=(n,), order='F')
         self.wue = np.zeros(shape=(n,), order='F')
@@ -651,8 +651,12 @@ class grd:
         #                          self.wp_field_capacity_lower, self.lbd_lo)
 
         # Biomass
-        self.vp_cleaf, self.vp_croot, self.vp_cwood = m.spinup2(
+        self.vp_cleaf = np.zeros(shape=(3, npls), order='F')
+        cleafaux, self.vp_croot, self.vp_cwood = m.spinup2(
             1.0, self.pls_table)
+        self.vp_cleaf[0,:] = cleafaux/3
+        self.vp_cleaf[1,:] = cleafaux/3
+        self.vp_cleaf[2,:] = cleafaux/3
         a, b, c, d = m.pft_area_frac(
             self.vp_cleaf, self.vp_croot, self.vp_cwood, self.pls_table[6, :])
         self.vp_lsid = np.where(a > 0.0)[0]
@@ -904,7 +908,7 @@ class grd:
 
                 # INFLATe VARS
                 sto = np.zeros(shape=(3, npls), order='F')
-                cleaf = np.zeros(npls, order='F')
+                cleaf = np.zeros(shape=(3, npls), order='F')
                 cwood = np.zeros(npls, order='F')
                 croot = np.zeros(npls, order='F')
                 dcl = np.zeros(npls, order='F')
@@ -916,10 +920,10 @@ class grd:
                 sto[1, self.vp_lsid] = self.vp_sto[1, :]
                 sto[2, self.vp_lsid] = self.vp_sto[2, :]
                 # Just Check the integrity of the data
-                assert self.vp_lsid.size == self.vp_cleaf.size, 'different array sizes'
+#               assert self.vp_lsid.size == self.vp_cleaf.size, 'different array sizes'
                 c = 0
                 for n in self.vp_lsid:
-                    cleaf[n] = self.vp_cleaf[c]
+                    cleaf[:,n] = self.vp_cleaf[:,c]
                     cwood[n] = self.vp_cwood[c]
                     croot[n] = self.vp_croot[c]
                     dcl[n] = self.vp_dcl[c]
@@ -956,7 +960,7 @@ class grd:
                 self.wp_water_lower_mm = self.swp.w2
 
                 # UPDATE vegetation pools ! ABLE TO USE SPARSE MATRICES
-                self.vp_cleaf = daily_output['cleafavg_pft'][self.vp_lsid]
+                self.vp_cleaf = daily_output['cleafavg_pft'][:, self.vp_lsid]
                 self.vp_cwood = daily_output['cawoodavg_pft'][self.vp_lsid]
                 self.vp_croot = daily_output['cfrootavg_pft'][self.vp_lsid]
                 self.vp_dcl = daily_output['delta_cveg'][0][self.vp_lsid]
@@ -1117,7 +1121,7 @@ class grd:
                     self.cdef[step] = daily_output['c_defavg']
                     self.vcmax[step] = daily_output['vcmax']
                     self.specific_la[step] = daily_output['specific_la']
-                    self.cleaf[step] = daily_output['cp'][0]
+                    self.cleaf[:, step] = daily_output['cp'][0]
                     self.cawood[step] = daily_output['cp'][1]
                     self.cfroot[step] = daily_output['cp'][2]
                     self.hresp[step] = soil_out['hr']
