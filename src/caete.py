@@ -125,7 +125,7 @@ def catch_out_budget(out):
            "laiavg", "rcavg", "f5avg", "rmavg", "rgavg", "cleafavg_pft", "cawoodavg_pft",
            "cfrootavg_pft", "stodbg", "ocpavg", "wueavg", "cueavg", "c_defavg", "vcmax",
            "specific_la", "nupt", "pupt", "litter_l", "cwd", "litter_fr", "npp2pay", "lnc", "delta_cveg",
-           "limitation_status", "uptk_strat", 'cp', 'c_cost_cwm']
+           "limitation_status", "uptk_strat", "cleafavg", "cp", "c_cost_cwm"]
 
     return dict(zip(lst, out))
 
@@ -276,6 +276,7 @@ class grd:
         self.rm = None
         self.rg = None
         self.cleaf = None
+        self.cltotal = None
         self.cawood = None
         self.cfroot = None
         self.area = None
@@ -341,6 +342,7 @@ class grd:
 
         # CVEG POOLS
         self.vp_cleaf = None
+        self.vp_cltotal = None
         self.vp_croot = None
         self.vp_cwood = None
         self.vp_dcl = None
@@ -390,6 +392,7 @@ class grd:
         self.rm = np.zeros(shape=(n,), order='F')
         self.rg = np.zeros(shape=(n,), order='F')
         self.cleaf = np.zeros(shape=(3, n), order='F')
+        self.cltotal = np.zeros(shape=(n,), order='F')
         self.cawood = np.zeros(shape=(n,), order='F')
         self.cfroot = np.zeros(shape=(n,), order='F')
         self.wue = np.zeros(shape=(n,), order='F')
@@ -451,7 +454,10 @@ class grd:
                      'swsoil': self.swsoil,
                      'rm': self.rm,
                      'rg': self.rg,
-                     'cleaf': self.cleaf,
+                     'cleaf_j': self.cleaf[0],
+                     'cleaf_m': self.cleaf[1],
+                     'cleaf_s': self.cleaf[2],
+                     'cltotal': self.cltotal,
                      'cawood': self.cawood,
                      'cfroot': self.cfroot,
                      'area': self.area,
@@ -500,6 +506,7 @@ class grd:
         self.rm = None
         self.rg = None
         self.cleaf = None
+        self.cltotal = None
         self.cawood = None
         self.cfroot = None
         self.area = None
@@ -658,7 +665,7 @@ class grd:
         self.vp_cleaf[1,:] = cleafaux/3
         self.vp_cleaf[2,:] = cleafaux/3
         a, b, c, d = m.pft_area_frac(
-            self.vp_cleaf, self.vp_croot, self.vp_cwood, self.pls_table[6, :])
+            self.vp_cleaf[:,:], self.vp_croot, self.vp_cwood, self.pls_table[6, :])
         self.vp_lsid = np.where(a > 0.0)[0]
         self.ls = self.vp_lsid.size
         del a, b, c, d
@@ -667,6 +674,9 @@ class grd:
         self.vp_dcf = np.zeros(shape=(npls,), order='F')
         self.vp_ocp = np.zeros(shape=(npls,), order='F')
         self.vp_sto = np.zeros(shape=(3, npls), order='F')
+        self.vp_cltotal = np.zeros(shape=(npls,), order='F')
+
+        self.vp_cltotal = sum(self.vp_cleaf[:,:])
 
         # # # SOIL
         self.sp_csoil = np.zeros(shape=(4,), order='F') + 1.0
@@ -909,6 +919,7 @@ class grd:
                 # INFLATe VARS
                 sto = np.zeros(shape=(3, npls), order='F')
                 cleaf = np.zeros(shape=(3, npls), order='F')
+                cltotal = np.zeros(npls, order='F')
                 cwood = np.zeros(npls, order='F')
                 croot = np.zeros(npls, order='F')
                 dcl = np.zeros(npls, order='F')
@@ -924,6 +935,7 @@ class grd:
                 c = 0
                 for n in self.vp_lsid:
                     cleaf[:,n] = self.vp_cleaf[:,c]
+                    cltotal[n] = self.vp_cltotal[c]
                     cwood[n] = self.vp_cwood[c]
                     croot[n] = self.vp_croot[c]
                     dcl[n] = self.vp_dcl[c]
@@ -1121,7 +1133,10 @@ class grd:
                     self.cdef[step] = daily_output['c_defavg']
                     self.vcmax[step] = daily_output['vcmax']
                     self.specific_la[step] = daily_output['specific_la']
-                    self.cleaf[:, step] = daily_output['cp'][0]
+                    self.cleaf[0, step] = daily_output['cleafavg'][0]
+                    self.cleaf[1, step] = daily_output['cleafavg'][1]
+                    self.cleaf[2, step] = daily_output['cleafavg'][2]
+                    self.cltotal[step] = daily_output['cp'][0]
                     self.cawood[step] = daily_output['cp'][1]
                     self.cfroot[step] = daily_output['cp'][2]
                     self.hresp[step] = soil_out['hr']
@@ -1223,6 +1238,7 @@ class grd:
 
         sto = self.vp_sto
         cleaf = self.vp_cleaf
+        cltotal = self.cltotal
         cwood = self.vp_cwood
         croot = self.vp_croot
         dcl = self.vp_dcl
