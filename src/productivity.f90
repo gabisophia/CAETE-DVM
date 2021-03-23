@@ -163,11 +163,12 @@ contains
 
 !     Photosysthesis minimum and maximum temperature
 !     ----------------------------------------------
-
     if ((temp.ge.-10.0).and.(temp.le.50.0)) then
-       f1 = f1a * f5 ! :water stress factor ! Ancient floating-point underflow spring (from CPTEC-PVM2)
+        do i = 1,3
+            f1(i) = f1a * f5 * penalization_by_age(i) ! :water stress factor ! Ancient floating-point underflow spring (from CPTEC-PVM2)
+        enddo
     else
-       f1 = 0.0      !Temperature above/below photosynthesis windown
+        f1 = 0.0      !Temperature above/below photosynthesis windown
     endif
 
     rc_aux = canopy_resistence_real(vpd, f1(:), g1, catm)  ! RCM leaf level -!s m-1
