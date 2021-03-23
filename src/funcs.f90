@@ -116,7 +116,7 @@ contains
       if(lai .lt. 0.0D0) lai = 0.0D0
 
    end function leaf_area_index
-   
+
    !=================================================================
    !=================================================================
 
@@ -154,7 +154,7 @@ contains
       ! 20 == shade LAI
       ! Any other number returns sunlai (not scaled to canopy)
 
-      real(r_8),intent(in) :: cleaf ! carbon in leaf (kg m-2)
+      real(r_8),dimension(3),intent(in) :: cleaf ! carbon in leaf (kg m-2)
       real(r_8),intent(in) :: sla   ! specific leaf area (m2 gC-1)
       real(r_8) :: lai_ss           ! leaf area index (m2 m-2)
 
@@ -162,7 +162,7 @@ contains
       real(r_8) :: sunlai
       real(r_8) :: shadelai
 
-      lai = leaf_area_index(cleaf,sla)
+      lai = leaf_area_index(cleaf(:),sla)
 
       sunlai = (1.0D0-(dexp(-p26*lai)))/p26
       shadelai = lai - sunlai
