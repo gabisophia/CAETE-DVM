@@ -137,7 +137,7 @@ contains
 
     n2cl = real(n2cl * (cl_total * 1e3), r_4) ! N in leaf g m-2
     p2cl = real(p2cl * (cl_total * 1e3), r_4) ! P in leaf g m-2
-    
+
 
 !     ==============
 !     Photosynthesis
@@ -189,7 +189,7 @@ contains
 !     Canopy gross photosynthesis (kgC/m2/yr)
 !     =======================================x
 
-    ph =  gross_ph(f1,cl1_prod,sla)       ! kg m-2 year-1
+    ph = gross_ph(f1(:),cl1_prod(:), sla)        ! kg m-2 year-1
 
 !     Autothrophic respiration
 !     ========================

@@ -77,19 +77,22 @@ contains
       use types, only: r_4, r_8
       !implicit none
 
-      real(r_8),intent(in) :: f1    !molCO2 m-2 s-1
-      real(r_8),intent(in) :: cleaf !kgC m-2
+      real(r_8),dimension(3),intent(in) :: f1    !molCO2 m-2 s-1
+      real(r_8),dimension(3),intent(in) :: cleaf !kgC m-2
       real(r_8),intent(in) :: sla   !m2 gC-1
       real(r_4) :: ph
 
-      real(r_8) :: f4sun, f1in
+      real(r_8),dimension(3) :: f1in
+      real(r_8) :: f4sun 
       real(r_8) :: f4shade
+      real(r_8),dimension(3) :: ph_aux
 
-      f1in = f1
-      f4sun = f_four(1,cleaf,sla)
-      f4shade = f_four(2,cleaf,sla)
+      f1in(:) = f1(:)
+      f4sun = f_four(1,cleaf(:),sla)
+      f4shade = f_four(2,cleaf(:),sla)
 
-      ph = real((0.012D0*31557600.0D0*f1in*f4sun*f4shade), r_4)
+      ph_aux(:) = real((0.012D0*31557600.0D0*f1in(:)*f4sun*f4shade), r_4)
+      ph = sum(ph_aux(:))
       if(ph .lt. 0.0) ph = 0.0
    end function gross_ph
 
