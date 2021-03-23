@@ -183,7 +183,7 @@ contains
     ! laia = 0.2D0 * dexp((2.5D0 * f1)/p25)
     sla = spec_leaf_area(tleaf)  ! m2 g-1  ! Convertions made in leaf_area_index &  gross_ph + calls therein
 
-    laia = leaf_area_index(cl1_prod, sla)
+    laia = leaf_area_index(cl1_prod(:), sla)
     rc = rc_aux !* real(laia,kind=r_4) ! RCM -!s m-1 ! CANOPY SCALING --
 
 !     Canopy gross photosynthesis (kgC/m2/yr)

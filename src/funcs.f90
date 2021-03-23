@@ -105,16 +105,18 @@ contains
       use types, only: r_8
       !implicit none
 
-      real(r_8),intent(in) :: cleaf !kgC m-2
+      real(r_8),dimension(3),intent(in) :: cleaf !kgC m-2
       real(r_8),intent(in) :: sla   !m2 gC-1
       real(r_8) :: lai
 
+      real(r_8) :: cl_total
+      cl_total = sum(cleaf(:))
 
-      lai  = cleaf * 1.0D3 * sla  ! Converts cleaf from (KgC m-2) to (gCm-2)
+      lai  = cl_total * 1.0D3 * sla  ! Converts cleaf from (KgC m-2) to (gCm-2)
       if(lai .lt. 0.0D0) lai = 0.0D0
 
    end function leaf_area_index
-
+   
    !=================================================================
    !=================================================================
 
