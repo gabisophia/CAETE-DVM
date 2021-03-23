@@ -33,7 +33,8 @@ module photo
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         leaf_age_factor        ,& ! (f), effect of leaf age on photosynthetic rate
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
-        canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
+        canopy_resistence_pot  ,& ! (f), Potential Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
+        canopy_resistence_real ,& ! (f), Real Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
         stomatal_conductance   ,& ! (f), IN DEVELOPMENT - return stomatal conductance
         vapor_p_defcit         ,& ! (f), Vapor pressure defcit  (kPa)
         transpiration          ,&
@@ -260,12 +261,11 @@ contains
    !=================================================================
    !=================================================================
 
-   function canopy_resistence(vpd_in,f1_in,g1,ca) result(rc2_in)
+   function canopy_resistence_pot(vpd_in,f1_in,g1,ca) result(rc2_in)
       ! return stomatal resistence based on Medlyn et al. 2011a
       ! Coded by Helena Alves do Prado
       use global_par, only: rcmin, rcmax
       use types, only: r_4 ,r_8
-
 
       !implicit none
 
@@ -297,7 +297,50 @@ contains
       if(rc2_in .ge. rcmax) rc2_in = rcmax
       if(rc2_in .lt. rcmin) rc2_in = rcmin
 
-   end function canopy_resistence
+   end function canopy_resistence_pot
+
+   !=================================================================
+   !=================================================================
+
+   function canopy_resistence_real(vpd_in,f1,g1,ca) result(rc2_in)
+      ! return stomatal resistence based on Medlyn et al. 2011a
+      ! Coded by Helena Alves do Prado
+      use global_par, only: rcmin, rcmax
+      use types, only: r_4 ,r_8
+
+      !implicit none
+
+      real(r_8),dimension(3),intent(in) :: f1    !Photosynthesis (molCO2/m2/s)
+      real(r_4),intent(in) :: vpd_in   !hPa
+      real(r_8),intent(in) :: g1       ! model m (slope) (sqrt(kPa))
+      real(r_8),intent(in) :: ca
+      real(r_4) :: rc2_in              !Canopy resistence (sm-1)
+
+      !     Internal
+      !     --------
+      real(r_8),dimension(3) :: gs_aux       
+      real(r_8) :: gs       !Canopy conductance (molCO2 m-2 s-1)
+      real(r_8) :: D1       !sqrt(kPA)
+      real(r_4) :: vapour_p_d
+
+      vapour_p_d = vpd_in
+      ! Assertions
+      if(vpd_in .le. 0.0) vapour_p_d = 0.001
+      if(vpd_in .gt. 4.0) vapour_p_d = 4.0
+      ! print *, 'vpd going mad in canopy_resistence'
+      ! stop
+      ! endif
+
+      D1 = sqrt(vapour_p_d)
+      gs_aux(:) = 0.003 + 1.6D0 * (1.0D0 + (g1/D1)) * ((f1(:) * 1.0e6)/ca) ! mol m-2 s-1
+      gs = sum(gs_aux(:))
+      gs = gs * (1.0D0 / 44.6D0)! convrt from  mol/m²/s to m s-1
+      rc2_in = real( 1.0D0 / gs, r_4)  !  s m-1
+
+      if(rc2_in .ge. rcmax) rc2_in = rcmax
+      if(rc2_in .lt. rcmin) rc2_in = rcmin
+
+   end function canopy_resistence_real
 
    !=================================================================
    !=================================================================
