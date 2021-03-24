@@ -936,6 +936,10 @@ class grd:
                 for n in self.vp_lsid:
                     cleaf[:,n] = self.vp_cleaf[:,c]
                     cltotal[n] = self.vp_cltotal[c]
+                    print('cleaf jovem caete.py=',cleaf[0,n])
+                    print('cleaf madura caete.py=',cleaf[1,n])
+                    print('cleaf senescente caete.py=',cleaf[2,n])
+                    print('cltotal caete.py=',cltotal[n])
                     cwood[n] = self.vp_cwood[c]
                     croot[n] = self.vp_croot[c]
                     dcl[n] = self.vp_dcl[c]

@@ -369,6 +369,10 @@ contains
          if(ca1_int(p) .lt. 0.0D0) ca1_int(p) = 0.0D0
          if(cf1_int(p) .lt. 0.0D0) cf1_int(p) = 0.0D0
 
+         print*,'cl1_int jovem budget',cl1_int(1,p)
+         print*,'cl1_int madura budget',cl1_int(2,p)
+         print*,'cl1_int senescente budget',cl1_int(3,p)
+
       enddo ! end pls_loop (p)
       !$OMP END PARALLEL DO
       epavg = emax !mm/day

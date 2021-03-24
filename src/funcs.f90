@@ -114,6 +114,11 @@ contains
       real(r_8) :: cl_total
       cl_total = sum(cleaf(:))
 
+      print*,'cleaf lai jovem',cleaf(1)
+      print*,'cleaf lai madura',cleaf(2)
+      print*,'cleaf lai senescente',cleaf(3)
+      print*,'cltotal lai',cl_total
+
       lai  = cl_total * 1.0D3 * sla  ! Converts cleaf from (KgC m-2) to (gCm-2)
       if(lai .lt. 0.0D0) lai = 0.0D0
 
@@ -249,13 +254,14 @@ contains
    ! =============================================================
    ! =============================================================
 
-   function leaf_age_factor(mu, acrit, a) result(fa)    ! based in Caldararu et al. 2018
+   function leaf_age_factor(mu, acrit, leaf_age) result(fa)    ! based in Caldararu et al. 2018
       use types
 
-      real(r_8), intent(in) :: mu, acrit, a
-      real(r_8) :: fa
+      real(r_8), intent(in) :: acrit
+      real(r_8), dimension(3), intent(in) :: mu, leaf_age
+      real(r_8), dimension(3) :: fa
 
-      fa = amin1(1.0, exp(mu * (acrit-a)))
+      fa = amin1(1.0, exp(mu * (acrit-leaf_age)))
 
    end function
 

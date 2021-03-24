@@ -120,8 +120,13 @@ contains
     leaf_age(3) = (tleaf * (5.0/6.0))
 
     do i = 1, 3
-        penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
+        penalization_by_age(:) = leaf_age_factor(umol_penalties(:), age_crit, leaf_age(:))
     enddo
+    print*,'fa jovem',penalization_by_age(1)
+    print*,'fa madura',penalization_by_age(2)
+    print*,'fa velha',penalization_by_age(3)
+
+    
 !    do i = 1,3
 !       if (i .le. age_limits(1)) then 
 !          penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
@@ -191,6 +196,7 @@ contains
 !     =======================================x
 
     ph = gross_ph(f1(:),cl1_prod(:), sla)        ! kg m-2 year-1
+    print*,'gpp',ph
 
 !     Autothrophic respiration
 !     ========================
