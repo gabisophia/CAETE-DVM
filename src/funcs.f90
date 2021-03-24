@@ -228,7 +228,7 @@ contains
       d = (ep_aux * alfm) / (1.0D0 + (gm/gc))
       if(d .gt. 0.0D0) then
          f5_64 = pt/d
-         ! print*, f5_64, 'f564'
+        ! print*, f5_64, 'f564'
          f5_64 = exp((f5_64 * (-0.1D0)))
          f5_64 = 1.0D0 - f5_64
       else
@@ -1190,13 +1190,10 @@ contains
 
             crown_area(p) = k_allom1*(diameter(p)**krp)
          endif
-         print*, 'height', height(p), p, 'cawood', cawood(p)
+            print*, 'height', height(p), p, 'cawood', cawood(p)
       enddo
  
    end subroutine pls_allometry
-
-   !====================================================================
-   !====================================================================
 
 end module photo
 

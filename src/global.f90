@@ -46,7 +46,7 @@ module global_par
    real(r_8),parameter,public :: sapwood = 0.05D0                ! Fraction of wood tissues that are sapwood
    real(r_4),parameter,public :: ks = 0.25                       ! P Sorption
    integer(i_4),parameter,public :: npls = 30                    ! Number of Plant Life Strategies-PLSs simulated (Defined at compile time)
-   integer(i_4),parameter,public :: ntraits = 17                 ! Number of traits for each PLS
+   integer(i_4),parameter,public :: ntraits = 18                 ! Number of traits for each PLS
 
 end module global_par
 
@@ -94,7 +94,7 @@ module allometry_par
          k_allom1 = 100.0     ,&          !allometric constant (Table 3; Sitch et al., 2003)
          k_allom2 = 36.0      ,&
          k_allom3 = 0.22      ,&
-         dw = 0.85            ,&          !value for testing purpose (DW will be a variant trait) g/cm-3
+         wd = 0.85            ,&          !value for testing purpose (DW will be a variant trait) g/cm-3
          spec_leaf = 132      ,&          ! cm2/g - value for testing purpose (SLA is already calculate in the model; SLA will be a variant trait)
          klatosa = 6000.0     ,&   
          ltor = 0.77302587552347657 ,&    !ratio between increment in leaf and root
