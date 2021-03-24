@@ -94,7 +94,7 @@ module allometry_par
          k_allom1 = 100.0     ,&          !allometric constant (Table 3; Sitch et al., 2003)
          k_allom2 = 36.0      ,&
          k_allom3 = 0.22      ,&
-         dw = 1.3             ,&          !value for testing purpose (DW will be a variant trait) g/cm-3
+         dw = 0.85            ,&          !value for testing purpose (DW will be a variant trait) g/cm-3
          spec_leaf = 132      ,&          ! cm2/g - value for testing purpose (SLA is already calculate in the model; SLA will be a variant trait)
          klatosa = 6000.0     ,&   
          ltor = 0.77302587552347657 ,&    !ratio between increment in leaf and root

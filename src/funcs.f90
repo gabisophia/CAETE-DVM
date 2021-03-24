@@ -1190,7 +1190,8 @@ contains
 
             crown_area(p) = k_allom1*(diameter(p)**krp)
          endif
-         print*, 'height', height(p), p, 'cawood', cawood(p)
+         print*, 'height', height(p)
+         print*, 'cawood', cawood(p)
       enddo
  
    end subroutine pls_allometry
