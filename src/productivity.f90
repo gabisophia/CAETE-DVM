@@ -120,7 +120,7 @@ contains
     leaf_age(3) = (tleaf * (5.0/6.0))
 
     do i = 1, 3
-        penalization_by_age(:) = leaf_age_factor(umol_penalties(:), age_crit, leaf_age(:))
+        penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
     enddo
     print*,'fa jovem',penalization_by_age(1)
     print*,'fa madura',penalization_by_age(2)
