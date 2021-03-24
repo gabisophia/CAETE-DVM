@@ -258,12 +258,18 @@ contains
       use types
 
       real(r_8), intent(in) :: mu, acrit, leaf_age
-      real(r_8), :: fa
+      real(r_8) :: fa
 
       fa = amin1(1.0, exp(mu * (acrit-leaf_age)))
 
-   end function
+    !   real(r_8),intent(in) :: acrit
+    !   real(r_8),dimension(3), intent(in) :: mu, leaf_age
+    !   real(r_8),dimension(3) :: fa
 
+    !   fa(:) = amin1(1.0, exp(mu(:) * (acrit-leaf_age(:))))
+
+   end function
+   
    !=================================================================
    !=================================================================
 
