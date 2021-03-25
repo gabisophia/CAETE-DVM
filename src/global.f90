@@ -39,6 +39,8 @@ module global_par
    real(r_4),parameter,public :: rcmin = 100                     ! ResistÊncia estomática mínima s/m
    real(r_8),parameter,public :: cmin = 1.0D-3                   ! Minimum to survive kg m-2
    ! real(r_4),parameter,public :: wmax = 500.0                    ! Maximum water soil capacity (Kg m-2)
+   real(r_4),parameter,public :: psi_sat = -0.001                ! Saturated soil water suction MPa
+   real(r_4),parameter,public :: soil_texture = 7.0              ! Coefficient soil texture - TESTE
 
    real(r_8),parameter,public :: csru = 0.5D0                    ! Root attribute
    real(r_8),parameter,public :: alfm = 1.391D0                  ! Root attribute
