@@ -84,6 +84,15 @@ contains
     real(r_8) :: f1a      !auxiliar_f1
     real(r_4) :: rc_pot, rc_aux
 
+    !hydraulic - internal
+    real(r_8) :: psi_soil
+    real(r_8) :: psi_50
+    real(r_8) :: kl_max
+    real(r_8) :: krc_max
+    real(r_8) :: psi_xylem
+    real(r_8) :: k
+    real(r_8) :: k_norm
+
 !getting pls parameters
 
 
@@ -102,6 +111,41 @@ contains
     p2cl = p2cl * (cl1_prod * 1D3) ! P in leaf g m-2
 
     c4_int = idnint(c4)
+
+
+!        ===============
+!           HYDRAULIC        ver onde que eu vou colocar a hidráulica
+!        ===============
+
+      ! Soil water potential
+      !=====================
+    psi_soil = soil_waterpotential(w, wmax)
+
+    !         P50
+    !======================
+
+    psi_50 = psi_fifty(dwood)
+
+    ! Maximum xylem conductivity per unit leaf area
+    !==============================================
+
+    kl_max = conductivity_xylemleaf(dwood, jl_out)
+
+    ! Maximum xylem conductance
+    !==========================
+    krc_max = conductance_xylemax(kl_max, height)
+
+    ! Xylem water potential
+    !======================
+    psi_xylem = xylem_waterpotential(psi_soil,krc_max,rc_aux,p0,vpd, height)
+
+    ! Xylem conductance
+    !=====================
+    k = xylem_conductance(krc_max,psi_xylem,psi_50)
+
+    ! Conductance normalized
+    !=======================
+    k_norm = conductance_normalized(krc_max,k)
 
 
 !     ==============
