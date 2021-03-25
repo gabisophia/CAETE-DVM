@@ -36,6 +36,7 @@ module photo
         conductance_xylemax    ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
         xylem_waterpotential   ,& ! (f), Xylem water potential (MPa)
         xylem_conductance      ,& ! (f), Hydraulic conductance of xylem (mol m-2 s-1 Mpa-1)
+        conductance_normalized ,& ! (f), Normalized hydraulic conductance of xylem (dimensionless)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -323,6 +324,21 @@ contains
       k = krc_max*(1+(psi_xylem/psi_50)**a)**(-1) 
 
    end function xylem_conductance
+
+   !=================================================================
+   !=================================================================
+
+   function conductance_normalized(krc_max,k) result(k_norm)
+      !Returns normalized xylem conductance (dimensionless)
+      use types
+     
+      real(r_8),intent(in) :: krc_max         !molm-2s-1Mpa-1
+      real(r_8),intent(in) :: k               !molm-2s-1Mpa-1
+      real(r_8) :: k_norm                     !dimensionless   
+
+      k_norm = k/krc_max
+  
+   end function conductance_normalized
 
    !=================================================================
    !=================================================================
