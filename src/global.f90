@@ -41,6 +41,8 @@ module global_par
    ! real(r_4),parameter,public :: wmax = 500.0                    ! Maximum water soil capacity (Kg m-2)
    real(r_4),parameter,public :: psi_sat = -0.001                ! Saturated soil water suction MPa
    real(r_4),parameter,public :: soil_texture = 7.0              ! Coefficient soil texture - TESTE
+   real(r_4),parameter,public :: rho = 997.0                     ! Density of water (Kg/m3)
+   real(r_4),parameter,public :: grav = 9.8                      ! Gravity (m/s2)
 
    real(r_8),parameter,public :: csru = 0.5D0                    ! Root attribute
    real(r_8),parameter,public :: alfm = 1.391D0                  ! Root attribute
