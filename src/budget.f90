@@ -40,7 +40,7 @@ contains
       use productivity
       use omp_lib
 
-      use photo, only: pft_area_frac, sto_resp
+      use photo, only: pft_area_frac, pls_allometry, sto_resp
       use water, only: evpot2, penman, available_energy, runoff
 
       !     ----------------------------INPUTS-------------------------------
@@ -172,6 +172,7 @@ contains
       real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs
       real(r_8), dimension(3,npls) :: sto_budg
       real(r_8) :: soil_sat
+      real(r_8), dimension(npls) :: height_aux, diameter_aux, crown_aux
       !     START
       !     --------------
       !     Grid cell area fraction 0-1
@@ -199,6 +200,9 @@ contains
 
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
+
+      call pls_allometry(cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
+      &                   crown_aux)
 
       nlen = sum(run)    ! New length for the arrays in the main loop
       allocate(lp(nlen))
