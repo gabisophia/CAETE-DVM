@@ -3,6 +3,7 @@
 #     | |     / _ \ |  _|   | | |  _|
 #     | |___ / ___ \| |___  | | | |___
 #      \____/_/   \_\_____| |_| |_____|
+
 import os
 import _pickle as pkl
 import bz2
@@ -64,6 +65,12 @@ map_subwp = np.load("../input/soil/swp.npy")
 tsoil = (map_ws, map_fc, map_wp)
 ssoil = (map_subws, map_subfc, map_subwp)
 
+theta_sat = np.load("../input/hydra/theta_sat.npy")
+psi_sat = np.load("../input/hydra/psi_sat.npy")
+soil_texture = np.load("../input/hydra/soil_text.npy")
+
+hsoil = (theta_sat, psi_sat, soil_texture)
+
 # Select the location of input climate and soil data (for each grid cell )
 if sombrero:
     s_data = Path("/home/amazonfaceme/shared_data").resolve()
@@ -111,7 +118,7 @@ else:
 
 
 def apply_init(grid):
-    grid.init_caete_dyn(input_path, stime, co2_data, pls_table, tsoil, ssoil)
+    grid.init_caete_dyn(input_path, stime, co2_data, pls_table, tsoil, ssoil, hsoil)
     return grid
 
 

@@ -45,7 +45,11 @@ module global_par
    real(r_8),parameter,public :: gm = 3.26D0 * 86400D0           ! (*86400 transform s/mm to dia/mm)
    real(r_8),parameter,public :: sapwood = 0.05D0                ! Fraction of wood tissues that are sapwood
    real(r_4),parameter,public :: ks = 0.25                       ! P Sorption
+<<<<<<< HEAD
    integer(i_4),parameter,public :: npls = 30                    ! Number of Plant Life Strategies-PLSs simulated (Defined at compile time)
+=======
+   integer(i_4),parameter,public :: npls = 1000                    ! Number of Plant Life Strategies-PLSs simulated (Defined at compile time)
+>>>>>>> e45eed4ee68338d221f6e8adec446cc8dd1062dd
    integer(i_4),parameter,public :: ntraits = 17                 ! Number of traits for each PLS
 
 end module global_par
