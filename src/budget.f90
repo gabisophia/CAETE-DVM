@@ -187,6 +187,8 @@ contains
          dwood(i) = dwood_in(i)
          droot(i) = droot_in(i)
          uptk_costs(i) = uptk_costs_in(i)
+         print*,'ca1_pft - budget',ca1_pft(i), i
+         print*,'cf1_pft - budget',cf1_pft(i), i
          do j = 1,3
             sto_budg(j,i) = sto_budg_in(j,i)
             cl1_pft(j,i) = cl1_in(j,i)
@@ -372,6 +374,8 @@ contains
          print*,'cl1_int jovem budget',cl1_int(1,p)
          print*,'cl1_int madura budget',cl1_int(2,p)
          print*,'cl1_int senescente budget',cl1_int(3,p)
+         print*,'ca1_pft balanço - budget',ca1_pft(p), p
+         print*,'cf1_pft balanço - budget',cf1_pft(p), p
 
       enddo ! end pls_loop (p)
       !$OMP END PARALLEL DO

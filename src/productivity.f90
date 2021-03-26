@@ -81,7 +81,7 @@ contains
     integer(i_4) :: c4_int
     real(r_8) :: jl_out
 
-    real(r_8), dimension(3) :: f1      !Leaf level gross photosynthesis (molCO2/m2/s)
+    real(r_8), dimension(3) :: f1, ph_aux      !Leaf level gross photosynthesis (molCO2/m2/s)
     real(r_8) :: f1a                   !auxiliar_f1
     real(r_8), dimension(3) :: umol_penalties = (/-0.4, 1.0, 0.6/)
     real(r_8), dimension(3) :: age_limits, leaf_age
@@ -123,19 +123,19 @@ contains
     leaf_age(2) = (tleaf * (1.0/2.0))
     leaf_age(3) = (tleaf * (5.0/6.0))
 
-    do i = 1, 3
-        penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
-    enddo
-    
-!    do i = 1,3
-!       if (i .le. age_limits(1)) then 
-!          penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
-!       else if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
-!          penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
-!       else 
-!          penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
-!       endif 
+!    do i = 1, 3
+!        penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
 !    enddo
+    
+    do i = 1,3
+       if (i .le. age_limits(1)) then 
+          penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
+       else if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
+          penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
+       else 
+          penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
+       endif 
+    enddo
 
     print*,'fa jovem',penalization_by_age(1)
     print*,'fa madura',penalization_by_age(2)
@@ -207,6 +207,7 @@ contains
     print*,'cl1_prod_j',cl1_prod(1)
     print*,'cl1_prod_m',cl1_prod(2)
     print*,'cl1_prod_s',cl1_prod(3)
+
 !     Autothrophic respiration
 !     ========================
 !     Maintenance respiration (kgC/m2/yr) (based in Ryan 1991)
