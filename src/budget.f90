@@ -190,6 +190,9 @@ contains
          do j = 1,3
             sto_budg(j,i) = sto_budg_in(j,i)
          enddo
+         print*,'cl1_pft(i)',cl1_pft(i),i
+         print*,'ca1_pft(i)',ca1_pft(i),i
+         print*,'cf1_pft(i)',cf1_pft(i),i
 
       enddo
 
@@ -365,6 +368,10 @@ contains
          if(cl1_int(p) .lt. 0.0D0) cl1_int(p) = 0.0D0
          if(ca1_int(p) .lt. 0.0D0) ca1_int(p) = 0.0D0
          if(cf1_int(p) .lt. 0.0D0) cf1_int(p) = 0.0D0
+
+         print*,'cl1_pft(p)',cl1_pft(p),p
+         print*,'ca1_pft(p)',ca1_pft(p),p
+         print*,'cf1_pft(p)',cf1_pft(p),p
 
       enddo ! end pls_loop (p)
       !$OMP END PARALLEL DO
