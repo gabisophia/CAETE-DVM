@@ -81,7 +81,7 @@ contains
     integer(i_4) :: c4_int
     real(r_8) :: jl_out
 
-    real(r_8), dimension(3) :: f1, ph_aux      !Leaf level gross photosynthesis (molCO2/m2/s)
+    real(r_8), dimension(3) :: f1      !Leaf level gross photosynthesis (molCO2/m2/s)
     real(r_8) :: f1a                   !auxiliar_f1
     real(r_8), dimension(3) :: umol_penalties = (/-0.4, 1.0, 0.6/)
     real(r_8), dimension(3) :: age_limits, leaf_age
@@ -115,12 +115,16 @@ contains
 !    age_limits(3) = (age_crit / 2.0) * 3
 
     age_limits(1) = (tleaf * (1.0/6.0))
-    age_limits(2) = (tleaf * (5.0/6.0))
+    age_limits(2) = (tleaf * (4.0/6.0))
     age_limits(3) = tleaf
 
     !Obtain leaf age (a)
-    leaf_age(1) = (tleaf * (1.0/6.0))
-    leaf_age(2) = (tleaf * (1.0/2.0))
+!    leaf_age(1) = (tleaf * (1.0/6.0))
+!    leaf_age(2) = (tleaf * (1.0/2.0))
+!    leaf_age(3) = (tleaf * (5.0/6.0))
+
+    leaf_age(1) = (tleaf * (1.0/12.0))
+    leaf_age(2) = (tleaf * (5.0/12.0))
     leaf_age(3) = (tleaf * (5.0/6.0))
 
 !    do i = 1, 3
