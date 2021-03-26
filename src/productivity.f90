@@ -110,9 +110,13 @@ contains
     age_crit = (tleaf / 3.0) * 2.0
 
     !Obtain age limits
-    age_limits(1) = age_crit / 2.0
-    age_limits(2) = age_crit
-    age_limits(3) = (age_crit / 2.0) * 3
+!    age_limits(1) = age_crit / 2.0
+!    age_limits(2) = age_crit
+!    age_limits(3) = (age_crit / 2.0) * 3
+
+    age_limits(1) = (tleaf * (1.0/6.0))
+    age_limits(2) = (tleaf * (5.0/6.0))
+    age_limits(3) = tleaf
 
     !Obtain leaf age (a)
     leaf_age(1) = (tleaf * (1.0/6.0))
@@ -122,10 +126,6 @@ contains
     do i = 1, 3
         penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
     enddo
-    print*,'fa jovem',penalization_by_age(1)
-    print*,'fa madura',penalization_by_age(2)
-    print*,'fa velha',penalization_by_age(3)
-
     
 !    do i = 1,3
 !       if (i .le. age_limits(1)) then 
@@ -136,6 +136,10 @@ contains
 !          penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
 !       endif 
 !    enddo
+
+    print*,'fa jovem',penalization_by_age(1)
+    print*,'fa madura',penalization_by_age(2)
+    print*,'fa velha',penalization_by_age(3)
 
     !Obtain total carbon of the leaf cohorts
     cl_total = sum(cl1_prod)
@@ -175,6 +179,9 @@ contains
     else
         f1 = 0.0      !Temperature above/below photosynthesis windown
     endif
+    print*,'f1 jovem',f1(1)
+    print*,'f1 madura',f1(2)
+    print*,'f1 velha',f1(3)
 
     rc_aux = canopy_resistence_real(vpd, f1(:), g1, catm)  ! RCM leaf level -!s m-1
 
@@ -197,7 +204,9 @@ contains
 
     ph = gross_ph(f1(:),cl1_prod(:), sla)        ! kg m-2 year-1
     print*,'gpp',ph
-
+    print*,'cl1_prod_j',cl1_prod(1)
+    print*,'cl1_prod_m',cl1_prod(2)
+    print*,'cl1_prod_s',cl1_prod(3)
 !     Autothrophic respiration
 !     ========================
 !     Maintenance respiration (kgC/m2/yr) (based in Ryan 1991)

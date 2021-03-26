@@ -92,6 +92,13 @@ contains
       f1in(:) = f1(:)
       f4sun = f_four(1,cleaf(:),sla)
       f4shade = f_four(2,cleaf(:),sla)
+      print*,'f1 jovem gpp',f1in(1)
+      print*,'f1 madura gpp',f1in(2)
+      print*,'f1 velha gpo',f1in(3)
+
+      print*,'cleaf jovem gpp',cleaf(1)
+      print*,'cleaf madura gpp',cleaf(2)
+      print*,'cleaf velha gpp',cleaf(3)
 
       ph_aux(:) = real((0.012D0*31557600.0D0*f1in(:)*f4sun*f4shade), r_4)
       ph = sum(ph_aux(:))
@@ -261,12 +268,6 @@ contains
       real(r_8) :: fa
 
       fa = amin1(1.0, exp(mu * (acrit-leaf_age)))
-
-    !   real(r_8),intent(in) :: acrit
-    !   real(r_8),dimension(3), intent(in) :: mu, leaf_age
-    !   real(r_8),dimension(3) :: fa
-
-    !   fa(:) = amin1(1.0, exp(mu(:) * (acrit-leaf_age(:))))
 
    end function
    

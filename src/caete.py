@@ -665,7 +665,7 @@ class grd:
         self.vp_cleaf[1,:] = cleafaux/3
         self.vp_cleaf[2,:] = cleafaux/3
         a, b, c, d = m.pft_area_frac(
-            self.vp_cleaf[:,:], self.vp_croot, self.vp_cwood, self.pls_table[6, :])
+            self.vp_cleaf[:], self.vp_croot, self.vp_cwood, self.pls_table[6, :])
         self.vp_lsid = np.where(a > 0.0)[0]
         self.ls = self.vp_lsid.size
         del a, b, c, d
@@ -977,6 +977,9 @@ class grd:
 
                 # UPDATE vegetation pools ! ABLE TO USE SPARSE MATRICES
                 self.vp_cleaf = daily_output['cleafavg_pft'][:, self.vp_lsid]
+                print('vp_cleaf caete.py=',self.vp_cleaf[0])
+                print('vp_cleaf madura caete.py=',self.vp_cleaf[1])
+                print('clevp_cleaf senescente caete.py=',self.vp_cleaf[2])
                 self.vp_cwood = daily_output['cawoodavg_pft'][self.vp_lsid]
                 self.vp_croot = daily_output['cfrootavg_pft'][self.vp_lsid]
                 self.vp_dcl = daily_output['delta_cveg'][0][self.vp_lsid]

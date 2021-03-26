@@ -190,8 +190,8 @@ contains
          do j = 1,3
             sto_budg(j,i) = sto_budg_in(j,i)
             cl1_pft(j,i) = cl1_in(j,i)
+            print*,'cl1_pft - budget',cl1_pft(j,i), j
          enddo
-
       enddo
 
       w = w1 + w2          ! soil water mm
