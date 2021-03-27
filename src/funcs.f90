@@ -1148,7 +1148,7 @@ contains
    !====================================================================
    !====================================================================
 
-   subroutine pls_allometry (cleaf1, cfroot1, cawood1, awood, height, diameter,&
+   subroutine pls_allometry (dwood1, cleaf1, cfroot1, cawood1, awood, height, diameter,&
       &crown_area)
 
       use types 
@@ -1157,13 +1157,14 @@ contains
 
 
       integer(i_4),parameter :: npft = npls ! plss futuramente serao
-      real(r_8),dimension(npft),intent(in) :: cleaf1, cfroot1, cawood1, awood
+      real(r_8),dimension(npft),intent(in) :: cleaf1, cfroot1, cawood1, awood, dwood1
       real(r_8),dimension(npft),intent(out) :: height, diameter, crown_area
       real(r_8),dimension(npft) :: cleaf, cawood, cfroot, dwood
       integer(i_4) :: p
 
 
       ! ============================
+      dwood = dwood1
       cleaf = cleaf1
       cfroot = cfroot1
       cawood = cawood1
@@ -1183,7 +1184,7 @@ contains
             crown_area(p) = 0.0D0
             dwood(p) = 0.0D0
          else
-            diameter(p) = (4*(cawood(p)*1.0D3)/(dw*1D7)*pi*k_allom2)&
+            diameter(p) = (4*(cawood(p)*1.0D3)/(dwood(p)*1D7)*pi*k_allom2)&
             &**(1/(2+k_allom3))
 
             height(p) = k_allom2*(diameter(p)**k_allom3)
