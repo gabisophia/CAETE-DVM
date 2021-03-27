@@ -30,6 +30,7 @@ module photo
         leaf_area_index        ,& ! (f), leaf area index(m2 m-2)
         f_four                 ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area         ,& ! (f), specific leaf area (m2 g-1)
+        soil_waterpotential    ,& ! (f), Soil water potential (MPa)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -188,6 +189,27 @@ contains
          return
       endif
    end function f_four
+
+   !=================================================================
+   !=================================================================
+
+   function soil_waterpotential(psi_sat, soil_texture, w, wmax) result(psi_soil)
+      ! Returns soil water potential (MPa)
+      ! Based in Clapp & Hornberger 1978
+      use types
+
+      real(r_8),intent(in) :: psi_sat             !MPa  - saturated soil water suction  
+      real(r_8),intent(in) :: soil_texture        !dimensionless - coefficient soil texture
+      real(r_8),intent(in) :: w                   !mm/h - soil water
+      real(r_8),intent(in) :: wmax                !mm/h - maximum soil water
+      real(r_8) :: psi_soil                       !MPa
+
+      real(r_8) :: wa
+      wa = w/wmax                                 !dimensionless - soil moisture
+
+      psi_soil = psi_sat * wa ** (-soil_texture)
+      print*,'psi_soil',psi_soil
+   end function soil_waterpotential
 
    !=================================================================
    !=================================================================
@@ -1154,7 +1176,6 @@ contains
       use types 
       use global_par
       use allometry_par
-
 
       integer(i_4),parameter :: npft = npls ! plss futuramente serao
       real(r_8),dimension(npft),intent(in) :: cleaf1, cfroot1, cawood1, awood, dwood1
