@@ -40,7 +40,7 @@ contains
       use productivity
       use omp_lib
 
-      use photo, only: pft_area_frac, sto_resp
+      use photo, only: pft_area_frac, sto_resp, pls_allometry
       use water, only: evpot2, penman, available_energy, runoff
 
       !     ----------------------------INPUTS-------------------------------
@@ -174,6 +174,8 @@ contains
       real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs
       real(r_8), dimension(3,npls) :: sto_budg
       real(r_8) :: soil_sat
+      real(r_8), dimension(npls) :: height_aux, diameter_aux, crown_aux
+
       !     START
       !     --------------
       !     Grid cell area fraction 0-1
@@ -192,9 +194,9 @@ contains
          do j = 1,3
             sto_budg(j,i) = sto_budg_in(j,i)
          enddo
-         print*,'cl1_pft(i)',cl1_pft(i),i
-         print*,'ca1_pft(i)',ca1_pft(i),i
-         print*,'cf1_pft(i)',cf1_pft(i),i
+!         print*,'cl1_pft(i)',cl1_pft(i),i
+!         print*,'ca1_pft(i)',ca1_pft(i),i
+!         print*,'cf1_pft(i)',cf1_pft(i),i
 
       enddo
 
@@ -204,6 +206,9 @@ contains
 
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
+
+      call pls_allometry(cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
+      &                  crown_aux)
 
       nlen = sum(run)    ! New length for the arrays in the main loop
       allocate(lp(nlen))
