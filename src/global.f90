@@ -38,18 +38,15 @@ module global_par
    real(r_4),parameter,public :: rcmax = 5000.0                  ! ResistÊncia estomática máxima s/m
    real(r_4),parameter,public :: rcmin = 100                     ! ResistÊncia estomática mínima s/m
    real(r_8),parameter,public :: cmin = 1.0D-3                   ! Minimum to survive kg m-2
-   ! real(r_4),parameter,public :: wmax = 500.0                    ! Maximum water soil capacity (Kg m-2)
+   real(r_8),parameter,public :: psisat = -0.01                 ! MPa
+   ! real(r_4),parameter,public :: wmax = 500.0                  ! Maximum water soil capacity (Kg m-2)
 
    real(r_8),parameter,public :: csru = 0.5D0                    ! Root attribute
    real(r_8),parameter,public :: alfm = 1.391D0                  ! Root attribute
    real(r_8),parameter,public :: gm = 3.26D0 * 86400D0           ! (*86400 transform s/mm to dia/mm)
    real(r_8),parameter,public :: sapwood = 0.05D0                ! Fraction of wood tissues that are sapwood
    real(r_4),parameter,public :: ks = 0.25                       ! P Sorption
-<<<<<<< HEAD
    integer(i_4),parameter,public :: npls = 30                    ! Number of Plant Life Strategies-PLSs simulated (Defined at compile time)
-=======
-   integer(i_4),parameter,public :: npls = 1000                    ! Number of Plant Life Strategies-PLSs simulated (Defined at compile time)
->>>>>>> e45eed4ee68338d221f6e8adec446cc8dd1062dd
    integer(i_4),parameter,public :: ntraits = 17                 ! Number of traits for each PLS
 
 end module global_par

@@ -27,7 +27,7 @@ module productivity
 contains
 
   subroutine prod(dt,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
-       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,ph,ar,&
+       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,soiltexture,ph,ar,&
        & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla, e)
 
     use types
@@ -47,7 +47,9 @@ contains
     real(r_8), intent(in) :: catm, cl1_prod, cf1_prod, ca1_prod        !Carbon in plant tissues (kg/m2)
     real(r_8), intent(in) :: beta_leaf            !npp allocation to carbon pools (kg/m2/day)
     real(r_8), intent(in) :: beta_awood
-    real(r_8), intent(in) :: beta_froot, wmax
+    real(r_8), intent(in) :: beta_froot
+    real(r_8), intent(in) :: wmax
+    real(r_8), intent(in) :: soiltexture
     logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
 
 !     Output
@@ -84,8 +86,10 @@ contains
     real(r_8) :: f1a      !auxiliar_f1
     real(r_4) :: rc_pot, rc_aux
 
-!getting pls parameters
+    !Hydraulic parameters
+    real(r_8) :: psi_soil
 
+!getting pls parameters
 
     g1  = dt(1)
     tleaf = dt(3)
@@ -112,6 +116,13 @@ contains
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,n2cl,&
          & p2cl,cl1_prod,tleaf,f1a,vm_out,jl_out)
 
+
+    ! ==============
+    !    Hydraulic
+    ! ==============
+    
+    psi_soil = soil_waterpotential(soiltexture, w, wmax)
+    print*,'psi_soil',psi_soil
 
     ! VPD
     !========

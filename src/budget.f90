@@ -27,7 +27,7 @@ contains
 
    subroutine daily_budget(dt, w1, w2, ts, temp, p0, ipar, rh&
         &, mineral_n, labile_p, on, sop, op, catm, sto_budg_in, cl1_in, ca1_in, cf1_in, dleaf_in, dwood_in&
-        &, droot_in, uptk_costs_in, wmax_in, evavg, epavg, phavg, aravg, nppavg&
+        &, droot_in, uptk_costs_in, wmax_in, soil_text, evavg, epavg, phavg, aravg, nppavg&
         &, laiavg, rcavg, f5avg, rmavg, rgavg, cleafavg_pft, cawoodavg_pft&
         &, cfrootavg_pft, storage_out_bdgt_1, ocpavg, wueavg, cueavg, c_defavg&
         &, vcmax_1, specific_la_1, nupt_1, pupt_1, litter_l_1, cwd_1, litter_fr_1, npp2pay_1, lit_nut_content_1&
@@ -56,7 +56,9 @@ contains
       real(r_4),intent(in) :: mineral_n            ! Solution N NOx/NaOH gm-2
       real(r_4),intent(in) :: labile_p             ! solution P O4P  gm-2
       real(r_8),intent(in) :: on, sop, op          ! Organic N, isoluble inorganic P, Organic P g m-2
-      real(r_8),intent(in) :: catm, wmax_in                 ! ATM CO2 concentration ppm
+      real(r_8),intent(in) :: catm                 ! ATM CO2 concentration ppm
+      real(r_8),intent(in) :: wmax_in
+      real(r_8),intent(in) :: soil_text
 
 
       real(r_8),dimension(3,npls),intent(in)  :: sto_budg_in ! Rapid Storage Pool (C,N,P)  g m-2
@@ -276,7 +278,7 @@ contains
 
          call prod(dt1, ocp_wood(ri),catm, temp, soil_temp, p0, w, ipar, rh, emax&
                &, cl1_pft(ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
-               &, soil_sat, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
+               &, soil_sat, soil_text, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
                &, wue(p), c_def(p), vcmax(p), specific_la(p), tra(p))
 
          evap(p) = penman(p0,temp,rh,available_energy(temp),rc2(p)) !Actual evapotranspiration (evap, mm/day)
