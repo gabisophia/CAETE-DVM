@@ -67,6 +67,7 @@ contains
     real(r_4), intent(out) :: c_defcit     ! Carbon deficit gm-2 if it is positive, aresp was greater than npp + sto2(1)
     real(r_8), intent(out) :: sla, e        !specific leaf area (m2/kg)
     real(r_8), intent(out) :: vm_out
+
 !     Internal
 !     --------
 
@@ -88,6 +89,7 @@ contains
 
     !Hydraulic parameters
     real(r_8) :: psi_soil
+    real(r_8) :: klmax1
 
 !getting pls parameters
 
@@ -121,8 +123,15 @@ contains
     !    Hydraulic
     ! ==============
     
+    ! Psi soil
+    !=========
     psi_soil = soil_waterpotential(soiltexture, w, wmax)
     print*,'psi_soil',psi_soil
+
+    ! Klmax
+    !=========
+    klmax1 = conductivity_xylleaf(jl_out)
+    print*,'klmax',klmax1
 
     ! VPD
     !========

@@ -31,6 +31,7 @@ module photo
         f_four                 ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area         ,& ! (f), specific leaf area (m2 g-1)
         soil_waterpotential    ,& ! (f), Soil water potential (MPa)
+        conductivity_xylleaf   ,& ! (f), Maximum xylem conductivity per unit leaf area (kg m-1 s-1 Mpa-1)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -209,6 +210,21 @@ contains
 
       psi_soil = psisat * wa ** (-soil_texture)
    end function soil_waterpotential
+
+   !=================================================================
+   !=================================================================
+
+   function conductivity_xylleaf(amax) result(klmax)
+      !Maximum xylem conductivity per unit leaf area (kgm-1s-1MPa-1)
+      !Based in Christoffersen et al. 2016 TFS v.1-Hydro
+      use types
+      use allometry_par, only: dw
+
+      real(r_8),intent(in) :: amax          !µmolm-2s-1 - light saturated photo rate PRECISO CONVERTER de mol pra µmol
+      real(r_8) :: klmax                    !kgm-1s-1MPa-1   
+
+      klmax = 0.0021 * exp(-26.6 * dw/(amax * 1e6))  ! µmol m-2 s-1 - 1e6 converts mol to µmol  
+   endfunction conductivity_xylleaf
 
    !=================================================================
    !=================================================================
