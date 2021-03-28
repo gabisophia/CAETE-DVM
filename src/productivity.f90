@@ -27,8 +27,8 @@ module productivity
 contains
 
   subroutine prod(dt,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
-       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,ph,ar,&
-       & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla, e)
+       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,p_sat, soil_text, thetasat,&
+       & ph,ar,nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla, e)
 
     use types
     use global_par
@@ -47,7 +47,11 @@ contains
     real(r_8), intent(in) :: catm, cl1_prod, cf1_prod, ca1_prod        !Carbon in plant tissues (kg/m2)
     real(r_8), intent(in) :: beta_leaf            !npp allocation to carbon pools (kg/m2/day)
     real(r_8), intent(in) :: beta_awood
-    real(r_8), intent(in) :: beta_froot, wmax
+    real(r_8), intent(in) :: beta_froot 
+    real(r_8), intent(in) :: wmax
+    real(r_8), intent(in) :: p_sat
+    real(r_8), intent(in) :: soil_text
+    real(r_8), intent(in) :: thetasat 
     logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
 
 !     Output
@@ -65,12 +69,14 @@ contains
     real(r_4), intent(out) :: c_defcit     ! Carbon deficit gm-2 if it is positive, aresp was greater than npp + sto2(1)
     real(r_8), intent(out) :: sla, e        !specific leaf area (m2/kg)
     real(r_8), intent(out) :: vm_out
+
 !     Internal
 !     --------
 
     real(r_8) :: tleaf,awood            !leaf/wood turnover time (yr)
     real(r_8) :: g1
     real(r_8) :: c4
+!    real(r_8) :: dwood
 
     real(r_8) :: n2cl
     real(r_8) :: n2cl_resp
@@ -84,6 +90,11 @@ contains
     real(r_8) :: f1a      !auxiliar_f1
     real(r_4) :: rc_pot, rc_aux
 
+    !hydraulic - internal
+    real(r_8) :: psi_soil
+!    real(r_8) :: psi_50
+!    real(r_8) :: kl_max
+
 !getting pls parameters
 
 
@@ -96,13 +107,13 @@ contains
     n2cw_resp = dt(11)
     n2cf_resp = dt(12)
     p2cl = dt(13)
+!    dwood = dt(18)
 
 
     n2cl = n2cl * (cl1_prod * 1D3) ! N in leaf g m-2
     p2cl = p2cl * (cl1_prod * 1D3) ! P in leaf g m-2
 
     c4_int = idnint(c4)
-
 
 !     ==============
 !     Photosynthesis
@@ -111,6 +122,23 @@ contains
 
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,n2cl,&
          & p2cl,cl1_prod,tleaf,f1a,vm_out,jl_out)
+
+    !    ===============
+    !       HYDRAULIC        ver onde que eu vou colocar a hidráulica
+    !    ===============
+
+    ! Soil water potential
+    ! ====================
+    psi_soil = soil_waterpotential(w, wmax)
+    print*,'psi_soil',psi_soil
+
+    !         P50
+    !======================
+    !psi_50 = psi_fifty(dwood)
+     
+    ! Maximum xylem conductivity per unit leaf area
+    !==============================================
+!    kl_max = conductivity_xylemleaf(jl_out)     
 
 
     ! VPD

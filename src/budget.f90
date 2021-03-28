@@ -206,9 +206,6 @@ contains
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
 
-      call pls_allometry(dwood_aux, cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
-      &                  crown_aux)
-
       nlen = sum(run)    ! New length for the arrays in the main loop
       allocate(lp(nlen))
       allocate(ocp_coeffs(nlen))
@@ -284,6 +281,10 @@ contains
                &, cl1_pft(ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
                &, soil_sat, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
                &, wue(p), c_def(p), vcmax(p), specific_la(p), tra(p))
+
+         call pls_allometry(dwood1, cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
+               &                  crown_aux)
+          
 
          evap(p) = penman(p0,temp,rh,available_energy(temp),rc2(p)) !Actual evapotranspiration (evap, mm/day)
 

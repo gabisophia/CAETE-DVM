@@ -31,8 +31,8 @@ module photo
         f_four                 ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area         ,& ! (f), specific leaf area (m2 g-1)
         soil_waterpotential    ,& ! (f), Soil water potential (MPa)
-        psi_fifty              ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
-        conductivity_xylemleaf ,& ! (f), Maximum xylem conductivity per unit leaf area (kg m-1 s-1 Mpa-1)
+!        psi_fifty              ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
+!        conductivity_xylemleaf ,& ! (f), Maximum xylem conductivity per unit leaf area (kg m-1 s-1 Mpa-1)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -195,13 +195,13 @@ contains
    !=================================================================
    !=================================================================
 
-   function soil_waterpotential(psi_sat, soil_texture, w, wmax) result(psi_soil)
+   function soil_waterpotential(w, wmax) result(psi_soil)
       ! Returns soil water potential (MPa)
       ! Based in Clapp & Hornberger 1978
       use types
-
-      real(r_8),intent(in) :: psi_sat             !MPa  - saturated soil water suction  
-      real(r_8),intent(in) :: soil_texture        !dimensionless - coefficient soil texture
+      use global_par, only: psisat, soiltext
+!      real(r_8),intent(in) :: psi_sat             !MPa  - saturated soil water suction  
+!      real(r_8),intent(in) :: soil_texture        !dimensionless - coefficient soil texture
       real(r_8),intent(in) :: w                   !mm/h - soil water
       real(r_8),intent(in) :: wmax                !mm/h - maximum soil water
       real(r_8) :: psi_soil                       !MPa
@@ -209,40 +209,39 @@ contains
       real(r_8) :: wa
       wa = w/wmax                                 !dimensionless - soil moisture
 
-      psi_soil = psi_sat * wa ** (-soil_texture)
-      print*,'psi_soil',psi_soil
+      psi_soil = psisat * wa ** (-soiltext)
    end function soil_waterpotential
 
    !=================================================================
    !=================================================================
 
-   function psi_fifty(dwood) result(psi_50)
+!   function psi_fifty(dwood) result(psi_50)
       ! Returns xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
       ! Based in Christoffersen et al. 2016 TFS v.1-Hydro
-      use types
+!      use types
 
-      real(r_8),intent(in) :: dwood            !g/cm3 - wood sendity
-      real(r_8) :: psi_50                       !MPa
+!      real(r_8),intent(in) :: dwood            !g/cm3 - wood sendity
+!      real(r_8) :: psi_50                       !MPa
 
-      psi_50 = -((3.57*dwood)**1.73)-1.09 
-      print*,'P50',psi_50
-   end function psi_fifty
+!      psi_50 = -((3.57*dwood)**1.73)-1.09 
+!      print*,'P50',psi_50
+!   end function psi_fifty
 
    !=================================================================
    !=================================================================
 
-   function conductivity_xylemleaf(dwood,amax) result(kl_max)
+!   function conductivity_xylemleaf(dwood,amax) result(kl_max)
       !Maximum xylem conductivity per unit leaf area (kgm-1s-1MPa-1)
       !Based in Christoffersen et al. 2016 TFS v.1-Hydro
-      use types
+!      use types
 
-      real(r_8),intent(in) :: dwood          !g/cm3 - wood sendity
-      real(r_8),intent(in) :: amax           !µmolm-2s-1 - light saturated photo rate PRECISO CONVERTER de mol pra µmol
-      real(r_8) :: kl_max                    !kgm-1s-1MPa-1   
+!      real(r_8),intent(in) :: dwood          !g/cm3 - wood sendity
+!      real(r_8),intent(in) :: amax           !µmolm-2s-1 - light saturated photo rate PRECISO CONVERTER de mol pra µmol
+!      real(r_8) :: kl_max                    !kgm-1s-1MPa-1   
 
-      kl_max = 0.0021 * exp(-26.6 * dwood/(amax * 1e6))  ! µmol m-2 s-1 - 1e6 converts mol to µmol  
-      print*,'kl_max',kl_max
-   endfunction conductivity_xylemleaf
+!      kl_max = 0.0021 * exp(-26.6 * dwood/(amax * 1e6))  ! µmol m-2 s-1 - 1e6 converts mol to µmol  
+!      print*,'kl_max',kl_max
+!   endfunction conductivity_xylemleaf
 
    !=================================================================
    !=================================================================
