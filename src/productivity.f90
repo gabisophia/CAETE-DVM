@@ -27,7 +27,7 @@ module productivity
 contains
 
   subroutine prod(dt,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
-       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,soiltexture,ph,ar,&
+       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,soiltexture, psisat,ph,ar,&
        & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla, e)
 
     use types
@@ -49,7 +49,7 @@ contains
     real(r_8), intent(in) :: beta_awood
     real(r_8), intent(in) :: beta_froot
     real(r_8), intent(in) :: wmax
-    real(r_8), intent(in) :: soiltexture
+    real(r_8), intent(in) :: soiltexture, psisat
     logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
 
 !     Output
@@ -89,7 +89,7 @@ contains
 
     !Hydraulic parameters
     real(r_8) :: psi_soil
-    real(r_8) :: klmax1
+!    real(r_8) :: klmax1
 
 !getting pls parameters
 
@@ -125,13 +125,13 @@ contains
     
     ! Psi soil
     !=========
-    psi_soil = soil_waterpotential(soiltexture, w, wmax)
+    psi_soil = soil_waterpotential(soiltexture, w, wmax, psisat)
     print*,'psi_soil',psi_soil
 
     ! Klmax
     !=========
-    klmax1 = conductivity_xylleaf(jl_out)
-    print*,'klmax',klmax1
+!    klmax1 = conductivity_xylleaf(jl_out)
+!    print*,'klmax',klmax1
 
     ! VPD
     !========
