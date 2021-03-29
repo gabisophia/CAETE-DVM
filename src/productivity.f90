@@ -96,6 +96,7 @@ contains
     real(r_8) :: krcmax1
     real(r_8) :: psixylem
     real(r_8) :: kxylem
+    real(r_8) :: knorm
 
 !getting pls parameters
 
@@ -167,6 +168,11 @@ contains
     kxylem = xylem_conductance(krcmax1,psixylem,psi_50)
     print*,'kxylem',kxylem
 
+    ! k xylem
+    !=========
+    knorm = conductance_normalized(krcmax1,kxylem)
+    print*,'knorm',knorm
+
     ! VPD
     !========
     vpd = vapor_p_defcit(temp,rh)
@@ -174,6 +180,7 @@ contains
     !Water stress response modifier (dimensionless)
     !----------------------------------------------
     f5 =  water_stress_modifier(w, cf1_prod, rc_pot, emax, wmax)
+    print*,'f5',f5
 
 
 !     Photosysthesis minimum and maximum temperature

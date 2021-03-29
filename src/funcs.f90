@@ -36,6 +36,7 @@ module photo
         conductance_xylemax    ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
         xylem_waterpotential   ,& ! (f), Xylem water potential (MPa)
         xylem_conductance      ,& ! (f), Hydraulic conductance of xylem (mol m-2 s-1 Mpa-1)
+        conductance_normalized ,& ! (f), Normalized hydraulic conductance of xylem (dimensionless)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -345,6 +346,21 @@ contains
    !=================================================================
    !=================================================================
 
+   function conductance_normalized(krcmax,k) result(k_norm)
+      !Returns normalized xylem conductance (dimensionless)
+      use types
+
+      real(r_8),intent(in) :: krcmax         !molm-2s-1Mpa-1
+      real(r_8),intent(in) :: k               !molm-2s-1Mpa-1
+      real(r_8) :: k_norm                     !dimensionless   
+
+      k_norm = k/krcmax
+
+   end function conductance_normalized
+
+   !=================================================================
+   !=================================================================
+
    function water_stress_modifier(w, cfroot, rc, ep, wmax) result(f5)
       use types, only: r_4, r_8
       use global_par, only: csru, alfm, gm, rcmin, rcmax
@@ -381,7 +397,7 @@ contains
       d = (ep_aux * alfm) / (1.0D0 + (gm/gc))
       if(d .gt. 0.0D0) then
          f5_64 = pt/d
-         ! print*, f5_64, 'f564'
+         print*, f5_64, 'f564'
          f5_64 = exp((f5_64 * (-0.1D0)))
          f5_64 = 1.0D0 - f5_64
       else
@@ -1342,7 +1358,7 @@ contains
 
             crown_area(p) = k_allom1*(diameter(p)**krp)
          endif
-         print*, 'height', height(p), p, 'cawood', cawood(p)
+!         print*, 'height', height(p), p, 'cawood', cawood(p)
       enddo
 
    end subroutine pls_allometry
