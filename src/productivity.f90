@@ -124,7 +124,7 @@ contains
 !    leaf_age(3) = (tleaf * (5.0/6.0))
 
     leaf_age(1) = (tleaf * (1.0/12.0))
-    leaf_age(2) = (tleaf * (5.0/12.0))
+    leaf_age(2) = (tleaf * (1.0/2.0))
     leaf_age(3) = (tleaf * (5.0/6.0))
 
 !    do i = 1, 3
