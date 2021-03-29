@@ -208,7 +208,7 @@ contains
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
 
-      call pls_allometry(cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
+      call pls_allometry(dwood_aux, cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
       &                  crown_aux)
 
       nlen = sum(run)    ! New length for the arrays in the main loop
