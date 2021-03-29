@@ -95,6 +95,7 @@ contains
     real(r_8) :: klmax1
     real(r_8) :: krcmax1
     real(r_8) :: psixylem
+    real(r_8) :: kxylem
 
 !getting pls parameters
 
@@ -152,14 +153,19 @@ contains
     print*,'krcmax',krcmax1,'height1',height1
 
     ! Transpiração potencial em mol
-    e_pot = transpiration(rc_pot, p0, vpd, 1)   
-    print*,'e_pot',e_pot
+!    e_pot = transpiration(rc_pot, p0, vpd, 1)   
+!    print*,'e_pot',e_pot
 
     ! Psixylem
     !=========
 !    psixylem = xylem_waterpotential(psi_soil,krcmax1,e_pot,height1)
     psixylem = xylem_waterpotential(psi_soil,height1)
     print*,'psixylem',psixylem
+
+    ! k xylem
+    !=========
+    kxylem = xylem_conductance(krcmax1,psixylem,psi_50)
+    print*,'kxylem',kxylem
 
     ! VPD
     !========
