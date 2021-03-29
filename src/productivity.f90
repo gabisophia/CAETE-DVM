@@ -168,7 +168,7 @@ contains
     kxylem = xylem_conductance(krcmax1,psixylem,psi_50)
     print*,'kxylem',kxylem
 
-    ! k xylem
+    ! k norm
     !=========
     knorm = conductance_normalized(krcmax1,kxylem)
     print*,'knorm',knorm
@@ -179,7 +179,7 @@ contains
 
     !Water stress response modifier (dimensionless)
     !----------------------------------------------
-    f5 =  water_stress_modifier(w, cf1_prod, rc_pot, emax, wmax)
+    f5 =  water_stress_modifier(cf1_prod, rc_pot, emax, knorm)
     print*,'f5',f5
 
 
