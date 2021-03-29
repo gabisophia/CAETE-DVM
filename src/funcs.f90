@@ -143,7 +143,7 @@ contains
    !=================================================================
 
    function f_four(fs,cleaf,sla) result(lai_ss)
-      
+
       ! Function used to scale LAI from leaf to canopy level (2 layers)
       use types, only: i_4, r_4, r_8
       use photo_par, only: p26, p27
@@ -891,7 +891,7 @@ contains
       !implicit none
 
       real(r_4), intent(in) :: temp, ts
-      real(r_8), intent(in) :: cl1_mr
+      real(r_8), dimension(3), intent(in) :: cl1_mr
       real(r_8), intent(in) :: cf1_mr
       real(r_8), intent(in) :: ca1_mr
       real(r_8), intent(in) :: n2cl
@@ -900,6 +900,7 @@ contains
       real(r_8), intent(in) :: aawood_mr
       real(r_4) :: rm
 
+      real(r_8) :: cl_total
       real(r_8) :: csa, rm64, rml64
       real(r_8) :: rmf64, rms64
 
@@ -916,7 +917,9 @@ contains
          rms64 = 0.0
       endif
 
-      rml64 = ((n2cl * (cl1_mr * 1D3)) * 27.0D0 * dexp(0.07D0*temp))
+      cl_total = sum(cl1_mr(:))
+
+      rml64 = ((n2cl * (cl_total * 1D3)) * 27.0D0 * dexp(0.07D0*temp))
 
       rmf64 = ((n2cf * (cf1_mr * 1D3)) * 27.0D0 * dexp(0.07D0*ts))
 
