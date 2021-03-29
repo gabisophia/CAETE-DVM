@@ -33,6 +33,7 @@ module photo
         soil_waterpotential    ,& ! (f), Soil water potential (MPa)
         psi_fifty              ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
         conductivity_xylleaf   ,& ! (f), Maximum xylem conductivity per unit leaf area (kg m-1 s-1 Mpa-1)
+        conductance_xylemax    ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -196,10 +197,10 @@ contains
    !=================================================================
 
    function soil_waterpotential(soil_texture, w, wmax, psi_sat) result(psi_soil)
+  
       ! Returns soil water potential (MPa)
       ! Based in Clapp & Hornberger 1978
       use types
-!      use global_par, only: psisat
 
       real(r_8),intent(in) :: soil_texture        !dimensionless - coefficient soil texture
       real(r_8),intent(in) :: psi_sat             !MPa
@@ -211,12 +212,14 @@ contains
       wa = w/wmax                                 !dimensionless - soil moisture
 
       psi_soil = (psi_sat*(-0.0098)) * wa ** (-soil_texture)
+ 
    end function soil_waterpotential
 
    !=================================================================
    !=================================================================
 
    function conductivity_xylleaf(dwood_aux,amax) result(klmax)
+  
       !Maximum xylem conductivity per unit leaf area (kgm-1s-1MPa-1)
       !Based in Christoffersen et al. 2016 TFS v.1-Hydro
       use types
@@ -227,12 +230,14 @@ contains
       real(r_8) :: klmax                    !kgm-1s-1MPa-1   
 
       klmax = 0.0021 * exp((-26.6 * dwood_aux)/(amax * 1e6))  ! µmol m-2 s-1 - 1e6 converts mol to µmol  
+  
    end function conductivity_xylleaf
 
    !=================================================================
    !=================================================================
 
    function psi_fifty(dwood_aux) result(psi_50)
+
       ! Returns xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
       ! Based in Christoffersen et al. 2016 TFS v.1-Hydro
       use types
@@ -241,7 +246,25 @@ contains
       real(r_8) :: psi_50                       !MPa
 
       psi_50 = -((3.57*dwood_aux)**1.73)-1.09 
+
    end function psi_fifty
+
+   !=================================================================
+   !=================================================================
+
+   function conductance_xylemax(klmax, height) result(krcmax)
+
+      !Maximum xylem conductance per unit leaf area (molm-2s-1Mpa-1)
+      !Based in Christoffersen et al. 2016 TFS v.1-Hydro
+      use types
+
+      real(r_8),intent(in) :: klmax           !kgm-1s-1Mpa-1
+      real(r_8),intent(in) :: height          !m
+      real(r_8) :: krc_max                    !molm-2s-1Mpa-1
+
+      krcmax = ((klmax / height)*(55.55))        !convert kg to mol
+
+   end function conductance_xylemax
 
    !=================================================================
    !=================================================================

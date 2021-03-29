@@ -26,8 +26,8 @@ module productivity
 
 contains
 
-  subroutine prod(dt,dwood_t,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
-       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,soiltexture, psisat,ph,ar,&
+  subroutine prod(dt,dwood_t,height1,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
+       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,soiltexture,psisat,ph,ar,&
        & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla, e)
 
     use types
@@ -52,6 +52,7 @@ contains
     real(r_8), intent(in) :: soiltexture, psisat
     logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
     real(r_8), intent(in) :: dwood_t
+    real(r_8), intent(in) :: height1
 
 !     Output
 !     ------
@@ -92,6 +93,7 @@ contains
     real(r_8) :: psi_soil
     real(r_8) :: psi_50
     real(r_8) :: klmax1
+    real(r_8) :: krcmax1
 
 !getting pls parameters
 
@@ -139,6 +141,11 @@ contains
     !=========
     klmax1 = conductivity_xylleaf(dwood_t,jl_out)
     print*,'klmax',klmax1,'dwood_t',dwood_t
+
+    ! Krcmax
+    !=========
+    krcmax1 = conductance_xylemax(klmax1, height1)   
+    print*,'krcmax',krcmax1,'height1',height1
 
     ! VPD
     !========

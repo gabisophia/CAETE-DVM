@@ -282,11 +282,10 @@ contains
          ri = lp(p)
          dt1 = dt(:,ri) ! Pick up the pls functional attributes list
 
-         call prod(dt1, dwood_aux(p), ocp_wood(ri), catm, temp, soil_temp, p0, w, ipar, rh, emax&
+         call prod(dt1, dwood_aux(p), height_aux(p), ocp_wood(ri), catm, temp, soil_temp, p0, w, ipar, rh, emax&
                &, cl1_pft(ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
                &, soil_sat, soil_text, p_sat, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
                &, wue(p), c_def(p), vcmax(p), specific_la(p), tra(p))
-         print*,'wood_density',dwood_aux(p)
 
          evap(p) = penman(p0,temp,rh,available_energy(temp),rc2(p)) !Actual evapotranspiration (evap, mm/day)
 
