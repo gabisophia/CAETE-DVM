@@ -60,7 +60,7 @@ contains
 
 
       real(r_8),dimension(3,npls),intent(in)  :: sto_budg_in ! Rapid Storage Pool (C,N,P)  g m-2
-      real(r_8),dimension(npls),intent(in) :: cl1_in  ! initial BIOMASS cleaf compartment kgm-2
+      real(r_8),dimension(3,npls),intent(in) :: cl1_in  ! initial BIOMASS cleaf compartment kgm-2
       real(r_8),dimension(npls),intent(in) :: cf1_in  !                 froot
       real(r_8),dimension(npls),intent(in) :: ca1_in  !                 cawood
       real(r_8),dimension(npls),intent(in) :: dleaf_in  ! CHANGE IN cVEG (DAILY BASIS) TO GROWTH RESP
@@ -93,7 +93,7 @@ contains
       real(r_8),dimension(6),intent(out) :: lit_nut_content_1 ! g(Nutrient)m-2 ! Lit_nut_content variables         [(lln),(rln),(cwdn),(llp),(rl),(cwdp)]
 
       ! FULL OUTPUT
-      real(r_8),dimension(npls),intent(out) :: cleafavg_pft   !Carbon in plant tissues (kg m-2)
+      real(r_8),dimension(3,npls),intent(out) :: cleafavg_pft   !Carbon in plant tissues (kg m-2)
       real(r_8),dimension(npls),intent(out) :: cawoodavg_pft  !
       real(r_8),dimension(npls),intent(out) :: cfrootavg_pft  !
       real(r_8),dimension(npls),intent(out) :: ocpavg         ! [0-1] Gridcell occupation
@@ -117,7 +117,8 @@ contains
       real(r_4),parameter :: tsnow = -1.0
       real(r_4),parameter :: tice  = -2.5
 
-      real(r_8),dimension(npls) :: cl1_pft, cf1_pft, ca1_pft
+      real(r_8),dimension(3,npls) :: cl1_pft
+      real(r_8),dimension(npls) :: cf1_pft, ca1_pft
       real(r_4) :: soil_temp
       real(r_4) :: emax
 
@@ -145,11 +146,11 @@ contains
       real(r_4),dimension(:),allocatable :: wue
       real(r_4),dimension(:),allocatable :: cue
       real(r_4),dimension(:),allocatable :: c_def
-      real(r_8),dimension(:),allocatable :: cl1_int
+      real(r_8),dimension(:,:),allocatable :: cl1_int
       real(r_8),dimension(:),allocatable :: cf1_int
       real(r_8),dimension(:),allocatable :: ca1_int
       real(r_8),dimension(:),allocatable :: tra
-      real(r_8),dimension(:),allocatable :: cl2
+      real(r_8),dimension(:,:),allocatable :: cl2
       real(r_8),dimension(:),allocatable :: cf2
       real(r_8),dimension(:),allocatable :: ca2    ! carbon pos-allocation
       real(r_8),dimension(:,:),allocatable :: day_storage      ! D0=3 g m-2
@@ -180,7 +181,6 @@ contains
       ! create copies of some input variables (arrays) - ( they are passed by reference by standard)
       do i = 1,npls
          awood_aux(i) = dt(7,i)
-         cl1_pft(i) = cl1_in(i)
          ca1_pft(i) = ca1_in(i)
          cf1_pft(i) = cf1_in(i)
          dleaf(i) = dleaf_in(i)
@@ -189,10 +189,11 @@ contains
          uptk_costs(i) = uptk_costs_in(i)
          do j = 1,3
             sto_budg(j,i) = sto_budg_in(j,i)
+            cl1_pft(j,i) = cl1_in(j,i)
          enddo
-         print*,'cl1_pft(i)',cl1_pft(i),i
-         print*,'ca1_pft(i)',ca1_pft(i),i
-         print*,'cf1_pft(i)',cf1_pft(i),i
+!         print*,'cl1_pft(i)',cl1_pft(i),i
+!         print*,'ca1_pft(i)',ca1_pft(i),i
+!         print*,'cf1_pft(i)',cf1_pft(i),i
 
       enddo
 
@@ -200,7 +201,7 @@ contains
       soil_temp = ts   ! soil temp °C
       soil_sat = wmax_in
 
-      call pft_area_frac(cl1_pft(:), cf1_pft, ca1_pft, awood_aux,&
+      call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
 
       nlen = sum(run)    ! New length for the arrays in the main loop
@@ -245,10 +246,10 @@ contains
       allocate(npp2pay(nlen))
       allocate(limitation_status(3,nlen))
       allocate(uptk_strat(2,nlen))
-      allocate(cl1_int(nlen))
+      allocate(cl1_int(3,nlen))
       allocate(cf1_int(nlen))
       allocate(ca1_int(nlen))
-      allocate(cl2(nlen))
+      allocate(cl2(3,nlen))
       allocate(cf2(nlen))
       allocate(ca2(nlen))
       allocate(day_storage(3,nlen))
@@ -275,7 +276,7 @@ contains
          dt1 = dt(:,ri) ! Pick up the pls functional attributes list
 
          call prod(dt1, ocp_wood(ri),catm, temp, soil_temp, p0, w, ipar, rh, emax&
-               &, cl1_pft(ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
+               &, cl1_pft(:,ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
                &, soil_sat, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
                &, wue(p), c_def(p), vcmax(p), specific_la(p), tra(p))
 
@@ -306,8 +307,8 @@ contains
          !     Carbon/Nitrogen/Phosphorus allocation/deallocation
          !     =====================================================
          call allocation (dt1,nppa(p),uptk_costs(ri), soil_temp, w, tra(p)&
-            &, mineral_n,labile_p, on, sop, op, cl1_pft(ri),ca1_pft(ri)&
-            &, cf1_pft(ri),storage_out_bdgt(:,p),day_storage(:,p),cl2(p),ca2(p)&
+            &, mineral_n,labile_p, on, sop, op, cl1_pft(:,ri),ca1_pft(ri)&
+            &, cf1_pft(ri),storage_out_bdgt(:,p),day_storage(:,p),cl2(:,p),ca2(p)&
             &, cf2(p),litter_l(p),cwd(p), litter_fr(p),nupt(:,p),pupt(:,p)&
             &, lit_nut_content(:,p), limitation_status(:,p), npp2pay(p), uptk_strat(:, p))
 
@@ -334,7 +335,7 @@ contains
             cue(p) = nppa(p)/ph(p)
          endif
 
-         delta_cveg(1,p) = cl2(p) - cl1_pft(ri)  !kg m-2
+         delta_cveg(1,p) = sum(cl2(:,p)) - sum(cl1_pft(:,ri))  !kg m-2
          if(dt1(4) .lt. 0.0D0) then
             delta_cveg(2,p) = 0.0D0
          else
@@ -346,26 +347,28 @@ contains
 
          if(c_def(p) .gt. 0.0) then
             if(dt1(7) .gt. 0.0D0) then
-               cl1_int(p) = cl2(p) - ((c_def(p) * 1e-3) * 0.333333333)
+               cl1_int(:,p) = cl2(:,p) - ((c_def(p) * 1e-3) * 0.333333333)
                ca1_int(p) = ca2(p) - ((c_def(p) * 1e-3) * 0.333333333)
                cf1_int(p) = cf2(p) - ((c_def(p) * 1e-3) * 0.333333333)
             else
-               cl1_int(p) = cl2(p) - ((c_def(p) * 1e-3) * 0.5)
+               cl1_int(:,p) = cl2(:,p) - ((c_def(p) * 1e-3) * 0.5)
                ca1_int(p) = 0.0D0
                cf1_int(p) = cf2(p) - ((c_def(p) * 1e-3) * 0.5)
             endif
          else
             if(dt1(7) .gt. 0.0D0) then
-               cl1_int(p) = cl2(p)
+               cl1_int(:,p) = cl2(:,p)
                ca1_int(p) = ca2(p)
                cf1_int(p) = cf2(p)
             else
-               cl1_int(p) = cl2(p)
+               cl1_int(:,p) = cl2(:,p)
                ca1_int(p) = 0.0D0
                cf1_int(p) = cf2(p)
             endif
          endif
-         if(cl1_int(p) .lt. 0.0D0) cl1_int(p) = 0.0D0
+         if(cl1_int(1,p) .lt. 0.0D0) cl1_int(1,p) = 0.0D0
+         if(cl1_int(2,p) .lt. 0.0D0) cl1_int(2,p) = 0.0D0
+         if(cl1_int(3,p) .lt. 0.0D0) cl1_int(3,p) = 0.0D0
          if(ca1_int(p) .lt. 0.0D0) ca1_int(p) = 0.0D0
          if(cf1_int(p) .lt. 0.0D0) cf1_int(p) = 0.0D0
 
@@ -399,7 +402,7 @@ contains
       nupt_1(:) = 0.0D0
       pupt_1(:) = 0.0D0
 
-      cleafavg_pft(:) = 0.0D0
+      cleafavg_pft(:,:) = 0.0D0
       cawoodavg_pft(:) = 0.0D0
       cfrootavg_pft(:) = 0.0D0
       delta_cveg_1(:, :) = 0.0D0
@@ -434,7 +437,7 @@ contains
       litter_fr_1 = sum(litter_fr * ocp_coeffs, mask= .not. isnan(litter_fr))
       c_cost_cwm = sum(npp2pay * ocp_coeffs, mask= .not. isnan(npp2pay))
 
-      cp(1) = sum(cl1_int * ocp_coeffs, mask= .not. isnan(cl1_int))
+      cp(1) = sum(sum(cl1_int) * ocp_coeffs, mask= .not. isnan(sum(cl1_int)))
       cp(2) = sum(ca1_int * ocp_coeffs, mask= .not. isnan(ca1_int))
       cp(3) = sum(cf1_int * ocp_coeffs, mask= .not. isnan(cf1_int))
 
@@ -485,7 +488,7 @@ contains
       do p = 1, nlen
          ri = lp(p)
 
-         cleafavg_pft(ri)  = cl1_int(p)
+         cleafavg_pft(:,ri)  = cl1_int(:,p)
          cawoodavg_pft(ri) = ca1_int(p)
          cfrootavg_pft(ri) = cf1_int(p)
          delta_cveg_1(:,ri) = delta_cveg(:,p)
