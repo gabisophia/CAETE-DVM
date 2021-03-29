@@ -73,6 +73,7 @@ contains
    !=================================================================
 
    function gross_ph(f1,cleaf,sla) result(ph)
+
       ! Returns gross photosynthesis rate (kgC m-2 y-1) (GPP)
       use types, only: r_4, r_8
       !implicit none
@@ -91,8 +92,8 @@ contains
 
       ph = real((0.012D0*31557600.0D0*f1in*f4sun*f4shade), r_4)
       if(ph .lt. 0.0) ph = 0.0
+      
    end function gross_ph
-
    !=================================================================
    !=================================================================
 
