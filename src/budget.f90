@@ -171,7 +171,7 @@ contains
       integer(i_4), dimension(:, :),allocatable :: uptk_strat        ! D0=2
       INTEGER(i_4), dimension(:), allocatable :: lp ! index of living PLSs
 
-      real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs
+      real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs, dwood_aux
       real(r_8), dimension(3,npls) :: sto_budg
       real(r_8) :: soil_sat
       real(r_8), dimension(npls) :: height_aux, diameter_aux, crown_aux
@@ -184,6 +184,7 @@ contains
       ! create copies of some input variables (arrays) - ( they are passed by reference by standard)
       do i = 1,npls
          awood_aux(i) = dt(7,i)
+         dwood_aux(i) = dt(18,i)
          cl1_pft(i) = cl1_in(i)
          ca1_pft(i) = ca1_in(i)
          cf1_pft(i) = cf1_in(i)
@@ -281,10 +282,11 @@ contains
          ri = lp(p)
          dt1 = dt(:,ri) ! Pick up the pls functional attributes list
 
-         call prod(dt1, ocp_wood(ri),catm, temp, soil_temp, p0, w, ipar, rh, emax&
+         call prod(dt1, dwood_aux(p), ocp_wood(ri), catm, temp, soil_temp, p0, w, ipar, rh, emax&
                &, cl1_pft(ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
                &, soil_sat, soil_text, p_sat, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
                &, wue(p), c_def(p), vcmax(p), specific_la(p), tra(p))
+         print*,'wood_density',dwood_aux(p)
 
          evap(p) = penman(p0,temp,rh,available_energy(temp),rc2(p)) !Actual evapotranspiration (evap, mm/day)
 
@@ -376,9 +378,9 @@ contains
          if(ca1_int(p) .lt. 0.0D0) ca1_int(p) = 0.0D0
          if(cf1_int(p) .lt. 0.0D0) cf1_int(p) = 0.0D0
 
-         print*,'cl1_pft(p)',cl1_pft(p),p
-         print*,'ca1_pft(p)',ca1_pft(p),p
-         print*,'cf1_pft(p)',cf1_pft(p),p
+!         print*,'cl1_pft(p)',cl1_pft(p),p
+!         print*,'ca1_pft(p)',ca1_pft(p),p
+!         print*,'cf1_pft(p)',cf1_pft(p),p
 
       enddo ! end pls_loop (p)
       !$OMP END PARALLEL DO

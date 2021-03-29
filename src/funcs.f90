@@ -31,7 +31,7 @@ module photo
         f_four                 ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area         ,& ! (f), specific leaf area (m2 g-1)
         soil_waterpotential    ,& ! (f), Soil water potential (MPa)
-!        conductivity_xylleaf   ,& ! (f), Maximum xylem conductivity per unit leaf area (kg m-1 s-1 Mpa-1)
+        conductivity_xylleaf   ,& ! (f), Maximum xylem conductivity per unit leaf area (kg m-1 s-1 Mpa-1)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -215,17 +215,18 @@ contains
    !=================================================================
    !=================================================================
 
-!   function conductivity_xylleaf(amax) result(klmax)
+   function conductivity_xylleaf(dwood_aux,amax) result(klmax)
       !Maximum xylem conductivity per unit leaf area (kgm-1s-1MPa-1)
       !Based in Christoffersen et al. 2016 TFS v.1-Hydro
-!      use types
-!      use allometry_par, only: dw
+      use types
+      use allometry_par
 
-!      real(r_8),intent(in) :: amax          !µmolm-2s-1 - light saturated photo rate PRECISO CONVERTER de mol pra µmol
-!      real(r_8) :: klmax                    !kgm-1s-1MPa-1   
+      real(r_8),intent(in) :: dwood_aux
+      real(r_8),intent(in) :: amax          !µmolm-2s-1 - light saturated photo rate PRECISO CONVERTER de mol pra µmol
+      real(r_8) :: klmax                    !kgm-1s-1MPa-1   
 
-!      klmax = 0.0021 * exp(-26.6 * dw/(amax * 1e6))  ! µmol m-2 s-1 - 1e6 converts mol to µmol  
-!   endfunction conductivity_xylleaf
+      klmax = 0.0021 * exp((-26.6 * dwood_aux)/(amax * 1e6))  ! µmol m-2 s-1 - 1e6 converts mol to µmol  
+   end function conductivity_xylleaf
 
    !=================================================================
    !=================================================================
@@ -323,34 +324,34 @@ contains
    !=================================================================
 
    function stomatal_conductance(vpd_in,f1_in,g1,ca) result(gs)
-    ! return stomatal resistence based on Medlyn et al. 2011a
-    ! Coded by Helena Alves do Prado
+      ! return stomatal resistence based on Medlyn et al. 2011a
+      ! Coded by Helena Alves do Prado
 
-    use types, only: r_4 ,r_8
+      use types, only: r_4 ,r_8
 
-    !implicit none
+      !implicit none
 
-    real(r_4),intent(in) :: f1_in    !Photosynthesis (molCO2/m2/s)
-    real(r_4),intent(in) :: vpd_in   !hPa
-    real(r_4),intent(in) :: g1       ! model m (slope) (sqrt(kPa))
-    real(r_8),intent(in) :: ca
-    real(r_8) :: gs       !Canopy conductance (molCO2 m-2 s-1)
-    !     Internal
-    !     --------
-    real(r_8) :: D1       !sqrt(kPA)
-    real(r_4) :: vapour_p_d
+      real(r_4),intent(in) :: f1_in    !Photosynthesis (molCO2/m2/s)
+      real(r_4),intent(in) :: vpd_in   !hPa
+      real(r_4),intent(in) :: g1       ! model m (slope) (sqrt(kPa))
+      real(r_8),intent(in) :: ca
+      real(r_8) :: gs       !Canopy conductance (molCO2 m-2 s-1)
+      !     Internal
+      !     --------
+      real(r_8) :: D1       !sqrt(kPA)
+      real(r_4) :: vapour_p_d
 
-    vapour_p_d = vpd_in
-    ! Assertions
-    if(vpd_in .le. 0.0) vapour_p_d = 0.001
-    if(vpd_in .gt. 4.0) vapour_p_d = 4.0
-    ! print *, 'vpd going mad in canopy_resistence'
-    ! stop
-    ! endif
+      vapour_p_d = vpd_in
+      ! Assertions
+      if(vpd_in .le. 0.0) vapour_p_d = 0.001
+      if(vpd_in .gt. 4.0) vapour_p_d = 4.0
+      ! print *, 'vpd going mad in canopy_resistence'
+      ! stop
+      ! endif
 
-    D1 = sqrt(vapour_p_d)
-    gs = 1.6 * (1.0 + (g1/D1)) * (f1_in/ca) !mol m-2 s-1
- end function stomatal_conductance
+      D1 = sqrt(vapour_p_d)
+      gs = 1.6 * (1.0 + (g1/D1)) * (f1_in/ca) !mol m-2 s-1
+   end function stomatal_conductance
 
  !=================================================================
  !=================================================================
@@ -459,7 +460,7 @@ contains
          rnpp = max( 0.0D0, (available_n * pot_npp_pool) / nupt_pot)
       endif
 
-      end subroutine realized_npp
+   end subroutine realized_npp
 
    !=================================================================
    !=================================================================
@@ -952,8 +953,8 @@ contains
   !===================================================================
 
    function sto_resp(temp, sto_mr) result(rm)
-    use types, only: r_4,r_8
-    !implicit none
+      use types, only: r_4,r_8
+      !implicit none
 
       real(r_4), intent(in) :: temp
       real(r_8), dimension(3), intent(in) :: sto_mr
@@ -961,33 +962,31 @@ contains
 
       real(r_8) :: stoc,ston
 
-    !   Autothrophic respiration
-    !   ========================
+      !   Autothrophic respiration
+      !   ========================
 
-    stoc = sto_mr(1)
-    ston = sto_mr(2)
-   !  print*, ston
+      stoc = sto_mr(1)
+      ston = sto_mr(2)
+      !  print*, ston
 
-    if(stoc .le. 0.0D0) then
-       rm = 0.0D0
-       return
-    endif
+      if(stoc .le. 0.0D0) then
+         rm = 0.0D0
+         return
+      endif
 
-    if(ston .lt. 0.0D0) then
-      ston = 1.0D0/300.0D0
-    else
-      ston = ston/stoc
-    endif
+      if(ston .lt. 0.0D0) then
+         ston = 1.0D0/300.0D0
+      else
+         ston = ston/stoc
+      endif
 
-    rm = ((ston * stoc) * 27.0D0 * dexp(0.07D0*temp))
+      rm = ((ston * stoc) * 27.0D0 * dexp(0.07D0*temp))
 
-    if (rm .lt. 0) then
-       rm = 0.0
-    endif
-    return
-
-
- end function sto_resp
+      if (rm .lt. 0) then
+         rm = 0.0
+      endif
+      return
+   end function sto_resp
 
 
    !====================================================================
@@ -1260,140 +1259,140 @@ contains
   !=================================================================
   !=================================================================
 
-  subroutine soil_temp_sub(temp, tsoil)
-  ! Calcula a temperatura do solo. Aqui vamos mudar no futuro!
-  ! a tsoil deve ter relacao com a et realizada...
-  ! a profundidade do solo (H) e o coef de difusao (DIFFU) devem ser
-  ! variaveis (MAPA DE SOLO?; agua no solo?)
-  use types
-  use global_par
-  !implicit none
-  integer(i_4),parameter :: m = 1095
+   subroutine soil_temp_sub(temp, tsoil)
+      ! Calcula a temperatura do solo. Aqui vamos mudar no futuro!
+      ! a tsoil deve ter relacao com a et realizada...
+      ! a profundidade do solo (H) e o coef de difusao (DIFFU) devem ser
+      ! variaveis (MAPA DE SOLO?; agua no solo?)
+      use types
+      use global_par
+      !implicit none
+      integer(i_4),parameter :: m = 1095
 
-  real(r_4),dimension(m), intent( in) :: temp ! future __ make temps an allocatable array
-  real(r_4), intent(out) :: tsoil
+      real(r_4),dimension(m), intent( in) :: temp ! future __ make temps an allocatable array
+      real(r_4), intent(out) :: tsoil
 
-  ! internal vars
+      ! internal vars
 
-  integer(i_4) :: n, k
-  real(r_4) :: t0 = 0.0
-  real(r_4) :: t1 = 0.0
+      integer(i_4) :: n, k
+      real(r_4) :: t0 = 0.0
+      real(r_4) :: t1 = 0.0
 
-  tsoil = -9999.0
+      tsoil = -9999.0
 
-  do n=1,m !run to attain equilibrium
-     k = mod(n,12)
-     if (k.eq.0) k = 12
-     t1 = (t0*exp(-1.0/tau) + (1.0 - exp(-1.0/tau)))*temp(k)
-     tsoil = (t0 + t1)/2.0
-     t0 = t1
-  enddo
-  end subroutine soil_temp_sub
-
-  !=================================================================
-  !=================================================================
-
-  function soil_temp(t0,temp) result(tsoil)
-    use types
-    use global_par, only: h, tau, diffu
-    !implicit none
-
-    real(r_4),intent( in) :: temp
-    real(r_4),intent( in) :: t0
-    real(r_4) :: tsoil
-
-    real(r_4) :: t1 = 0.0
-
-    t1 = (t0*exp(-1.0/tau) + (1.0 - exp(-1.0/tau)))*temp
-    tsoil = (t0 + t1)/2.0
-  end function soil_temp
+      do n=1,m !run to attain equilibrium
+         k = mod(n,12)
+         if (k.eq.0) k = 12
+         t1 = (t0*exp(-1.0/tau) + (1.0 - exp(-1.0/tau)))*temp(k)
+         tsoil = (t0 + t1)/2.0
+         t0 = t1
+      enddo
+   end subroutine soil_temp_sub
 
   !=================================================================
   !=================================================================
 
-  function penman (spre,temp,ur,rn,rc2) result(evap)
-    use types, only: r_4
-    use global_par, only: rcmin, rcmax
-    use photo, only: tetens
-    !implicit none
+   function soil_temp(t0,temp) result(tsoil)
+      use types
+      use global_par, only: h, tau, diffu
+      !implicit none
 
+      real(r_4),intent( in) :: temp
+      real(r_4),intent( in) :: t0
+      real(r_4) :: tsoil
 
-    real(r_4),intent(in) :: spre                 !Surface pressure (mbar)
-    real(r_4),intent(in) :: temp                 !Temperature (°C)
-    real(r_4),intent(in) :: ur                   !Relative humidity (0-1)
-    real(r_4),intent(in) :: rn                   !Radiation balance (W/m2)
-    real(r_4),intent(in) :: rc2                  !Canopy resistence (s/m)
+      real(r_4) :: t1 = 0.0
 
-    real(r_4) :: evap                            !Evapotranspiration (mm/day)
-    !     Parameters
-    !     ----------
-    real(r_4) :: ra, h5, t1, t2, es, es1, es2, delta_e, delta
-    real(r_4) :: gama, gama2
-
-
-    ra = rcmin
-    h5 = 0.0275               !mb-1
-
-    !     Delta
-    !     -----
-    t1 = temp + 1.
-    t2 = temp - 1.
-    es1 = tetens(t1)       !Saturation partial pressure of water vapour at temperature T
-    es2 = tetens(t2)
-
-    delta = (es1-es2)/(t1-t2) !mbar/oC
-    !
-    !     Delta_e
-    !     -------
-    es = tetens (temp)
-    delta_e = es*(1. - ur)    !mbar
-
-    if ((delta_e.ge.(1./h5)-0.5).or.(rc2.ge.rcmax)) evap = 0.
-    if ((delta_e.lt.(1./h5)-0.5).or.(rc2.lt.rcmax)) then
-       !     Gama and gama2
-       !     --------------
-       gama  = spre*(1004.)/(2.45e6*0.622)
-       gama2 = gama*(ra + rc2)/ra
-
-       !     Real evapotranspiration
-       !     -----------------------
-       evap = (delta* rn + (1.20*1004./ra)*delta_e)/(delta+gama2) !W/m2
-       evap = evap*(86400./2.45e6) !mm/day
-       evap = amax1(evap,0.)  !Eliminates condensation
-    endif
-  end function penman
+      t1 = (t0*exp(-1.0/tau) + (1.0 - exp(-1.0/tau)))*temp
+      tsoil = (t0 + t1)/2.0
+   end function soil_temp
 
   !=================================================================
   !=================================================================
 
-  function available_energy(temp) result(ae)
-    use types, only: r_4
-    !implicit none
+   function penman (spre,temp,ur,rn,rc2) result(evap)
+      use types, only: r_4
+      use global_par, only: rcmin, rcmax
+      use photo, only: tetens
+      !implicit none
 
-    real(r_4),intent(in) :: temp
-    real(r_4) :: ae
 
-    ae = 2.895 * temp + 52.326 !from NCEP-NCAR Reanalysis data
-  end function  available_energy
+      real(r_4),intent(in) :: spre                 !Surface pressure (mbar)
+      real(r_4),intent(in) :: temp                 !Temperature (°C)
+      real(r_4),intent(in) :: ur                   !Relative humidity (0-1)
+      real(r_4),intent(in) :: rn                   !Radiation balance (W/m2)
+      real(r_4),intent(in) :: rc2                  !Canopy resistence (s/m)
+
+      real(r_4) :: evap                            !Evapotranspiration (mm/day)
+      !     Parameters
+      !     ----------
+      real(r_4) :: ra, h5, t1, t2, es, es1, es2, delta_e, delta
+      real(r_4) :: gama, gama2
+
+
+      ra = rcmin
+      h5 = 0.0275               !mb-1
+
+      !     Delta
+      !     -----
+      t1 = temp + 1.
+      t2 = temp - 1.
+      es1 = tetens(t1)       !Saturation partial pressure of water vapour at temperature T
+      es2 = tetens(t2)
+
+      delta = (es1-es2)/(t1-t2) !mbar/oC
+      !
+      !     Delta_e
+      !     -------
+      es = tetens (temp)
+      delta_e = es*(1. - ur)    !mbar
+
+      if ((delta_e.ge.(1./h5)-0.5).or.(rc2.ge.rcmax)) evap = 0.
+      if ((delta_e.lt.(1./h5)-0.5).or.(rc2.lt.rcmax)) then
+         !     Gama and gama2
+         !     --------------
+         gama  = spre*(1004.)/(2.45e6*0.622)
+         gama2 = gama*(ra + rc2)/ra
+
+         !     Real evapotranspiration
+         !     -----------------------
+         evap = (delta* rn + (1.20*1004./ra)*delta_e)/(delta+gama2) !W/m2
+         evap = evap*(86400./2.45e6) !mm/day
+         evap = amax1(evap,0.)  !Eliminates condensation
+      endif
+   end function penman
 
   !=================================================================
   !=================================================================
 
-  function runoff(wa) result(roff)
-    use types, only: r_4
-    !implicit none
+   function available_energy(temp) result(ae)
+      use types, only: r_4
+      !implicit none
 
-    real(r_4),intent(in) :: wa
-    real(r_4):: roff
+      real(r_4),intent(in) :: temp
+      real(r_4) :: ae
 
-    !  roff = 38.*((w/wmax)**11.) ! [Eq. 10]
-    roff = 11.5*((wa)**6.6) !from NCEP-NCAR Reanalysis data
-  end function  runoff
+      ae = 2.895 * temp + 52.326 !from NCEP-NCAR Reanalysis data
+   end function  available_energy
 
   !=================================================================
   !=================================================================
 
-  function evpot2 (spre,temp,ur,rn) result(evap)
+   function runoff(wa) result(roff)
+      use types, only: r_4
+      !implicit none
+
+      real(r_4),intent(in) :: wa
+      real(r_4):: roff
+
+      !  roff = 38.*((w/wmax)**11.) ! [Eq. 10]
+      roff = 11.5*((wa)**6.6) !from NCEP-NCAR Reanalysis data
+   end function  runoff
+
+  !=================================================================
+  !=================================================================
+
+   function evpot2 (spre,temp,ur,rn) result(evap)
     use types, only: r_4
     use global_par, only: rcmin, rcmax
     use photo, only: tetens
@@ -1459,7 +1458,7 @@ contains
     evap =(delta*rn + (1.20*1004./ra)*delta_e)/(delta+gama2) !W/m2
     evap = evap*(86400./2.45e6) !mm/day
     evap = amax1(evap,0.)     !Eliminates condensation
-  end function evpot2
+   end function evpot2
 
   !=================================================================
   !=================================================================
