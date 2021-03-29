@@ -200,7 +200,7 @@ contains
       soil_temp = ts   ! soil temp °C
       soil_sat = wmax_in
 
-      call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
+      call pft_area_frac(cl1_pft(:), cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
 
       nlen = sum(run)    ! New length for the arrays in the main loop
