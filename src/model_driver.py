@@ -111,7 +111,7 @@ if sombrero:
 
 else:
     grid_mn = []
-    for Y in range(168, 169):
+    for Y in range(168, 172):
         for X in range(225, 226):
             if not mask[Y, X]:
                 grid_mn.append(grd(X, Y, outf))
@@ -153,7 +153,7 @@ def apply_fun(grid):
 
 
 def apply_fun0(grid):
-    grid.run_caete('19790101', '19881231', spinup=1,
+    grid.run_caete('19790101', '19881231', spinup=2,
                    fix_co2='1979', save=False)
     return grid
 

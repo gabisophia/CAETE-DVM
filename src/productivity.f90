@@ -44,7 +44,8 @@ contains
     real(r_8), intent(in) :: w                    !Soil moisture kg m-2
     real(r_4), intent(in) :: ipar                 !Incident photosynthetic active radiation (w/m2)
     real(r_4), intent(in) :: rh,emax !Relative humidity/MAXIMUM EVAPOTRANSPIRATION
-    real(r_8), intent(in) :: catm, cl1_prod, cf1_prod, ca1_prod        !Carbon in plant tissues (kg/m2)
+    real(r_8), dimension(3),intent(in) :: cl1_prod       !total carbon in each cohort
+    real(r_8), intent(in) :: catm, cf1_prod, ca1_prod    !Carbon in plant tissues (kg/m2)
     real(r_8), intent(in) :: beta_leaf            !npp allocation to carbon pools (kg/m2/day)
     real(r_8), intent(in) :: beta_awood
     real(r_8), intent(in) :: beta_froot, wmax
@@ -80,12 +81,17 @@ contains
     integer(i_4) :: c4_int
     real(r_8) :: jl_out
 
-    real(r_8) :: f1       !Leaf level gross photosynthesis (molCO2/m2/s)
-    real(r_8) :: f1a      !auxiliar_f1
+    real(r_8), dimension(3) :: f1      !Leaf level gross photosynthesis (molCO2/m2/s)
+    real(r_8) :: f1a                   !auxiliar_f1
+    real(r_8), dimension(3) :: umol_penalties = (/-0.4, 1.0, 0.6/)
+    real(r_8), dimension(3) :: age_limits, leaf_age
+    real(r_8), dimension(3) :: penalization_by_age
+    real(r_8) :: age_crit
+    real(r_8) :: cl_total              !Carbon sum of all the cohots (kg/m2)
     real(r_4) :: rc_pot, rc_aux
+    integer(i_4) :: i
 
 !getting pls parameters
-
 
     g1  = dt(1)
     tleaf = dt(3)
@@ -98,11 +104,46 @@ contains
     p2cl = dt(13)
 
 
-    n2cl = n2cl * (cl1_prod * 1D3) ! N in leaf g m-2
-    p2cl = p2cl * (cl1_prod * 1D3) ! P in leaf g m-2
+!Simulation of leaf demography
+    !Obtain critical age
+    age_crit = (tleaf / 3.0) * 2.0
+
+    !Obtain age limits
+
+    age_limits(1) = (tleaf * (1.0/6.0))
+    age_limits(2) = (tleaf * (4.0/6.0))
+    age_limits(3) = tleaf
+
+    !Obtain leaf age (a)
+    leaf_age(1) = (tleaf * (1.0/12.0))
+    leaf_age(2) = (tleaf * (1.0/2.0))
+    leaf_age(3) = (tleaf * (5.0/6.0))
+
+!    do i = 1, 3
+!        penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
+!    enddo
+    
+    do i = 1,3
+       if (i .le. age_limits(1)) then 
+          penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
+       else if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
+          penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
+       else 
+          penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
+       endif 
+    enddo
+
+    print*,'fa jovem',penalization_by_age(1)
+    print*,'fa madura',penalization_by_age(2)
+    print*,'fa velha',penalization_by_age(3)
+
+    !Obtain total carbon of the leaf cohorts
+    cl_total = sum(cl1_prod)
+
+    n2cl = real(n2cl * (cl_total * 1e3), r_4) ! N in leaf g m-2
+    p2cl = real(p2cl * (cl_total * 1e3), r_4) ! P in leaf g m-2
 
     c4_int = idnint(c4)
-
 
 !     ==============
 !     Photosynthesis
@@ -130,9 +171,11 @@ contains
 !     ----------------------------------------------
 
     if ((temp.ge.-10.0).and.(temp.le.50.0)) then
-       f1 = f1a * f5 ! :water stress factor ! Ancient floating-point underflow spring (from CPTEC-PVM2)
+        do i = 1,3
+            f1(i) = f1a * f5 * penalization_by_age(i) ! :water stress factor ! Ancient floating-point underflow spring (from CPTEC-PVM2)
+        enddo
     else
-       f1 = 0.0      !Temperature above/below photosynthesis windown
+        f1 = 0.0      !Temperature above/below photosynthesis windown
     endif
 
     rc_aux = canopy_resistence(vpd, f1, g1, catm)  ! RCM leaf level -!s m-1
