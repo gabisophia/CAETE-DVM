@@ -87,13 +87,14 @@ contains
 
     real(r_8) :: f1       !Leaf level gross photosynthesis (molCO2/m2/s)
     real(r_8) :: f1a      !auxiliar_f1
-    real(r_4) :: rc_pot, rc_aux
+    real(r_4) :: rc_pot, rc_aux, e_pot
 
     !Hydraulic parameters
     real(r_8) :: psi_soil
     real(r_8) :: psi_50
     real(r_8) :: klmax1
     real(r_8) :: krcmax1
+    real(r_8) :: psixylem
 
 !getting pls parameters
 
@@ -122,6 +123,9 @@ contains
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,n2cl,&
          & p2cl,cl1_prod,tleaf,f1a,vm_out,jl_out)
 
+    !Stomatal resistence
+    !===================
+    rc_pot = canopy_resistence(vpd, f1a, g1, catm) ! Potential RCM leaf level - s m-1
 
     ! ==============
     !    Hydraulic
@@ -147,13 +151,19 @@ contains
     krcmax1 = conductance_xylemax(klmax1, height1)   
     print*,'krcmax',krcmax1,'height1',height1
 
+    ! Transpiração potencial em mol
+    e_pot = transpiration(rc_pot, p0, vpd, 1)   
+    print*,'e_pot',e_pot
+
+    ! Psixylem
+    !=========
+!    psixylem = xylem_waterpotential(psi_soil,krcmax1,e_pot,height1)
+    psixylem = xylem_waterpotential(psi_soil,height1)
+    print*,'psixylem',psixylem
+
     ! VPD
     !========
     vpd = vapor_p_defcit(temp,rh)
-
-    !Stomatal resistence
-    !===================
-    rc_pot = canopy_resistence(vpd, f1a, g1, catm) ! Potential RCM leaf level - s m-1
 
     !Water stress response modifier (dimensionless)
     !----------------------------------------------
@@ -176,6 +186,7 @@ contains
 
     !     calcula a transpiração em mm/s
     e = transpiration(rc_aux, p0, vpd, 2)
+    print*,'e',e
 
     ! Leaf area index (m2/m2)
     ! recalcula rc e escalona para dossel
