@@ -90,6 +90,7 @@ contains
 
     !Hydraulic parameters
     real(r_8) :: psi_soil
+    real(r_8) :: psi_50
     real(r_8) :: klmax1
 
 !getting pls parameters
@@ -128,6 +129,11 @@ contains
     !=========
     psi_soil = soil_waterpotential(soiltexture, w, wmax, psisat)
     print*,'psi_soil',psi_soil
+
+    ! P50
+    !=========
+    psi_50 = psi_fifty(dwood_t)
+    print*,'P50',psi_50
 
     ! Klmax
     !=========
