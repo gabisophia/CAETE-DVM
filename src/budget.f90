@@ -190,6 +190,7 @@ contains
          do j = 1,3
             sto_budg(j,i) = sto_budg_in(j,i)
             cl1_pft(j,i) = cl1_in(j,i)
+           ! print*,'cl1_pft(j,i)',cl1_pft(j,i)
          enddo
       enddo
 
@@ -367,6 +368,12 @@ contains
          if(cl1_int(3,p) .lt. 0.0D0) cl1_int(3,p) = 0.0D0
          if(ca1_int(p) .lt. 0.0D0) ca1_int(p) = 0.0D0
          if(cf1_int(p) .lt. 0.0D0) cf1_int(p) = 0.0D0
+
+         print*,'cl1_int(p) jovem',cl1_int(1,p)
+         print*,'cl1_int(P) madura',cl1_int(2,p)
+         print*,'cl1_int(P) velha',cl1_int(3,p)
+         print*,'ca1_int(P)',ca1_int(p)
+         print*,'cf1_int(P)',cf1_int(p)
 
       enddo ! end pls_loop (p)
       !$OMP END PARALLEL DO

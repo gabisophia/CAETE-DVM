@@ -177,7 +177,9 @@ contains
     else
         f1 = 0.0      !Temperature above/below photosynthesis windown
     endif
-
+    print*,'f1 jovem',f1(1)
+    print*,'f1 madura',f1(2)
+    print*,'f1 velha',f1(3)
     rc_aux = canopy_resistence_real(vpd, f1(:), g1, catm)  ! RCM leaf level -!s m-1
 
     wue = water_ue(f1(:), rc_aux, p0, vpd)
