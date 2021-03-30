@@ -322,14 +322,14 @@ contains
    !=================================================================
    !=================================================================
 
-   function xylem_conductance(krcmax,psi_xylem,psi_50) result(k)  
+   function xylem_conductance(krcmax,psi_soil,psi_50) result(k)  
       !Xylem conductance (molm-2s-1MPa-1)
       !Based in Manzoni et al., 2013
       use types
 !      use global_par, only: vuln_curve
 
-      real(r_8), intent(in) :: krcmax                !molm-2s-1Mpa-1 
-      real(r_8), intent(in) :: psi_xylem              !MPa
+      real(r_8), intent(in) :: krcmax                 !molm-2s-1Mpa-1 
+      real(r_8), intent(in) :: psi_soil               !MPa
       real(r_8), intent(in) :: psi_50                 !MPa
       real(r_8) :: k                                  !molm-2s-1MPa-1
 
@@ -339,7 +339,7 @@ contains
       stem_slope = 65.15*(-psi_50)**(-1.25)
       a = -4*stem_slope/100*psi_50
 
-      k = krcmax*(1+(psi_xylem/psi_50)**a)**(-1) 
+      k = krcmax*(1+(psi_soil/psi_50)**a)**(-1) 
 
    end function xylem_conductance
 
@@ -1357,7 +1357,7 @@ contains
 
             crown_area(p) = k_allom1*(diameter(p)**krp)
          endif
-!         print*, 'height', height(p), p, 'cawood', cawood(p)
+         print*, 'height', height(p), p, 'cawood', cawood(p)
       enddo
 
    end subroutine pls_allometry

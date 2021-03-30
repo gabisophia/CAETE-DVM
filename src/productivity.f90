@@ -161,7 +161,7 @@ contains
     !=========
 !    psixylem = xylem_waterpotential(psi_soil,krcmax1,e_pot,height1)
     psixylem = xylem_waterpotential(psi_soil,height1)
-    print*,'psixylem',psixylem
+    print*,'psixylem',psixylem, 'height1xylem',height1
 
     ! k xylem
     !=========
@@ -191,7 +191,7 @@ contains
     else
        f1 = 0.0      !Temperature above/below photosynthesis windown
     endif
-
+    print*,'f1',f1
     rc_aux = canopy_resistence(vpd, f1, g1, catm)  ! RCM leaf level -!s m-1
 
     wue = water_ue(f1, rc_aux, p0, vpd)
@@ -199,7 +199,7 @@ contains
 
     !     calcula a transpiração em mm/s
     e = transpiration(rc_aux, p0, vpd, 2)
-    print*,'e',e
+!    print*,'e',e
 
     ! Leaf area index (m2/m2)
     ! recalcula rc e escalona para dossel
