@@ -134,6 +134,7 @@ contains
       real(r_8) :: n_tau_leaf, tl0
 
       n_tau_leaf = (tau_leaf - 0.08333333)/(8.33333333 - 0.08333333)
+      !n_tau_leaf = (tau_leaf - 0.08333333)/(4.0 - 0.08333333)
 
       tl0 = (365.242D0 / 12.0D0) * (10.00D0 ** (2.00D0*n_tau_leaf))
 
