@@ -30,6 +30,7 @@ module photo
         leaf_area_index          ,& ! (f), leaf area index(m2 m-2)
         f_four                   ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area           ,& ! (f), specific leaf area (m2 g-1)
+        soil_waterpotential      ,& ! (f), Soil water potential (MPa)
         water_stress_modifier    ,& ! (f), F5 - water stress modifier (dimensionless)
         leaf_age_factor          ,& ! (f), effect of leaf age on photosynthetic rate
         photosynthesis_rate      ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
@@ -205,6 +206,28 @@ contains
       endif
 
    end function f_four
+
+   !=================================================================
+   !=================================================================
+
+   function soil_waterpotential(soil_texture, w, wmax, psi_sat) result(psi_soil)
+
+      ! Returns soil water potential (MPa)
+      ! Based in Clapp & Hornberger 1978
+      use types
+
+      real(r_8),intent(in) :: soil_texture        !dimensionless - coefficient soil texture
+      real(r_8),intent(in) :: w                   !mm/h - soil water
+      real(r_8),intent(in) :: wmax                !mm/h - maximum soil water
+      real(r_8),intent(in) :: psi_sat             !MPa
+      real(r_8) :: psi_soil                       !MPa
+
+      real(r_8) :: wa
+      wa = w/wmax                                 !dimensionless - soil moisture
+
+      psi_soil = (psi_sat*(-0.0098)) * wa ** (-soil_texture)
+
+   end function soil_waterpotential
 
    !=================================================================
    !=================================================================
