@@ -31,12 +31,9 @@ module photo
         f_four                   ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area           ,& ! (f), specific leaf area (m2 g-1)
         soil_waterpotential      ,& ! (f), Soil water potential (MPa)
-        conductivity_xylemleaf   ,& ! (f), Maximum xylem conductivity per unit leaf area (kg m-1 s-1 Mpa-1)
-        conductance_xylemax      ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
         psi_fifty                ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
         xylem_waterpotential     ,& ! (f), Xylem water potential (MPa)
         xylem_conductance        ,& ! (f), Hydraulic conductance of xylem (mol m-2 s-1 Mpa-1)
-        conductance_normalized   ,& ! (f), Normalized hydraulic conductance of xylem (dimensionless)
         water_stress_modifier    ,& ! (f), F5 - water stress modifier (dimensionless)
         leaf_age_factor          ,& ! (f), effect of leaf age on photosynthetic rate
         photosynthesis_rate      ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
@@ -254,44 +251,6 @@ contains
    !=================================================================
    !=================================================================
 
-   function conductivity_xylemleaf(dwood_aux,amax) result(kl_max)
-
-      !Maximum xylem conductivity per unit leaf area (kgm-1s-1MPa-1)
-      !Based in Christoffersen et al. 2016 TFS v.1-Hydro
-      use types
-
-      real(r_8),intent(in) :: dwood_aux        !g/cm3 - wood sendity
-      real(r_8),intent(in) :: amax             !µmolm-2s-1 - light saturated photo rate PRECISO CONVERTER de mol pra µmol
-      real(r_8) :: kl_max                       !kgm-1s-1MPa-1   
-
-      kl_max = 0.0021 * exp((-26.6 * dwood_aux)/(amax * 1e6))  ! µmol m-2 s-1 - 1e6 converts mol to µmol  
-
-   end function conductivity_xylemleaf
-
-   !=================================================================
-   !=================================================================
-
-   function conductance_xylemax(kl_max, height) result(krc_max)
-
-      !Maximum xylem conductance per unit leaf area (molm-2s-1Mpa-1)
-      !Based in Christoffersen et al. 2016 TFS v.1-Hydro
-      use types
-
-      real(r_8),intent(in) :: kl_max           !kgm-1s-1Mpa-1
-      real(r_8),intent(in) :: height          !m
-      real(r_8) :: krc_max                    !molm-2s-1Mpa-1
-
-      if(height .gt. 0.0D0) then
-         krc_max = ((kl_max / height)*(55.55))        !convert kg to mol
-      else
-         krc_max = 0.0D0
-      endif
-
-   end function conductance_xylemax
-
-   !=================================================================
-   !=================================================================
-
    function xylem_waterpotential(psi_soil,height) result(psi_xylem)
       !Xylem water potential (MPa)
       !Based in Eller et al., 2018
@@ -326,13 +285,12 @@ contains
    !=================================================================
    !=================================================================
 
-   function xylem_conductance(krc_max,psi_xylem,psi_50) result(k)  
+   function xylem_conductance(psi_xylem,psi_50) result(k)  
       !Xylem conductance (molm-2s-1MPa-1)
       !Based in Manzoni et al., 2013
       use types
       !use global_par, only: vuln_curve
 
-      real(r_8), intent(in) :: krc_max                !molm-2s-1Mpa-1 
       real(r_8), intent(in) :: psi_xylem              !MPa
       real(r_8), intent(in) :: psi_50                 !MPa
       real(r_8) :: k                                  !molm-2s-1MPa-1
@@ -344,24 +302,9 @@ contains
       a = -4*stem_slope/100*psi_50
       !print*,'a',a
 
-      k = krc_max*(1+(psi_xylem/psi_50)**a)**(-1) 
+      k = 1/(1+((psi_xylem)/psi_50)**a)
 
    end function xylem_conductance
-
-   !=================================================================
-   !=================================================================
-
-   function conductance_normalized(krc_max,k) result(k_norm)
-      !Returns normalized xylem conductance (dimensionless)
-      use types
-
-      real(r_8),intent(in) :: krc_max         !molm-2s-1Mpa-1
-      real(r_8),intent(in) :: k               !molm-2s-1Mpa-1
-      real(r_8) :: k_norm                     !dimensionless   
-
-      k_norm = k/krc_max
-
-   end function conductance_normalized
 
    !=================================================================
    !=================================================================
@@ -415,7 +358,7 @@ contains
 
    !end function water_stress_modifier
 
-   function water_stress_modifier(cfroot, rc, ep, k_norm) result(f5)
+   function water_stress_modifier(cfroot, rc, ep, k) result(f5)
 
       use types, only: r_4, r_8
       use global_par, only: csru, alfm, gm, rcmin, rcmax
@@ -424,7 +367,7 @@ contains
       real(r_8),intent(in) :: cfroot !carbon in fine roots kg m-2
       real(r_4),intent(in) :: rc     !Canopy resistence 1/(micromol(CO2) m-2 s-1)
       real(r_4),intent(in) :: ep
-      real(r_8),intent(in) :: k_norm
+      real(r_8),intent(in) :: k
       real(r_8) :: f5
 
 
@@ -438,7 +381,7 @@ contains
       ep_aux = real(ep, kind=r_8)
       if (rc .gt. rcmax) rc_aux = real(rcmax, r_8)
 
-      pt = csru*(cfroot*1000.0D0) * k_norm  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
+      pt = csru*(cfroot*1000.0D0) * k  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
       if(rc_aux .gt. rcmin) then
          gc = (1.0D0/(rc_aux * 1.15741D-08))  ! s/m
       else
@@ -453,7 +396,7 @@ contains
          f5_64 = exp((f5_64 * (-0.1D0)))
          f5_64 = 1.0D0 - f5_64
       else
-         f5_64 = k_norm
+         f5_64 = k
       endif
 
       f5 = f5_64
