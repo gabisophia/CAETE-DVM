@@ -828,12 +828,12 @@ module alloc
       scl2(3) = ((1D3 * scl1(3)) + (turnover_c2 * 2.73791075D0)) - (leaf_litter * 2.73791075D0)
       scf2 = (1D3 * scf1) + daily_growth(root) - (root_litter * 2.73791075D0)
 
-      print*,'cl1 jovem/dg/tc1 alloc',scl1(1), daily_growth(leaf), turnover_c1
-      print*,'cl1 madura/tc1/ tc2 alloc',scl1(2), turnover_c1, turnover_c2
-      print*,'cl1 senescente/tc2/ll alloc',scl1(3), turnover_c2, leaf_litter
-      print*,'cl2 jovem alloc',scl2(1)
-      print*,'cl2 madura alloc',scl2(2)
-      print*,'cl2 senescente alloc',scl2(3)
+    !  print*,'cl1 jovem/dg/tc1 alloc',scl1(1), daily_growth(leaf), turnover_c1
+    !  print*,'cl1 madura/tc1/ tc2 alloc',scl1(2), turnover_c1, turnover_c2
+    !  print*,'cl1 senescente/tc2/ll alloc',scl1(3), turnover_c2, leaf_litter
+    !  print*,'cl2 jovem alloc',scl2(1)
+    !  print*,'cl2 madura alloc',scl2(2)
+    !  print*,'cl2 senescente alloc',scl2(3)
 
       ! ## if it's a woody strategy:
       if(awood .gt. 0.0D0) then

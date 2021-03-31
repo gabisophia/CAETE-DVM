@@ -170,7 +170,7 @@ contains
       integer(i_4), dimension(:, :),allocatable :: uptk_strat        ! D0=2
       INTEGER(i_4), dimension(:), allocatable :: lp ! index of living PLSs
 
-      real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs
+      real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs, dwood_aux
       real(r_8), dimension(3,npls) :: sto_budg
       real(r_8) :: soil_sat
       real(r_8), dimension(npls) :: height_aux, diameter_aux, crown_aux
@@ -183,6 +183,7 @@ contains
       ! create copies of some input variables (arrays) - ( they are passed by reference by standard)
       do i = 1,npls
          awood_aux(i) = dt(7,i)
+         dwood_aux(i) = dt(18,i)
          ca1_pft(i) = ca1_in(i)
          cf1_pft(i) = cf1_in(i)
          dleaf(i) = dleaf_in(i)
@@ -203,7 +204,7 @@ contains
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
 
-      call pls_allometry(cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
+      call pls_allometry(dwood_aux,cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
       &                  crown_aux)
 
       nlen = sum(run)    ! New length for the arrays in the main loop
@@ -374,11 +375,11 @@ contains
          if(ca1_int(p) .lt. 0.0D0) ca1_int(p) = 0.0D0
          if(cf1_int(p) .lt. 0.0D0) cf1_int(p) = 0.0D0
 
-         print*,'cl1_int(p) jovem',cl1_int(1,p)
-         print*,'cl1_int(P) madura',cl1_int(2,p)
-         print*,'cl1_int(P) velha',cl1_int(3,p)
-         print*,'ca1_int(P)',ca1_int(p)
-         print*,'cf1_int(P)',cf1_int(p)
+       !  print*,'cl1_int(p) jovem',cl1_int(1,p)
+       !  print*,'cl1_int(P) madura',cl1_int(2,p)
+       !  print*,'cl1_int(P) velha',cl1_int(3,p)
+       !  print*,'ca1_int(P)',ca1_int(p)
+       !  print*,'cf1_int(P)',cf1_int(p)
 
       enddo ! end pls_loop (p)
       !$OMP END PARALLEL DO
