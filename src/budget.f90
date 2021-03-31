@@ -185,6 +185,7 @@ contains
       do i = 1,npls
          awood_aux(i) = dt(7,i)
          dwood_aux(i) = dt(18,i)
+         print*,'dwood',dwood_aux(i)
          cl1_pft(i) = cl1_in(i)
          ca1_pft(i) = ca1_in(i)
          cf1_pft(i) = cf1_in(i)

@@ -110,7 +110,6 @@ contains
     n2cf_resp = dt(12)
     p2cl = dt(13)
 
-
     n2cl = n2cl * (cl1_prod * 1D3) ! N in leaf g m-2
     p2cl = p2cl * (cl1_prod * 1D3) ! P in leaf g m-2
 
