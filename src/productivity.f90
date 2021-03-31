@@ -104,6 +104,7 @@ contains
     real(r_8) :: krcmax
     real(r_8) :: psixylem
     real(r_8) :: kxylem
+    real(r_8) :: knorm
 
 !getting pls parameters
 
@@ -199,7 +200,11 @@ contains
     !=========
     kxylem = xylem_conductance(krcmax,psixylem,psi50)
     print*,'kxylem',kxylem
-
+    
+    ! k xylem
+    !=========
+    knorm = conductance_normalized(krcmax,kxylem)
+    print*,'knorm',knorm
 
     ! VPD
     !========

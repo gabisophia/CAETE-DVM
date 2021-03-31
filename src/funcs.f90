@@ -36,6 +36,7 @@ module photo
         psi_fifty                ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
         xylem_waterpotential     ,& ! (f), Xylem water potential (MPa)
         xylem_conductance        ,& ! (f), Hydraulic conductance of xylem (mol m-2 s-1 Mpa-1)
+        conductance_normalized   ,& ! (f), Normalized hydraulic conductance of xylem (dimensionless)
         water_stress_modifier    ,& ! (f), F5 - water stress modifier (dimensionless)
         leaf_age_factor          ,& ! (f), effect of leaf age on photosynthetic rate
         photosynthesis_rate      ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
@@ -332,11 +333,26 @@ contains
 
       stem_slope = 65.15*(-psi_50)**(-1.25)
       a = -4*stem_slope/100*psi_50
-      print*,'a',a
+      !print*,'a',a
 
       k = krc_max*(1+(psi_xylem/psi_50)**a)**(-1) 
 
    end function xylem_conductance
+
+   !=================================================================
+   !=================================================================
+
+   function conductance_normalized(krc_max,k) result(k_norm)
+      !Returns normalized xylem conductance (dimensionless)
+      use types
+
+      real(r_8),intent(in) :: krc_max         !molm-2s-1Mpa-1
+      real(r_8),intent(in) :: k               !molm-2s-1Mpa-1
+      real(r_8) :: k_norm                     !dimensionless   
+
+      k_norm = k/krc_max
+
+   end function conductance_normalized
 
    !=================================================================
    !=================================================================
