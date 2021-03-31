@@ -49,6 +49,7 @@ module photo
         g_resp                   ,& ! (f), growth Respiration (kg m-2 yr-1)
         pft_area_frac            ,& ! (s), area fraction by biomass
         water_ue                 ,&
+        pls_allometry            ,&
         leap
 
 contains
@@ -1270,6 +1271,56 @@ contains
       endif
 
    end subroutine pft_area_frac
+
+   !====================================================================
+   !====================================================================
+
+   subroutine pls_allometry (cleaf1, cfroot1, cawood1, awood, height, diameter,&
+      &crown_area)
+
+      use types 
+      use global_par
+      use allometry_par
+
+
+      integer(i_4),parameter :: npft = npls ! plss futuramente serao
+      real(r_8),dimension(npft),intent(in) :: cleaf1, cfroot1, cawood1, awood
+      real(r_8),dimension(npft),intent(out) :: height, diameter, crown_area
+      real(r_8),dimension(npft) :: cleaf, cawood, cfroot, dwood
+      integer(i_4) :: p
+
+
+      ! ============================
+      cleaf = cleaf1
+      cfroot = cfroot1
+      cawood = cawood1
+      ! ============================
+
+      do p = 1, npft !INICIALIZE OUTPUTS VARIABLES
+         height(p) = 0.0D0
+         diameter(p) = 0.0D0
+         crown_area(p) = 0.0D0
+      enddo
+
+      !PLS DIAMETER (in m.)
+      do p = 1, npft !to grasses
+         if(awood(p) .le. 0.0D0) then
+            height(p) = 0.0D0
+            diameter(p) = 0.0D0
+            crown_area(p) = 0.0D0
+            dwood(p) = 0.0D0
+         else
+            diameter(p) = (4*(cawood(p)*1.0D3)/(dw*1D7)*pi*k_allom2)&
+            &**(1/(2+k_allom3))
+
+            height(p) = k_allom2*(diameter(p)**k_allom3)
+
+            crown_area(p) = k_allom1*(diameter(p)**krp)
+         endif
+         print*, 'height', height(p), p, 'cawood', cawood(p)
+      enddo
+
+   end subroutine pls_allometry
 
    !====================================================================
    !====================================================================
