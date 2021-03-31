@@ -26,7 +26,7 @@ module productivity
 
 contains
 
-  subroutine prod(dt,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
+  subroutine prod(dt,dwood_t,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
        & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,soiltexture,psisat,ph,ar,&
        & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla, e)
 
@@ -51,6 +51,7 @@ contains
     real(r_8), intent(in) :: beta_froot
     real(r_8), intent(in) :: wmax
     real(r_8), intent(in) :: soiltexture, psisat
+    real(r_8), intent(in) :: dwood_t
     logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
 
 !     Output
@@ -97,6 +98,7 @@ contains
 
     !Hydraulic parameters
     real(r_8) :: psi_soil
+    real(r_8) :: psi_50
 
 !getting pls parameters
 
@@ -160,12 +162,19 @@ contains
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,n2cl,&
          & p2cl,cl1_prod(:),tleaf,f1a,vm_out,jl_out)
 
-    ! ==============
-    !    Hydraulic
-    ! ==============
-
+    !=============
+    !  Hydraulic
+    !=============
+    ! Psi soil
+    !=========
     psi_soil = soil_waterpotential(soiltexture, w, wmax, psisat)
     print*,'psi_soil',psi_soil
+
+    !   P50
+    !=========
+    psi_50 = psi_fifty(dwood_t)
+    print*,'P50',psi_50
+
 
     ! VPD
     !========

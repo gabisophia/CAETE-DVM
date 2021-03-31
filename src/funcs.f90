@@ -31,6 +31,7 @@ module photo
         f_four                   ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area           ,& ! (f), specific leaf area (m2 g-1)
         soil_waterpotential      ,& ! (f), Soil water potential (MPa)
+        psi_fifty                ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
         water_stress_modifier    ,& ! (f), F5 - water stress modifier (dimensionless)
         leaf_age_factor          ,& ! (f), effect of leaf age on photosynthetic rate
         photosynthesis_rate      ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
@@ -228,6 +229,22 @@ contains
       psi_soil = (psi_sat*(-0.0098)) * wa ** (-soil_texture)
 
    end function soil_waterpotential
+
+   !=================================================================
+   !=================================================================
+
+   function psi_fifty(dwood_aux) result(psi_50)
+
+      ! Returns xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
+      ! Based in Christoffersen et al. 2016 TFS v.1-Hydro
+      use types
+
+      real(r_8),intent(in) :: dwood_aux         !g/cm3 - wood sendity
+      real(r_8) :: psi_50                       !MPa
+
+      psi_50 = -((3.57*dwood_aux)**1.73)-1.09 
+      
+   end function psi_fifty
 
    !=================================================================
    !=================================================================
