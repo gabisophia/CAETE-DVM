@@ -99,6 +99,7 @@ contains
     !Hydraulic parameters
     real(r_8) :: psi_soil
     real(r_8) :: psi_50
+    real(r_8) :: klmax
 
 !getting pls parameters
 
@@ -173,7 +174,12 @@ contains
     !   P50
     !=========
     psi_50 = psi_fifty(dwood_t)
-    print*,'P50',psi_50
+    print*,'P50',psi_50,'dwood_t',dwood_t
+
+    ! Klmax
+    !=========
+    klmax = conductivity_xylemleaf(dwood_t,jl_out)
+    print*,'klmax',klmax
 
 
     ! VPD
