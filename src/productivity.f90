@@ -100,11 +100,8 @@ contains
     !Hydraulic parameters
     real(r_8) :: psisoil
     real(r_8) :: psi50
-    real(r_8) :: klmax
-    real(r_8) :: krcmax
     real(r_8) :: psixylem
     real(r_8) :: kxylem
-    real(r_8) :: knorm
 
 !getting pls parameters
 
@@ -188,7 +185,7 @@ contains
 
     ! k xylem
     !=========
-    kxylem = xylem_conductance(psixylem,psi50)
+    kxylem = xylem_conductance(psisoil,psi50)
     print*,'kxylem',kxylem
 
     ! VPD
