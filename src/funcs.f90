@@ -34,6 +34,7 @@ module photo
         conductivity_xylemleaf   ,& ! (f), Maximum xylem conductivity per unit leaf area (kg m-1 s-1 Mpa-1)
         conductance_xylemax      ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
         psi_fifty                ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
+        xylem_waterpotential     ,& ! (f), Xylem water potential (MPa)
         water_stress_modifier    ,& ! (f), F5 - water stress modifier (dimensionless)
         leaf_age_factor          ,& ! (f), effect of leaf age on photosynthetic rate
         photosynthesis_rate      ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
@@ -281,6 +282,35 @@ contains
       krc_max = ((kl_max / height)*(55.55))        !convert kg to mol
 
    end function conductance_xylemax
+
+   !=================================================================
+   !=================================================================
+
+   function xylem_waterpotential(psi_soil,height) result(psi_xylem)
+      !Xylem water potential (MPa)
+      !Based in Eller et al., 2018
+      use types
+      use global_par, only:rho,grav
+
+      real(r_8),intent(in) :: psi_soil          !MPa
+      !real(r_8),intent(in) :: krcmax           !molm-2s-1Mpa-1 
+      !real(r_4),intent(in) :: g, p0, vpd       !to calculate transpiration in molm-2s-1 
+      real(r_8),intent(in) :: height            !m 
+      real(r_8) :: psi_xylem                    !MPa
+
+      !real(r_4) :: g_in, p0_in, e_in
+      real(r_8) :: psi_g                        !MPa - gravitational potential
+
+      !g_in = (1./g) * 40.87 ! convertendo a resistencia (s m-1) em condutancia mol m-2 s-1
+      !p0_in = p0 /10. ! convertendo pressao atm (mbar/hPa) em kPa
+      !e_in = g_in * (vpd/p0_in) ! calculando transpiracao mol H20 m-2 s-1
+
+      psi_g = rho * grav * height * 1e-6        !converts Pa to MPa
+      print*,'psi_gravitational',psi_g
+
+      psi_xylem  = psi_soil - psi_g 
+
+   end function xylem_waterpotential
 
    !=================================================================
    !=================================================================

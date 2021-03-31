@@ -102,6 +102,7 @@ contains
     real(r_8) :: psi_50
     real(r_8) :: klmax
     real(r_8) :: krcmax
+    real(r_8) :: psixylem
 
 !getting pls parameters
 
@@ -171,12 +172,12 @@ contains
     ! Psi soil
     !=========
     psi_soil = soil_waterpotential(soiltexture, w, wmax, psisat)
-    print*,'psi_soil',psi_soil
+    !print*,'psi_soil',psi_soil
 
     !   P50
     !=========
     psi_50 = psi_fifty(dwood_t)
-    print*,'P50',psi_50,'dwood_t',dwood_t
+    !print*,'P50',psi_50,'dwood_t',dwood_t
 
     ! Klmax
     !=========
@@ -187,6 +188,11 @@ contains
     !=========
     krcmax = conductance_xylemax(klmax, height1)   
     print*,'krcmax',krcmax,'height1',height1
+
+    ! Psixylem
+    !=========
+    psixylem = xylem_waterpotential(psi_soil,height1)
+    print*,'psixylem',psixylem
 
 
     ! VPD
