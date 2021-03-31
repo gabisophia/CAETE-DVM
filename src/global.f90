@@ -40,6 +40,7 @@ module global_par
    real(r_8),parameter,public :: cmin = 1.0D-3                   ! Minimum to survive kg m-2
    real(r_4),parameter,public :: rho = 997.0                     ! Density of water (Kg/m3)
    real(r_4),parameter,public :: grav = 9.8                      ! Gravity (m/s2)
+   real(r_4),parameter,public :: vuln_curve = 3                      
    ! real(r_4),parameter,public :: wmax = 500.0                    ! Maximum water soil capacity (Kg m-2)
 
    real(r_8),parameter,public :: csru = 0.5D0                    ! Root attribute

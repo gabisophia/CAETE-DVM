@@ -35,6 +35,7 @@ module photo
         conductance_xylemax      ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
         psi_fifty                ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
         xylem_waterpotential     ,& ! (f), Xylem water potential (MPa)
+        xylem_conductance        ,& ! (f), Hydraulic conductance of xylem (mol m-2 s-1 Mpa-1)
         water_stress_modifier    ,& ! (f), F5 - water stress modifier (dimensionless)
         leaf_age_factor          ,& ! (f), effect of leaf age on photosynthetic rate
         photosynthesis_rate      ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
@@ -306,11 +307,36 @@ contains
       !e_in = g_in * (vpd/p0_in) ! calculando transpiracao mol H20 m-2 s-1
 
       psi_g = rho * grav * height * 1e-6        !converts Pa to MPa
-      print*,'psi_gravitational',psi_g
+      !print*,'psi_gravitational',psi_g
 
       psi_xylem  = psi_soil - psi_g 
 
    end function xylem_waterpotential
+
+   !=================================================================
+   !=================================================================
+
+   function xylem_conductance(krc_max,psi_xylem,psi_50) result(k)  
+      !Xylem conductance (molm-2s-1MPa-1)
+      !Based in Manzoni et al., 2013
+      use types
+      !use global_par, only: vuln_curve
+
+      real(r_8), intent(in) :: krc_max                !molm-2s-1Mpa-1 
+      real(r_8), intent(in) :: psi_xylem              !MPa
+      real(r_8), intent(in) :: psi_50                 !MPa
+      real(r_8) :: k                                  !molm-2s-1MPa-1
+
+      real(r_8) :: stem_slope     !MPa-1 - Slope of the linear portion of the xylem vulnerability function
+      real(r_8) :: a              !vulnerability curve
+
+      stem_slope = 65.15*(-psi_50)**(-1.25)
+      a = -4*stem_slope/100*psi_50
+      print*,'a',a
+
+      k = krc_max*(1+(psi_xylem/psi_50)**a)**(-1) 
+
+   end function xylem_conductance
 
    !=================================================================
    !=================================================================

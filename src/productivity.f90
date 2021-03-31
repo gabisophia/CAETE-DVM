@@ -98,11 +98,12 @@ contains
     integer(i_4) :: i
 
     !Hydraulic parameters
-    real(r_8) :: psi_soil
-    real(r_8) :: psi_50
+    real(r_8) :: psisoil
+    real(r_8) :: psi50
     real(r_8) :: klmax
     real(r_8) :: krcmax
     real(r_8) :: psixylem
+    real(r_8) :: kxylem
 
 !getting pls parameters
 
@@ -171,12 +172,12 @@ contains
     !=============
     ! Psi soil
     !=========
-    psi_soil = soil_waterpotential(soiltexture, w, wmax, psisat)
+    psisoil = soil_waterpotential(soiltexture, w, wmax, psisat)
     !print*,'psi_soil',psi_soil
 
     !   P50
     !=========
-    psi_50 = psi_fifty(dwood_t)
+    psi50 = psi_fifty(dwood_t)
     !print*,'P50',psi_50,'dwood_t',dwood_t
 
     ! Klmax
@@ -191,8 +192,13 @@ contains
 
     ! Psixylem
     !=========
-    psixylem = xylem_waterpotential(psi_soil,height1)
+    psixylem = xylem_waterpotential(psisoil,height1)
     print*,'psixylem',psixylem
+
+    ! k xylem
+    !=========
+    kxylem = xylem_conductance(krcmax,psixylem,psi50)
+    print*,'kxylem',kxylem
 
 
     ! VPD
