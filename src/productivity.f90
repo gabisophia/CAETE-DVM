@@ -171,7 +171,7 @@ contains
     ! Psi soil
     !=========
     psisoil = soil_waterpotential(soiltexture, w, wmax, psisat)
-    !print*,'psi_soil',psi_soil
+    print*,'psi_soil',psi_soil
 
     !   P50
     !=========

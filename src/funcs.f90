@@ -31,9 +31,7 @@ module photo
         f_four                   ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area           ,& ! (f), specific leaf area (m2 g-1)
         soil_waterpotential      ,& ! (f), Soil water potential (MPa)
-        psi_fifty                ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
-        xylem_waterpotential     ,& ! (f), Xylem water potential (MPa)
-        xylem_conductance        ,& ! (f), Hydraulic conductance of xylem (mol m-2 s-1 Mpa-1)
+        pls_hydraulic            ,& ! (f), Xylem water potential (MPa)
         water_stress_modifier    ,& ! (f), F5 - water stress modifier (dimensionless)
         leaf_age_factor          ,& ! (f), effect of leaf age on photosynthetic rate
         photosynthesis_rate      ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
@@ -235,79 +233,61 @@ contains
    !=================================================================
    !=================================================================
 
-   function psi_fifty(dwood_aux) result(psi_50)
+   subroutine pls_hydraulic (dwood_aux, awood, psi_soil, amax, height,&
+      &psi_50, kl_max, krc_max, psi_g, psi_xylem, k_xylem, k_norm)
 
-      ! Returns xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
-      ! Based in Christoffersen et al. 2016 TFS v.1-Hydro
-      use types
+      use types 
+      use global_par, only: rho, grav, vuln_curve
 
-      real(r_8),intent(in) :: dwood_aux         !g/cm3 - wood sendity
-      real(r_8) :: psi_50                       !MPa
+      integer(i_4),parameter :: npft = npls ! plss futuramente serao
+      real(r_8),dimension(npft),intent(in) :: dwood_aux, awood, psi_soil, height, amax
+      real(r_8),dimension(npft),intent(out) :: psi_50, kl_max, krc_max, psi_g, psi_xylem, k_xylem, k_norm
+!        real(r_8),dimension(npft) :: stem_stope, a_curve
+      integer(i_4) :: p
 
-      psi_50 = -((3.57*dwood_aux)**1.73)-1.09 
+      do p = 1, npft !INICIALIZE OUTPUTS VARIABLES
+          psi_50(p) = 0.0D0
+          kl_max(p) = 0.0D0
+          krc_max(p) = 0.0D0
+          psi_g(p) = 0.0D0
+          psi_xylem(p) = 0.0D0
+          k_xylem(p) = 0.0D0
+          k_norm(p) = 0.0D0
+      enddo
 
-   end function psi_fifty
+      !PLS HYDRAULIC PARAMETERS 
+         do p = 1, npft !to grasses
+            if(awood(p) .le. 0.0D0) then
+              psi_50(p) = 0.0D0
+              kl_max(p) = 0.0D0
+              krc_max(p) = 0.0D0
+              psi_g(p) = 0.0D0
+              psi_xylem(p) = 0.0D0
+              k_xylem(p) = 0.0D0
+              k_norm(p) = 0.0D0
 
-   !=================================================================
-   !=================================================================
+            else
+              psi_50(p) = -((3.57*dwood_aux(p))**1.73)-1.09   !MPa
 
-   function xylem_waterpotential(psi_soil,height) result(psi_xylem)
-      !Xylem water potential (MPa)
-      !Based in Eller et al., 2018
-      use types
-      use global_par, only:rho,grav
+              kl_max(p) = 0.0021 * exp((-26.6 * dwood_aux(p))/(amax(p) * 1e6))
 
-      real(r_8),intent(in) :: psi_soil          !MPa
-      !real(r_8),intent(in) :: krcmax           !molm-2s-1Mpa-1 
-      !real(r_4),intent(in) :: g, p0, vpd       !to calculate transpiration in molm-2s-1 
-      real(r_8),intent(in) :: height            !m 
-      real(r_8) :: psi_xylem                    !MPa
+              krc_max(p) = ((kl_max(p) / height(p))*(55.55)) 
 
-      !real(r_4) :: g_in, p0_in, e_in
-      real(r_8) :: psi_g                        !MPa - gravitational potential
+              psi_g(p) = rho * grav * height(p) * 1e-6
 
-      !g_in = (1./g) * 40.87 ! convertendo a resistencia (s m-1) em condutancia mol m-2 s-1
-      !p0_in = p0 /10. ! convertendo pressao atm (mbar/hPa) em kPa
-      !e_in = g_in * (vpd/p0_in) ! calculando transpiracao mol H20 m-2 s-1
+              psi_xylem(p)  = psi_soil - psi_g(p)
 
-      
-      if(height .gt. 0.0D0) then
-         psi_g = rho * grav * height * 1e-6        !converts Pa to MPa
-      else
-         psi_g = 0.0D0
-      endif
-      !print*,'psi_gravitational',psi_g
+              k_xylem(p) = krc_max(p)*(1+(psi_xylem(p)/psi_50(p))**vuln_curve)**(-1) 
 
-      psi_xylem  = psi_soil - psi_g 
+              k_norm(p) = k_xylem(p)/krc_max(p)
 
-   end function xylem_waterpotential
-
-   !=================================================================
-   !=================================================================
-
-   function xylem_conductance(psi_soil,psi_50) result(k)  
-      !Xylem conductance (molm-2s-1MPa-1)
-      !Based in Manzoni et al., 2013
-      use types
-      !use global_par, only: vuln_curve
-
-      real(r_8), intent(in) :: psi_soil              !MPa
-      real(r_8), intent(in) :: psi_50                 !MPa
-      real(r_8) :: k                                  !molm-2s-1MPa-1
-
-      real(r_8) :: stem_slope     !MPa-1 - Slope of the linear portion of the xylem vulnerability function
-      real(r_8) :: a              !vulnerability curve
-
-      stem_slope = 65.15*(-psi_50)**(-1.25)
-      a = -4*stem_slope/100*psi_50
-      !print*,'a',a
-
-      k = 1/(1+((psi_soil)/psi_50)**a)
-
-   end function xylem_conductance
-
-   !=================================================================
-   !=================================================================
+            endif
+         enddo
+  
+   end subroutine pls_hydraulic
+ 
+  !====================================================================
+  !====================================================================   
 
    !function water_stress_modifier(w, cfroot, rc, ep, wmax) result(f5)
 
