@@ -27,7 +27,7 @@ module productivity
 contains
 
   subroutine prod(dt,dwood_t,height1,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
-       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,soiltexture,psisat,ph,ar,&
+       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,psisoil,ph,ar,&
        & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla, e)
 
     use types
@@ -50,7 +50,7 @@ contains
     real(r_8), intent(in) :: beta_awood
     real(r_8), intent(in) :: beta_froot
     real(r_8), intent(in) :: wmax
-    real(r_8), intent(in) :: soiltexture, psisat
+    real(r_8), intent(in) :: psisoil
     real(r_8), intent(in) :: dwood_t
     real(r_8), intent(in) :: height1
     logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
@@ -98,7 +98,6 @@ contains
     integer(i_4) :: i
 
     !Hydraulic parameters
-    real(r_8) :: psisoil
     real(r_8) :: psi50
     real(r_8) :: psixylem
     real(r_8) :: kxylem
@@ -168,11 +167,7 @@ contains
     !=============
     !  Hydraulic
     !=============
-    ! Psi soil
-    !=========
-    psisoil = soil_waterpotential(soiltexture, w, wmax, psisat)
-    print*,'psi_soil',psi_soil
-
+         
     !   P50
     !=========
     psi50 = psi_fifty(dwood_t)

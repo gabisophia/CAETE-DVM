@@ -175,6 +175,7 @@ contains
       real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs, dwood_aux
       real(r_8), dimension(3,npls) :: sto_budg
       real(r_8) :: soil_sat
+      real(r_8) :: psi_soil
       real(r_8), dimension(npls) :: height_aux, diameter_aux, crown_aux
 
       !     START
@@ -202,6 +203,9 @@ contains
       w = w1 + w2          ! soil water mm
       soil_temp = ts   ! soil temp °C
       soil_sat = wmax_in
+
+      psi_soil = (p_sat*(-0.0098)) * (w/soil_sat) ** (-soil_text)
+      print*,'psi_soil - budget',psi_soil
 
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
@@ -282,7 +286,7 @@ contains
 
          call prod(dt1, dwood_aux(p), height_aux(p), ocp_wood(ri), catm, temp, soil_temp, p0, w, ipar, rh, emax&
                &, cl1_pft(:,ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
-               &, soil_sat, soil_text, p_sat, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
+               &, soil_sat, psi_soil, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
                &, wue(p), c_def(p), vcmax(p), specific_la(p), tra(p))
 
          evap(p) = penman(p0,temp,rh,available_energy(temp),rc2(p)) !Actual evapotranspiration (evap, mm/day)
