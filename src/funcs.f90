@@ -30,7 +30,7 @@ module photo
         leaf_area_index          ,& ! (f), leaf area index(m2 m-2)
         f_four                   ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area           ,& ! (f), specific leaf area (m2 g-1)
-        pls_hydraulic            ,& ! (f), Xylem water potential (MPa)
+        pls_hydraulic            ,& ! (f), subrotine of hydraulic system of the plants
         water_stress_modifier    ,& ! (f), F5 - water stress modifier (dimensionless)
         leaf_age_factor          ,& ! (f), effect of leaf age on photosynthetic rate
         photosynthesis_rate      ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
@@ -210,17 +210,21 @@ contains
    !=================================================================
    !=================================================================
 
-   subroutine pls_hydraulic (dwood_aux, awood, psi_soil, amax, height,&
+   subroutine pls_hydraulic (dwood_aux, awood, amax, height, psi_soil,&
       &psi_50, kl_max, krc_max, psi_g, psi_xylem, k_xylem, k_norm)
 
       use types 
-      use global_par, only: rho, grav, vuln_curve
+      use global_par, only: npls, rho, grav, vuln_curve
 
       integer(i_4),parameter :: npft = npls ! plss futuramente serao
-      real(r_8),dimension(npft),intent(in) :: dwood_aux, awood, psi_soil, height, amax
+      real(r_8),dimension(npft),intent(in) :: dwood_aux, awood, amax, height
+      real(r_8),dimension(npft) :: dwood
+      real(r_8),intent(in) :: psi_soil
       real(r_8),dimension(npft),intent(out) :: psi_50, kl_max, krc_max, psi_g, psi_xylem, k_xylem, k_norm
-!        real(r_8),dimension(npft) :: stem_stope, a_curve
+      !real(r_8),dimension(npft) :: stem_stope, a_curve
       integer(i_4) :: p
+
+      dwood = dwood_aux
 
       do p = 1, npft !INICIALIZE OUTPUTS VARIABLES
           psi_50(p) = 0.0D0
@@ -235,29 +239,29 @@ contains
       !PLS HYDRAULIC PARAMETERS 
          do p = 1, npft !to grasses
             if(awood(p) .le. 0.0D0) then
-              psi_50(p) = 0.0D0
-              kl_max(p) = 0.0D0
-              krc_max(p) = 0.0D0
-              psi_g(p) = 0.0D0
-              psi_xylem(p) = 0.0D0
-              k_xylem(p) = 0.0D0
-              k_norm(p) = 0.0D0
+               psi_50(p) = 0.0D0
+               kl_max(p) = 0.0D0
+               krc_max(p) = 0.0D0
+               psi_g(p) = 0.0D0
+               psi_xylem(p) = 0.0D0
+               k_xylem(p) = 0.0D0
+               k_norm(p) = 0.0D0
 
             else
-              psi_50(p) = -((3.57*dwood_aux(p))**1.73)-1.09   !MPa
-
-              kl_max(p) = 0.0021 * exp((-26.6 * dwood_aux(p))/(amax(p) * 1e6))
-
-              krc_max(p) = ((kl_max(p) / height(p))*(55.55)) 
-
-              psi_g(p) = rho * grav * height(p) * 1e-6
-
-              psi_xylem(p)  = psi_soil - psi_g(p)
-
-              k_xylem(p) = krc_max(p)*(1+(psi_xylem(p)/psi_50(p))**vuln_curve)**(-1) 
-
-              k_norm(p) = k_xylem(p)/krc_max(p)
-
+               psi_50(p) = -((3.57*dwood(p))**1.73)-1.09   !MPa
+               print*,'PSI_50',psi_50(p)
+               kl_max(p) = 0.0021 * exp((-26.6 * dwood(p))/(amax(p) * 1e6))
+               print*,'KL_MAX',kl_max(p)
+               krc_max(p) = ((kl_max(p) / height(p))*(55.55)) 
+               print*,'KRC_MAX',krc_max(p)
+               psi_g(p) = rho * grav * height(p) * 1e-6
+               print*,'PSI_G',psi_g(p)
+               psi_xylem(p)  = psi_soil - psi_g(p)
+               print*,'PSI_XYLEM',psi_xylem(p)
+               k_xylem(p) = krc_max(p)*(1+(psi_xylem(p)/psi_50(p))**vuln_curve)**(-1) 
+               print*,'K_XYLEM',k_xylem(p)
+               k_norm(p) = k_xylem(p)/krc_max(p)
+               print*,'K_NORM',k_norm(p)
             endif
          enddo
   
@@ -266,79 +270,33 @@ contains
   !====================================================================
   !====================================================================   
 
-   !function water_stress_modifier(w, cfroot, rc, ep, wmax) result(f5)
-
-   !   use types, only: r_4, r_8
-   !   use global_par, only: csru, alfm, gm, rcmin, rcmax
-      !implicit none
-
-   !   real(r_8),intent(in) :: w      !soil water mm
-   !   real(r_8),intent(in) :: cfroot !carbon in fine roots kg m-2
-   !   real(r_4),intent(in) :: rc     !Canopy resistence 1/(micromol(CO2) m-2 s-1)
-   !   real(r_4),intent(in) :: ep
-   !   real(r_8),intent(in) :: wmax     !potential evapotranspiration
-   !   real(r_8) :: f5
-
-
-   !   real(r_8) :: pt, rc_aux, rcmin_aux, ep_aux
-   !   real(r_8) :: gc
-   !   real(r_8) :: wa
-   !   real(r_8) :: d
-   !   real(r_8) :: f5_64
-
-   !   wa = w/wmax
-   !   rc_aux = real(rc, kind=r_8)
-   !   rcmin_aux = real(rcmin, kind=r_8)
-   !   ep_aux = real(ep, kind=r_8)
-   !   if (rc .gt. rcmax) rc_aux = real(rcmax, r_8)
-
-   !   pt = csru*(cfroot*1000.0D0) * wa  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
-   !   if(rc_aux .gt. rcmin) then
-   !      gc = (1.0D0/(rc_aux * 1.15741D-08))  ! s/m
-   !   else
-   !      gc =  1.0D0/(rcmin_aux * 1.15741D-8) ! BIANCA E HELENA - Mudei este esquema..
-   !   endif
-
-      !d =(ep * alfm) / (1. + gm/gc) !(based in Gerten et al. 2004)
-   !   d = (ep_aux * alfm) / (1.0D0 + (gm/gc))
-   !   if(d .gt. 0.0D0) then
-   !      f5_64 = pt/d
-         ! print*, f5_64, 'f564'
-   !      f5_64 = exp((f5_64 * (-0.1D0)))
-   !      f5_64 = 1.0D0 - f5_64
-   !   else
-   !      f5_64 = wa
-   !   endif
-
-   !   f5 = f5_64
-   !   if (f5 .lt. 0.0D0) f5 = 0.0D0
-
-   !end function water_stress_modifier
-
-   function water_stress_modifier(cfroot, rc, ep, k) result(f5)
+   function water_stress_modifier(w, cfroot, rc, ep, wmax) result(f5)
 
       use types, only: r_4, r_8
       use global_par, only: csru, alfm, gm, rcmin, rcmax
       !implicit none
 
+      real(r_8),intent(in) :: w      !soil water mm
       real(r_8),intent(in) :: cfroot !carbon in fine roots kg m-2
       real(r_4),intent(in) :: rc     !Canopy resistence 1/(micromol(CO2) m-2 s-1)
       real(r_4),intent(in) :: ep
-      real(r_8),intent(in) :: k
+      real(r_8),intent(in) :: wmax     !potential evapotranspiration
       real(r_8) :: f5
 
 
       real(r_8) :: pt, rc_aux, rcmin_aux, ep_aux
       real(r_8) :: gc
+      real(r_8) :: wa
       real(r_8) :: d
       real(r_8) :: f5_64
 
+      wa = w/wmax
       rc_aux = real(rc, kind=r_8)
       rcmin_aux = real(rcmin, kind=r_8)
       ep_aux = real(ep, kind=r_8)
       if (rc .gt. rcmax) rc_aux = real(rcmax, r_8)
 
-      pt = csru*(cfroot*1000.0D0) * k  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
+      pt = csru*(cfroot*1000.0D0) * wa  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
       if(rc_aux .gt. rcmin) then
          gc = (1.0D0/(rc_aux * 1.15741D-08))  ! s/m
       else
@@ -353,13 +311,59 @@ contains
          f5_64 = exp((f5_64 * (-0.1D0)))
          f5_64 = 1.0D0 - f5_64
       else
-         f5_64 = k
+         f5_64 = wa
       endif
 
       f5 = f5_64
       if (f5 .lt. 0.0D0) f5 = 0.0D0
 
    end function water_stress_modifier
+
+   !function water_stress_modifier(cfroot, rc, ep, k) result(f5)
+
+   !   use types, only: r_4, r_8
+   !   use global_par, only: csru, alfm, gm, rcmin, rcmax
+      !implicit none
+
+   !   real(r_8),intent(in) :: cfroot !carbon in fine roots kg m-2
+   !   real(r_4),intent(in) :: rc     !Canopy resistence 1/(micromol(CO2) m-2 s-1)
+   !   real(r_4),intent(in) :: ep
+   !   real(r_8),intent(in) :: k
+   !   real(r_8) :: f5
+
+
+   !   real(r_8) :: pt, rc_aux, rcmin_aux, ep_aux
+   !   real(r_8) :: gc
+   !   real(r_8) :: d
+   !   real(r_8) :: f5_64
+
+   !   rc_aux = real(rc, kind=r_8)
+   !   rcmin_aux = real(rcmin, kind=r_8)
+   !   ep_aux = real(ep, kind=r_8)
+   !   if (rc .gt. rcmax) rc_aux = real(rcmax, r_8)
+
+   !   pt = csru*(cfroot*1000.0D0) * k  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
+   !   if(rc_aux .gt. rcmin) then
+   !      gc = (1.0D0/(rc_aux * 1.15741D-08))  ! s/m
+   !   else
+   !      gc =  1.0D0/(rcmin_aux * 1.15741D-8) ! BIANCA E HELENA - Mudei este esquema..
+   !   endif
+
+      !d =(ep * alfm) / (1. + gm/gc) !(based in Gerten et al. 2004)
+   !   d = (ep_aux * alfm) / (1.0D0 + (gm/gc))
+   !   if(d .gt. 0.0D0) then
+   !      f5_64 = pt/d
+         ! print*, f5_64, 'f564'
+   !      f5_64 = exp((f5_64 * (-0.1D0)))
+   !      f5_64 = 1.0D0 - f5_64
+   !   else
+   !      f5_64 = k
+   !   endif
+
+   !   f5 = f5_64
+   !   if (f5 .lt. 0.0D0) f5 = 0.0D0
+
+   !end function water_stress_modifier
 
    ! =============================================================
    ! =============================================================

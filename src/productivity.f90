@@ -98,9 +98,13 @@ contains
     integer(i_4) :: i
 
     !Hydraulic parameters
-    real(r_8) :: psi50
-    real(r_8) :: psixylem
-    real(r_8) :: kxylem
+    !real(r_8) :: psi50
+    !real(r_8) :: klmax
+    !real(r_8) :: krcmax
+    !real(r_8) :: psig
+    !real(r_8) :: psixylem
+    !real(r_8) :: kxylem
+    !real(r_8) :: knorm
 
 !getting pls parameters
 
@@ -167,21 +171,8 @@ contains
     !=============
     !  Hydraulic
     !=============
-         
-    !   P50
-    !=========
-    psi50 = psi_fifty(dwood_t)
-    !print*,'P50',psi_50,'dwood_t',dwood_t
-
-    ! Psixylem
-    !=========
-    psixylem = xylem_waterpotential(psisoil,height1)
-    print*,'psixylem',psixylem
-
-    ! k xylem
-    !=========
-    kxylem = xylem_conductance(psisoil,psi50)
-    print*,'kxylem',kxylem
+    !call pls_hydraulic (dwood_t, awood, jl_out, height1, psisoil,&
+    !&psi50, klmax, krcmax, psig, psixylem, kxylem, knorm)
 
     ! VPD
     !========
@@ -193,9 +184,9 @@ contains
 
     !Water stress response modifier (dimensionless)
     !----------------------------------------------
-    !f5 =  water_stress_modifier(w, cf1_prod, rc_pot, emax, wmax)
-    f5 =  water_stress_modifier(cf1_prod, rc_pot, emax, Kxylem)
-    print*,'f5',f5
+    f5 =  water_stress_modifier(w, cf1_prod, rc_pot, emax, wmax)
+    !f5 =  water_stress_modifier(cf1_prod, rc_pot, emax, Kxylem)
+    !print*,'f5',f5
 
 !     Photosysthesis minimum and maximum temperature
 !     ----------------------------------------------
