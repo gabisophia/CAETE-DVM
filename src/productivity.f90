@@ -39,6 +39,7 @@ contains
 !Input
 !-----
     real(r_8),dimension(ntraits),intent(in) :: dt ! PLS data
+    real(r_8),dimension(ntraits),intent(in) :: dwood_t ! PLS data
     real(r_4), intent(in) :: temp, ts                 !Mean monthly temperature (oC)
     real(r_4), intent(in) :: p0                   !Mean surface pressure (hPa)
     real(r_8), intent(in) :: w                    !Soil moisture kg m-2
@@ -51,7 +52,7 @@ contains
     real(r_8), intent(in) :: beta_froot
     real(r_8), intent(in) :: wmax
     real(r_8), intent(in) :: psisoil
-    real(r_8), intent(in) :: dwood_t
+    !real(r_8), intent(in) :: dwood_t
     real(r_8), intent(in) :: height1
     logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
 
@@ -98,13 +99,13 @@ contains
     integer(i_4) :: i
 
     !Hydraulic parameters
-    !real(r_8) :: psi50
-    !real(r_8) :: klmax
-    !real(r_8) :: krcmax
-    !real(r_8) :: psig
-    !real(r_8) :: psixylem
-    !real(r_8) :: kxylem
-    !real(r_8) :: knorm
+    real(r_8) :: psi50
+    real(r_8) :: klmax
+    real(r_8) :: krcmax
+    real(r_8) :: psig
+    real(r_8) :: psixylem
+    real(r_8) :: kxylem
+    real(r_8) :: knorm
 
 !getting pls parameters
 
@@ -171,8 +172,8 @@ contains
     !=============
     !  Hydraulic
     !=============
-    !call pls_hydraulic (dwood_t, awood, jl_out, height1, psisoil,&
-    !&psi50, klmax, krcmax, psig, psixylem, kxylem, knorm)
+    call hydraulic_system (dwood_t, awood, jl_out, height1, psisoil,&
+    &psi50, klmax, krcmax, psig, psixylem, kxylem, knorm)
 
     ! VPD
     !========

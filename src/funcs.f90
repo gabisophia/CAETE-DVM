@@ -30,7 +30,7 @@ module photo
         leaf_area_index          ,& ! (f), leaf area index(m2 m-2)
         f_four                   ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area           ,& ! (f), specific leaf area (m2 g-1)
-        pls_hydraulic            ,& ! (f), subrotine of hydraulic system of the plants
+        hydraulic_system         ,& ! (f), subrotine of hydraulic system of the plants
         water_stress_modifier    ,& ! (f), F5 - water stress modifier (dimensionless)
         leaf_age_factor          ,& ! (f), effect of leaf age on photosynthetic rate
         photosynthesis_rate      ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
@@ -210,7 +210,7 @@ contains
    !=================================================================
    !=================================================================
 
-   subroutine pls_hydraulic (dwood_aux, awood, amax, height, psi_soil,&
+   subroutine hydraulic_system (dwood_aux, awood, amax, height, psi_soil,&
       &psi_50, kl_max, krc_max, psi_g, psi_xylem, k_xylem, k_norm)
 
       use types 
@@ -227,45 +227,45 @@ contains
       dwood = dwood_aux
 
       do p = 1, npft !INICIALIZE OUTPUTS VARIABLES
-          psi_50(p) = 0.0D0
-          kl_max(p) = 0.0D0
-          krc_max(p) = 0.0D0
-          psi_g(p) = 0.0D0
-          psi_xylem(p) = 0.0D0
-          k_xylem(p) = 0.0D0
-          k_norm(p) = 0.0D0
+            psi_50(p) = 0.0D0
+            kl_max(p) = 0.0D0
+            krc_max(p) = 0.0D0
+            psi_g(p) = 0.0D0
+            psi_xylem(p) = 0.0D0
+            k_xylem(p) = 0.0D0
+            k_norm(p) = 0.0D0
       enddo
 
       !PLS HYDRAULIC PARAMETERS 
-         do p = 1, npft !to grasses
-            if(awood(p) .le. 0.0D0) then
-               psi_50(p) = 0.0D0
-               kl_max(p) = 0.0D0
-               krc_max(p) = 0.0D0
-               psi_g(p) = 0.0D0
-               psi_xylem(p) = 0.0D0
-               k_xylem(p) = 0.0D0
-               k_norm(p) = 0.0D0
+      do p = 1, npft !to grasses
+         if(awood(p) .le. 0.0D0) then
+            psi_50(p) = 0.0D0
+            kl_max(p) = 0.0D0
+            krc_max(p) = 0.0D0
+            psi_g(p) = 0.0D0
+            psi_xylem(p) = 0.0D0
+            k_xylem(p) = 0.0D0
+            k_norm(p) = 0.0D0
 
-            else
-               psi_50(p) = -((3.57*dwood(p))**1.73)-1.09   !MPa
-               print*,'PSI_50',psi_50(p)
-               kl_max(p) = 0.0021 * exp((-26.6 * dwood(p))/(amax(p) * 1e6))
-               print*,'KL_MAX',kl_max(p)
-               krc_max(p) = ((kl_max(p) / height(p))*(55.55)) 
-               print*,'KRC_MAX',krc_max(p)
-               psi_g(p) = rho * grav * height(p) * 1e-6
-               print*,'PSI_G',psi_g(p)
-               psi_xylem(p)  = psi_soil - psi_g(p)
-               print*,'PSI_XYLEM',psi_xylem(p)
-               k_xylem(p) = krc_max(p)*(1+(psi_xylem(p)/psi_50(p))**vuln_curve)**(-1) 
-               print*,'K_XYLEM',k_xylem(p)
-               k_norm(p) = k_xylem(p)/krc_max(p)
-               print*,'K_NORM',k_norm(p)
-            endif
-         enddo
+         else
+            psi_50(p) = -((3.57*dwood(p))**1.73)-1.09   !MPa
+            print*,'PSI_50',psi_50(p)
+            kl_max(p) = 0.0021 * exp((-26.6 * dwood(p))/(amax(p) * 1e6))
+            print*,'KL_MAX',kl_max(p)
+            krc_max(p) = ((kl_max(p) / height(p))*(55.55)) 
+            print*,'KRC_MAX',krc_max(p)
+            psi_g(p) = rho * grav * height(p) * 1e-6
+            print*,'PSI_G',psi_g(p)
+            psi_xylem(p)  = psi_soil - psi_g(p)
+            print*,'PSI_XYLEM',psi_xylem(p)
+            k_xylem(p) = krc_max(p)*(1+(psi_xylem(p)/psi_50(p))**vuln_curve)**(-1) 
+            print*,'K_XYLEM',k_xylem(p)
+            k_norm(p) = k_xylem(p)/krc_max(p)
+            print*,'K_NORM',k_norm(p)
+         endif
+      enddo
   
-   end subroutine pls_hydraulic
+   end subroutine hydraulic_system
  
   !====================================================================
   !====================================================================   
@@ -1425,7 +1425,7 @@ contains
 
             crown_area(p) = k_allom1*(diameter(p)**krp)
          endif
-         print*, 'height', height(p), p, 'cawood', cawood(p)
+         !print*, 'height', height(p), p, 'cawood', cawood(p)
       enddo
 
    end subroutine pls_allometry
