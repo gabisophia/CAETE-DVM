@@ -30,7 +30,6 @@ module photo
         leaf_area_index          ,& ! (f), leaf area index(m2 m-2)
         f_four                   ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area           ,& ! (f), specific leaf area (m2 g-1)
-        soil_waterpotential      ,& ! (f), Soil water potential (MPa)
         conductivity_xylemleaf   ,& ! (f), Maximum xylem conductivity per unit leaf area (kg m-1 s-1 Mpa-1)
         conductance_xylemax      ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
         psi_fifty                ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
@@ -234,28 +233,6 @@ contains
       endif
 
    end function f_four
-
-   !=================================================================
-   !=================================================================
-
-   function soil_waterpotential(soil_texture, w, wmax, psi_sat) result(psi_soil)
-
-      ! Returns soil water potential (MPa)
-      ! Based in Clapp & Hornberger 1978
-      use types
-
-      real(r_8),intent(in) :: soil_texture        !dimensionless - coefficient soil texture
-      real(r_8),intent(in) :: w                   !mm/h - soil water
-      real(r_8),intent(in) :: wmax                !mm/h - maximum soil water
-      real(r_8),intent(in) :: psi_sat             !MPa
-      real(r_8) :: psi_soil                       !MPa
-
-      real(r_8) :: wa
-      wa = w/wmax                                 !dimensionless - soil moisture
-
-      psi_soil = (psi_sat*(-0.0098)) * wa ** (-soil_texture)
-
-   end function soil_waterpotential
 
    !=================================================================
    !=================================================================
@@ -1543,7 +1520,7 @@ contains
 
             crown_area(p) = k_allom1*(diameter(p)**krp)
          endif
-         print*, 'height', height(p), p, 'cawood', cawood(p)
+         !print*, 'height', height(p), p, 'cawood', cawood(p)
       enddo
 
    end subroutine pls_allometry
