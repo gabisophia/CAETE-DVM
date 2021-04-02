@@ -742,6 +742,7 @@ class grd:
                 sto[0, self.vp_lsid] = self.vp_sto[0, :]
                 sto[1, self.vp_lsid] = self.vp_sto[1, :]
                 sto[2, self.vp_lsid] = self.vp_sto[2, :]
+                
                 # Just Check the integrity of the data
 #               assert self.vp_lsid.size == self.vp_cleaf.size, 'different array sizes'
                 c = 0

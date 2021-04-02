@@ -1214,9 +1214,7 @@ contains
          if(sum(cleaf(:,p)) .lt. cmin .and. cfroot(p) .lt. cmin) then
             is_living(p) = .false.
             c_to_soil(p) = sum(cleaf(:,p)) + cawood(p) + cfroot(p)
-            cleaf(1,p) = 0.0D0
-            cleaf(2,p) = 0.0D0
-            cleaf(3,p) = 0.0D0
+            cleaf(:,p) = 0.0D0
             cawood(p) = 0.0D0
             cfroot(p) = 0.0D0
          else
