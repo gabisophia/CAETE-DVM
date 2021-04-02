@@ -155,6 +155,28 @@ contains
 
    end function spec_leaf_area
 
+   !function spec_leaf_area(tau_leaf) result(sla)
+      ! based on JeDi DGVM
+   !   use types, only : r_8
+      !implicit none
+
+   !   real(r_8),intent(in) :: tau_leaf  !years
+   !   real(r_8) :: sla   !m2 gC-1
+
+   !   real(r_8) :: leaf_t_months
+   !   real(r_8) :: leaf_t_coeff
+   !   real(r_8) :: leaf_turnover
+
+   !   leaf_t_months = tau_leaf*12.0D0 ! turnover time in months
+   !   leaf_t_coeff = leaf_t_months/100.0D0 !1 - 100 months == ~ 1/12 to 8.3 years (TRY-kattge et al. 2011; Jedi-Pavlick 2012)
+
+      ! leaf_turnover =  (365.0/12.0) * exp(2.6*leaf_t_coeff)
+   !   leaf_turnover =  (365.242D0/12.0D0) * (10.00D0 ** (2.00D0*leaf_t_coeff))
+
+      ! sla = (3e-2 * (365.0/leaf_turnover)**(-1.02))
+   !   sla = (3D-2 * (365.2420D0/leaf_turnover)**(-0.460D0))
+   !end function spec_leaf_area
+
    !=================================================================
    !=================================================================
 
@@ -366,79 +388,33 @@ contains
    !=================================================================
    !=================================================================
 
-   !function water_stress_modifier(w, cfroot, rc, ep, wmax) result(f5)
-
-   !   use types, only: r_4, r_8
-   !   use global_par, only: csru, alfm, gm, rcmin, rcmax
-      !implicit none
-
-   !   real(r_8),intent(in) :: w      !soil water mm
-   !   real(r_8),intent(in) :: cfroot !carbon in fine roots kg m-2
-   !   real(r_4),intent(in) :: rc     !Canopy resistence 1/(micromol(CO2) m-2 s-1)
-   !   real(r_4),intent(in) :: ep
-   !   real(r_8),intent(in) :: wmax     !potential evapotranspiration
-   !   real(r_8) :: f5
-
-
-   !   real(r_8) :: pt, rc_aux, rcmin_aux, ep_aux
-   !   real(r_8) :: gc
-   !   real(r_8) :: wa
-   !   real(r_8) :: d
-   !   real(r_8) :: f5_64
-
-   !   wa = w/wmax
-   !   rc_aux = real(rc, kind=r_8)
-   !   rcmin_aux = real(rcmin, kind=r_8)
-   !   ep_aux = real(ep, kind=r_8)
-   !   if (rc .gt. rcmax) rc_aux = real(rcmax, r_8)
-
-   !   pt = csru*(cfroot*1000.0D0) * wa  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
-   !   if(rc_aux .gt. rcmin) then
-   !      gc = (1.0D0/(rc_aux * 1.15741D-08))  ! s/m
-   !   else
-   !      gc =  1.0D0/(rcmin_aux * 1.15741D-8) ! BIANCA E HELENA - Mudei este esquema..
-   !   endif
-
-      !d =(ep * alfm) / (1. + gm/gc) !(based in Gerten et al. 2004)
-   !   d = (ep_aux * alfm) / (1.0D0 + (gm/gc))
-   !   if(d .gt. 0.0D0) then
-   !      f5_64 = pt/d
-         ! print*, f5_64, 'f564'
-   !      f5_64 = exp((f5_64 * (-0.1D0)))
-   !      f5_64 = 1.0D0 - f5_64
-   !   else
-   !      f5_64 = wa
-   !   endif
-
-   !   f5 = f5_64
-   !   if (f5 .lt. 0.0D0) f5 = 0.0D0
-
-   !end function water_stress_modifier
-
-   function water_stress_modifier(cfroot, rc, ep, k_norm) result(f5)
+   function water_stress_modifier(w, cfroot, rc, ep, wmax) result(f5)
 
       use types, only: r_4, r_8
       use global_par, only: csru, alfm, gm, rcmin, rcmax
       !implicit none
 
+      real(r_8),intent(in) :: w      !soil water mm
       real(r_8),intent(in) :: cfroot !carbon in fine roots kg m-2
       real(r_4),intent(in) :: rc     !Canopy resistence 1/(micromol(CO2) m-2 s-1)
       real(r_4),intent(in) :: ep
-      real(r_8),intent(in) :: k_norm
+      real(r_8),intent(in) :: wmax     !potential evapotranspiration
       real(r_8) :: f5
 
 
       real(r_8) :: pt, rc_aux, rcmin_aux, ep_aux
       real(r_8) :: gc
+      real(r_8) :: wa
       real(r_8) :: d
       real(r_8) :: f5_64
 
+      wa = w/wmax
       rc_aux = real(rc, kind=r_8)
       rcmin_aux = real(rcmin, kind=r_8)
       ep_aux = real(ep, kind=r_8)
       if (rc .gt. rcmax) rc_aux = real(rcmax, r_8)
 
-      pt = csru*(cfroot*1000.0D0) * k_norm  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
+      pt = csru*(cfroot*1000.0D0) * wa  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
       if(rc_aux .gt. rcmin) then
          gc = (1.0D0/(rc_aux * 1.15741D-08))  ! s/m
       else
@@ -453,13 +429,59 @@ contains
          f5_64 = exp((f5_64 * (-0.1D0)))
          f5_64 = 1.0D0 - f5_64
       else
-         f5_64 = k_norm
+         f5_64 = wa
       endif
 
       f5 = f5_64
       if (f5 .lt. 0.0D0) f5 = 0.0D0
 
    end function water_stress_modifier
+
+   !function water_stress_modifier(cfroot, rc, ep, k_norm) result(f5)
+
+   !   use types, only: r_4, r_8
+   !   use global_par, only: csru, alfm, gm, rcmin, rcmax
+      !implicit none
+
+   !   real(r_8),intent(in) :: cfroot !carbon in fine roots kg m-2
+   !   real(r_4),intent(in) :: rc     !Canopy resistence 1/(micromol(CO2) m-2 s-1)
+   !   real(r_4),intent(in) :: ep
+   !   real(r_8),intent(in) :: k_norm
+   !   real(r_8) :: f5
+
+
+   !   real(r_8) :: pt, rc_aux, rcmin_aux, ep_aux
+   !   real(r_8) :: gc
+   !   real(r_8) :: d
+   !   real(r_8) :: f5_64
+
+   !   rc_aux = real(rc, kind=r_8)
+   !   rcmin_aux = real(rcmin, kind=r_8)
+   !   ep_aux = real(ep, kind=r_8)
+   !   if (rc .gt. rcmax) rc_aux = real(rcmax, r_8)
+
+   !   pt = csru*(cfroot*1000.0D0) * k_norm  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
+   !   if(rc_aux .gt. rcmin) then
+   !      gc = (1.0D0/(rc_aux * 1.15741D-08))  ! s/m
+   !   else
+   !      gc =  1.0D0/(rcmin_aux * 1.15741D-8) ! BIANCA E HELENA - Mudei este esquema..
+   !   endif
+
+      !d =(ep * alfm) / (1. + gm/gc) !(based in Gerten et al. 2004)
+   !   d = (ep_aux * alfm) / (1.0D0 + (gm/gc))
+   !   if(d .gt. 0.0D0) then
+   !      f5_64 = pt/d
+   !      ! print*, f5_64, 'f564'
+   !      f5_64 = exp((f5_64 * (-0.1D0)))
+   !      f5_64 = 1.0D0 - f5_64
+   !   else
+   !      f5_64 = k_norm
+   !   endif
+
+   !   f5 = f5_64
+   !   if (f5 .lt. 0.0D0) f5 = 0.0D0
+
+   !end function water_stress_modifier
 
    ! =============================================================
    ! =============================================================
