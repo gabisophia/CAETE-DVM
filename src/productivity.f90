@@ -26,8 +26,8 @@ module productivity
 
 contains
 
-  subroutine prod(dt,dwood_t,height1,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
-       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,psisoil,ph,ar,&
+  subroutine prod(dt,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
+       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,ph,ar,&
        & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,jl_out,sla, e)
 
     use types
@@ -39,7 +39,6 @@ contains
 !Input
 !-----
     real(r_8),dimension(ntraits),intent(in) :: dt ! PLS data
-    real(r_8),dimension(ntraits),intent(in) :: dwood_t ! PLS data
     real(r_4), intent(in) :: temp, ts                 !Mean monthly temperature (oC)
     real(r_4), intent(in) :: p0                   !Mean surface pressure (hPa)
     real(r_8), intent(in) :: w                    !Soil moisture kg m-2
@@ -51,9 +50,6 @@ contains
     real(r_8), intent(in) :: beta_awood
     real(r_8), intent(in) :: beta_froot
     real(r_8), intent(in) :: wmax
-    real(r_8), intent(in) :: psisoil
-    !real(r_8), intent(in) :: dwood_t
-    real(r_8), intent(in) :: height1
     logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
 
 !     Output
@@ -97,15 +93,6 @@ contains
     real(r_8) :: cl_total              !Carbon sum of all the cohots (kg/m2)
     real(r_4) :: rc_pot, rc_aux
     integer(i_4) :: i
-
-    !Hydraulic parameters
-    !real(r_8) :: psi50
-    !real(r_8) :: klmax
-    !real(r_8) :: krcmax
-    !real(r_8) :: psig
-    !real(r_8) :: psixylem
-    !real(r_8) :: kxylem
-    !real(r_8) :: knorm
 
 !getting pls parameters
 
@@ -168,12 +155,6 @@ contains
 
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,n2cl,&
          & p2cl,cl1_prod(:),tleaf,f1a,vm_out,jl_out)
-
-    !=============
-    !  Hydraulic
-    !=============
-    !call hydraulic_system (dwood_t, awood, jl_out, height1, psisoil,&
-    !&psi50, klmax, krcmax, psig, psixylem, kxylem, knorm)
 
     ! VPD
     !========
