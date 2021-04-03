@@ -40,7 +40,7 @@ contains
       use productivity
       use omp_lib
 
-      use photo, only: pft_area_frac, sto_resp, pls_allometry
+      use photo, only: pft_area_frac, sto_resp, hydraulic_system, pls_allometry
       use water, only: evpot2, penman, available_energy, runoff
 
       !     ----------------------------INPUTS-------------------------------
@@ -59,7 +59,6 @@ contains
       real(r_8),intent(in) :: catm                 ! ATM CO2 concentration ppm
       real(r_8),intent(in) :: wmax_in
       real(r_8),intent(in) :: soil_text, p_sat
-
 
       real(r_8),dimension(3,npls),intent(in)  :: sto_budg_in ! Rapid Storage Pool (C,N,P)  g m-2
       real(r_8),dimension(3,npls),intent(in) :: cl1_in  ! initial BIOMASS cleaf compartment kgm-2
@@ -157,6 +156,7 @@ contains
       real(r_8),dimension(:),allocatable :: ca2    ! carbon pos-allocation
       real(r_8),dimension(:,:),allocatable :: day_storage      ! D0=3 g m-2
       real(r_8),dimension(:),allocatable   :: vcmax            ! µmol m-2 s-1
+      real(r_8),dimension(:),allocatable   :: jlout            
       real(r_8),dimension(:),allocatable   :: specific_la      ! m2 g(C)-1
       real(r_8),dimension(:,:),allocatable :: nupt             !d0 =2      ! g m-2 (1) from Soluble (2) from organic
       real(r_8),dimension(:,:),allocatable :: pupt             !d0 =3      ! g m-2
@@ -177,6 +177,7 @@ contains
       real(r_8) :: soil_sat
       real(r_8) :: psi_soil
       real(r_8), dimension(npls) :: height_aux, diameter_aux, crown_aux
+      real(r_8), dimension(npls) :: psi50, klmax, krcmax, psig, psixylem, kxylem, knorm
 
       !     START
       !     --------------
@@ -242,6 +243,7 @@ contains
       allocate(cue(nlen))
       allocate(c_def(nlen))
       allocate(vcmax(nlen))
+      allocate(jlout(nlen))
       allocate(specific_la(nlen))
       allocate(storage_out_bdgt(3, nlen))
       allocate(tra(nlen))
@@ -287,7 +289,10 @@ contains
          call prod(dt1, dwood_aux(p), height_aux(p), ocp_wood(ri), catm, temp, soil_temp, p0, w, ipar, rh, emax&
                &, cl1_pft(:,ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
                &, soil_sat, psi_soil, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
-               &, wue(p), c_def(p), vcmax(p), specific_la(p), tra(p))
+               &, wue(p), c_def(p), vcmax(p), jlout(p), specific_la(p), tra(p))
+
+         call hydraulic_system (dwood_aux(p), awood_aux(p), jlout(p), height_aux(p), psi_soil,&
+         &psi50(ri), klmax(ri), krcmax(ri), psig(ri), psixylem(ri), kxylem(ri), knorm(ri))
 
          evap(p) = penman(p0,temp,rh,available_energy(temp),rc2(p)) !Actual evapotranspiration (evap, mm/day)
 
@@ -537,6 +542,7 @@ contains
       deallocate(cue)
       deallocate(c_def)
       deallocate(vcmax)
+      deallocate(jlout)
       deallocate(specific_la)
       deallocate(storage_out_bdgt)
       deallocate(tra)

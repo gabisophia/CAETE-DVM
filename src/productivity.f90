@@ -28,7 +28,7 @@ contains
 
   subroutine prod(dt,dwood_t,height1,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
        & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,psisoil,ph,ar,&
-       & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla, e)
+       & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,jl_out,sla, e)
 
     use types
     use global_par
@@ -71,6 +71,7 @@ contains
     real(r_4), intent(out) :: c_defcit     ! Carbon deficit gm-2 if it is positive, aresp was greater than npp + sto2(1)
     real(r_8), intent(out) :: sla, e        !specific leaf area (m2/kg)
     real(r_8), intent(out) :: vm_out
+    real(r_8), intent(out) :: jl_out
 
 
 !     Internal
@@ -86,7 +87,6 @@ contains
     real(r_8) :: n2cf_resp
     real(r_8) :: p2cl
     integer(i_4) :: c4_int
-    real(r_8) :: jl_out
 
     real(r_8), dimension(3) :: f1      !Leaf level gross photosynthesis (molCO2/m2/s)
     real(r_8) :: f1a                   !auxiliar_f1
@@ -99,13 +99,13 @@ contains
     integer(i_4) :: i
 
     !Hydraulic parameters
-    real(r_8) :: psi50
-    real(r_8) :: klmax
-    real(r_8) :: krcmax
-    real(r_8) :: psig
-    real(r_8) :: psixylem
-    real(r_8) :: kxylem
-    real(r_8) :: knorm
+    !real(r_8) :: psi50
+    !real(r_8) :: klmax
+    !real(r_8) :: krcmax
+    !real(r_8) :: psig
+    !real(r_8) :: psixylem
+    !real(r_8) :: kxylem
+    !real(r_8) :: knorm
 
 !getting pls parameters
 
@@ -172,8 +172,8 @@ contains
     !=============
     !  Hydraulic
     !=============
-    call hydraulic_system (dwood_t, awood, jl_out, height1, psisoil,&
-    &psi50, klmax, krcmax, psig, psixylem, kxylem, knorm)
+    !call hydraulic_system (dwood_t, awood, jl_out, height1, psisoil,&
+    !&psi50, klmax, krcmax, psig, psixylem, kxylem, knorm)
 
     ! VPD
     !========
