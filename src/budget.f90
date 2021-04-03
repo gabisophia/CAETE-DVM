@@ -286,9 +286,9 @@ contains
          ri = lp(p)
          dt1 = dt(:,ri) ! Pick up the pls functional attributes list
 
-         call prod(dt1, dwood_aux(p), height_aux(p), ocp_wood(ri), catm, temp, soil_temp, p0, w, ipar, rh, emax&
+         call prod(dt1, ocp_wood(ri), catm, temp, soil_temp, p0, w, ipar, rh, emax&
                &, cl1_pft(:,ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
-               &, soil_sat, psi_soil, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
+               &, soil_sat, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
                &, wue(p), c_def(p), vcmax(p), jlout(p), specific_la(p), tra(p))
 
          call hydraulic_system (dwood_aux(p), awood_aux(p), jlout(p), height_aux(p), psi_soil,&
