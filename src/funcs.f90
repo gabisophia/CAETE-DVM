@@ -368,7 +368,7 @@ contains
 
       !implicit none
 
-      real(r_4),intent(in) :: f1_in    !Photosynthesis (molCO2/m2/s)
+      real(r_8),intent(in) :: f1_in    !Photosynthesis (molCO2/m2/s)
       real(r_4),intent(in) :: vpd_in   !hPa
       real(r_4),intent(in) :: g1       ! model m (slope) (sqrt(kPa))
       real(r_8),intent(in) :: ca
@@ -403,7 +403,7 @@ contains
 
       !implicit none
 
-      real(r_4),dimension(3),intent(in) :: f1    !Photosynthesis (molCO2/m2/s)
+      real(r_8),dimension(3),intent(in) :: f1    !Photosynthesis (molCO2/m2/s)
       real(r_4),intent(in) :: vpd_in   !hPa
       real(r_4),intent(in) :: g1       ! model m (slope) (sqrt(kPa))
       real(r_8),intent(in) :: ca
@@ -440,7 +440,8 @@ contains
       ! a = assimilacao; g = resistencia; p0 = pressao atm; vpd = vpd
       real(r_4) :: wue
 
-      real(r_4) :: g_in, p0_in, e_in, a_aux
+      real(r_4) :: g_in, p0_in, e_in
+      real(r_8) :: a_aux
 
       a_aux = sum(a(:))
 
