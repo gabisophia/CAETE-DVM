@@ -95,7 +95,7 @@ contains
       real(r_8),dimension(3) :: f1in
       real(r_8) :: f4sun 
       real(r_8) :: f4shade
-      real(r_8),dimension(3) :: ph_aux
+      real(r_4),dimension(3) :: ph_aux
 
       f1in(:) = f1(:)
       f4sun = f_four(1,cleaf(:),sla)
@@ -570,7 +570,7 @@ contains
 
       !implicit none
 
-      real(r_4),intent(in) :: f1_in    !Photosynthesis (molCO2/m2/s)
+      real(r_8),intent(in) :: f1_in    !Photosynthesis (molCO2/m2/s)
       real(r_4),intent(in) :: vpd_in   !hPa
       real(r_4),intent(in) :: g1       ! model m (slope) (sqrt(kPa))
       real(r_8),intent(in) :: ca
@@ -605,7 +605,7 @@ contains
 
       !implicit none
 
-      real(r_4),dimension(3),intent(in) :: f1    !Photosynthesis (molCO2/m2/s)
+      real(r_8),dimension(3),intent(in) :: f1    !Photosynthesis (molCO2/m2/s)
       real(r_4),intent(in) :: vpd_in   !hPa
       real(r_4),intent(in) :: g1       ! model m (slope) (sqrt(kPa))
       real(r_8),intent(in) :: ca
@@ -614,7 +614,7 @@ contains
       !     --------
       real(r_8) :: D1       !sqrt(kPA)
       real(r_4) :: vapour_p_d
-      real(r_4),dimension(3) :: gs_aux
+      real(r_8),dimension(3) :: gs_aux
 
       vapour_p_d = vpd_in
       ! Assertions
@@ -642,7 +642,8 @@ contains
       ! a = assimilacao; g = resistencia; p0 = pressao atm; vpd = vpd
       real(r_4) :: wue
 
-      real(r_4) :: g_in, p0_in, e_in, a_aux
+      real(r_4) :: g_in, p0_in, e_in
+      real(r_8) :: a_aux
 
       a_aux = sum(a(:))
 

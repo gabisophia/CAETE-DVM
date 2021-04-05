@@ -291,6 +291,9 @@ contains
 
          evap(p) = penman(p0,temp,rh,available_energy(temp),rc2(p)) !Actual evapotranspiration (evap, mm/day)
 
+         print*,'survivors',p, 'cawood:',ca1_pft(ri), 'cleaf j:',cl1_pft(1,ri), 'cleaf m:',cl1_pft(2,ri), 'cleaf s:',cl1_pft(3,ri),&
+         & 'LAI:',laia(p), 'GPP:',ph(P)
+
          ! Check if the carbon deficit can be compensated by stored carbon
          carbon_in_storage = sto_budg(1, ri)
          storage_out_bdgt(1, p) = carbon_in_storage
@@ -452,7 +455,7 @@ contains
       cleafavg(2) = sum(cl1_int(2,:) * ocp_coeffs, mask= .not. isnan(cl1_int(2,:)))
       cleafavg(3) = sum(cl1_int(3,:) * ocp_coeffs, mask= .not. isnan(cl1_int(3,:)))
 
-      cp(1) = sum(sum(cl1_int) * ocp_coeffs, mask= .not. isnan(sum(cl1_int)))
+      !cp(1) = sum(sum(cl1_int) * ocp_coeffs, mask= .not. isnan(sum(cl1_int)))
       cp(2) = sum(ca1_int * ocp_coeffs, mask= .not. isnan(ca1_int))
       cp(3) = sum(cf1_int * ocp_coeffs, mask= .not. isnan(cf1_int))
 
