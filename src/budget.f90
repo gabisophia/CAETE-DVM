@@ -448,7 +448,7 @@ contains
       cleafavg(2) = sum(cl1_int(2,:) * ocp_coeffs, mask= .not. isnan(cl1_int(2,:)))
       cleafavg(3) = sum(cl1_int(3,:) * ocp_coeffs, mask= .not. isnan(cl1_int(3,:)))
 
-      cp(1) = sum(sum(cl1_int) * ocp_coeffs, mask= .not. isnan(sum(cl1_int)))
+      !cp(1) = sum(sum(cl1_int) * ocp_coeffs, mask= .not. isnan(sum(cl1_int)))
       cp(2) = sum(ca1_int * ocp_coeffs, mask= .not. isnan(ca1_int))
       cp(3) = sum(cf1_int * ocp_coeffs, mask= .not. isnan(cf1_int))
 
