@@ -284,6 +284,9 @@ contains
 
          evap(p) = penman(p0,temp,rh,available_energy(temp),rc2(p)) !Actual evapotranspiration (evap, mm/day)
 
+         print*,'survivors',p, 'cawood:',ca1_pft(ri), 'cleaf j:',cl1_pft(1,ri), 'cleaf m:',cl1_pft(2,ri), 'cleaf s:',cl1_pft(3,ri),&
+         & 'LAI:',laia(p), 'GPP:',ph(P)
+
          ! Check if the carbon deficit can be compensated by stored carbon
          carbon_in_storage = sto_budg(1, ri)
          storage_out_bdgt(1, p) = carbon_in_storage
@@ -374,11 +377,11 @@ contains
          if(ca1_int(p) .lt. 0.0D0) ca1_int(p) = 0.0D0
          if(cf1_int(p) .lt. 0.0D0) cf1_int(p) = 0.0D0
 
-         print*,'cl1_int(p) jovem',cl1_int(1,p)
-         print*,'cl1_int(P) madura',cl1_int(2,p)
-         print*,'cl1_int(P) velha',cl1_int(3,p)
-         print*,'ca1_int(P)',ca1_int(p)
-         print*,'cf1_int(P)',cf1_int(p)
+         !print*,'cl1_int(p) jovem',cl1_int(1,p)
+         !print*,'cl1_int(P) madura',cl1_int(2,p)
+         !print*,'cl1_int(P) velha',cl1_int(3,p)
+         !print*,'ca1_int(P)',ca1_int(p)
+         !print*,'cf1_int(P)',cf1_int(p)
 
       enddo ! end pls_loop (p)
       !$OMP END PARALLEL DO

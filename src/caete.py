@@ -265,7 +265,7 @@ class grd:
 
         # CVEG POOLS
         self.vp_cleaf = None
-        self.cltotal = None
+        self.vp_cltotal = None
         self.vp_croot = None
         self.vp_cwood = None
         self.vp_dcl = None
@@ -1051,7 +1051,7 @@ class grd:
 
         sto = self.vp_sto
         cleaf = self.vp_cleaf
-        cltotal = self.cltotal
+        #cltotal = self.cltotal
         cwood = self.vp_cwood
         croot = self.vp_croot
         dcl = self.vp_dcl

@@ -116,10 +116,10 @@ contains
       real(r_8) :: cl_total
       cl_total = sum(cleaf(:))
 
-      print*,'cleaf lai jovem',cleaf(1)
-      print*,'cleaf lai madura',cleaf(2)
-      print*,'cleaf lai senescente',cleaf(3)
-      print*,'cltotal lai',cl_total
+      !print*,'cleaf lai jovem',cleaf(1)
+      !print*,'cleaf lai madura',cleaf(2)
+      !print*,'cleaf lai senescente',cleaf(3)
+      !print*,'cltotal lai',cl_total
 
       lai  = cl_total * 1.0D3 * sla  ! Converts cleaf from (KgC m-2) to (gCm-2)
       if(lai .lt. 0.0D0) lai = 0.0D0
@@ -1317,7 +1317,7 @@ contains
 
             crown_area(p) = k_allom1*(diameter(p)**krp)
          endif
-         print*, 'height', height(p), p, 'cawood', cawood(p)
+         !print*, 'height', height(p), p, 'cawood', cawood(p)
       enddo
 
    end subroutine pls_allometry
