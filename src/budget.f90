@@ -293,7 +293,7 @@ contains
          !print*,'survivors',p, 'cawood:',ca1_pft(ri), 'cleaf j:',cl1_pft(1,ri), 'cleaf m:',cl1_pft(2,ri), 'cleaf s:',cl1_pft(3,ri),&
          !& 'LAI:',laia(p), 'GPP:',ph(P)
 
-         print*,'survivors',p, 'cawood:',ca1_pft(ri), 'height:', height_aux(p)
+         !print*,'survivors',p, 'cawood:',ca1_pft(ri), 'height:', height_aux(p)
 
          ! Check if the carbon deficit can be compensated by stored carbon
          carbon_in_storage = sto_budg(1, ri)
