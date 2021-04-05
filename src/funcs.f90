@@ -89,7 +89,7 @@ contains
       real(r_8),dimension(3) :: f1in
       real(r_8) :: f4sun 
       real(r_8) :: f4shade
-      real(r_8),dimension(3) :: ph_aux
+      real(r_4),dimension(3) :: ph_aux
 
       f1in(:) = f1(:)
       f4sun = f_four(1,cleaf(:),sla)
@@ -412,7 +412,7 @@ contains
       !     --------
       real(r_8) :: D1       !sqrt(kPA)
       real(r_4) :: vapour_p_d
-      real(r_4),dimension(3) :: gs_aux
+      real(r_8),dimension(3) :: gs_aux
 
       vapour_p_d = vpd_in
       ! Assertions
