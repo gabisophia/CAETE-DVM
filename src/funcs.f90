@@ -154,28 +154,6 @@ contains
 
    end function spec_leaf_area
 
-   !function spec_leaf_area(tau_leaf) result(sla)
-      ! based on JeDi DGVM
-   !   use types, only : r_8
-      !implicit none
-
-   !   real(r_8),intent(in) :: tau_leaf  !years
-   !   real(r_8) :: sla   !m2 gC-1
-
-   !   real(r_8) :: leaf_t_months
-   !   real(r_8) :: leaf_t_coeff
-   !   real(r_8) :: leaf_turnover
-
-   !   leaf_t_months = tau_leaf*12.0D0 ! turnover time in months
-   !   leaf_t_coeff = leaf_t_months/100.0D0 !1 - 100 months == ~ 1/12 to 8.3 years (TRY-kattge et al. 2011; Jedi-Pavlick 2012)
-
-      ! leaf_turnover =  (365.0/12.0) * exp(2.6*leaf_t_coeff)
-   !   leaf_turnover =  (365.242D0/12.0D0) * (10.00D0 ** (2.00D0*leaf_t_coeff))
-
-      ! sla = (3e-2 * (365.0/leaf_turnover)**(-1.02))
-   !   sla = (3D-2 * (365.2420D0/leaf_turnover)**(-0.460D0))
-   !end function spec_leaf_area
-
    !=================================================================
    !=================================================================
 
@@ -237,23 +215,28 @@ contains
    !=================================================================
    !=================================================================
 
-   function psi_fifty(dwood_aux) result(psi_50)
+   function psi_fifty(dwood_aux,awood_aux,height) result(psi_50)
 
       ! Returns xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
       ! Based in Christoffersen et al. 2016 TFS v.1-Hydro
       use types
 
       real(r_8),intent(in) :: dwood_aux         !g/cm3 - wood sendity
+      real(r_8),intent(in) :: awood_aux, height
       real(r_8) :: psi_50                       !MPa
 
-      psi_50 = -((3.57*dwood_aux)**1.73)-1.09 
+      if(awood_aux .gt. 0.0D0 .and. height .gt. 0.0D0) then
+         psi_50 = -((3.57*dwood_aux)**1.73)-1.09
+      else 
+         psi_50 = 0.0D0
+      endif
 
    end function psi_fifty
 
    !=================================================================
    !=================================================================
 
-   function conductivity_xylemleaf(dwood_aux,amax) result(kl_max)
+   function conductivity_xylemleaf(dwood_aux,amax,awood_aux,height) result(kl_max)
 
       !Maximum xylem conductivity per unit leaf area (kgm-1s-1MPa-1)
       !Based in Christoffersen et al. 2016 TFS v.1-Hydro
@@ -261,16 +244,21 @@ contains
 
       real(r_8),intent(in) :: dwood_aux        !g/cm3 - wood sendity
       real(r_8),intent(in) :: amax             !µmolm-2s-1 - light saturated photo rate PRECISO CONVERTER de mol pra µmol
+      real(r_8),intent(in) :: awood_aux, height
       real(r_8) :: kl_max                       !kgm-1s-1MPa-1   
 
-      kl_max = 0.0021 * exp((-26.6 * dwood_aux)/(amax * 1e6))  ! µmol m-2 s-1 - 1e6 converts mol to µmol  
+      if(awood_aux .gt. 0.0D0 .and. height .gt. 0.0D0) then
+         kl_max = 0.0021 * exp((-26.6 * dwood_aux)/(amax * 1e6))  ! µmol m-2 s-1 - 1e6 converts mol to µmol  
+      else 
+         kl_max = 0.0D0
+      endif
 
    end function conductivity_xylemleaf
 
    !=================================================================
    !=================================================================
 
-   function conductance_xylemax(kl_max, height) result(krc_max)
+   function conductance_xylemax(kl_max, height, awood_aux) result(krc_max)
 
       !Maximum xylem conductance per unit leaf area (molm-2s-1Mpa-1)
       !Based in Christoffersen et al. 2016 TFS v.1-Hydro
@@ -278,9 +266,10 @@ contains
 
       real(r_8),intent(in) :: kl_max           !kgm-1s-1Mpa-1
       real(r_8),intent(in) :: height          !m
+      real(r_8),intent(in) :: awood_aux
       real(r_8) :: krc_max                    !molm-2s-1Mpa-1
 
-      if(height .gt. 0.0D0) then
+      if(awood_aux .gt. 0.0D0 .and. height .gt. 0.0D0) then
          krc_max = ((kl_max / height)*(55.55))        !convert kg to mol
       else
          krc_max = 0.0D0
@@ -291,7 +280,7 @@ contains
    !=================================================================
    !=================================================================
 
-   function xylem_waterpotential(psi_soil,height) result(psi_xylem)
+   function xylem_waterpotential(psi_soil,height, awood_aux) result(psi_xylem)
       !Xylem water potential (MPa)
       !Based in Eller et al., 2018
       use types
@@ -301,6 +290,7 @@ contains
       !real(r_8),intent(in) :: krcmax           !molm-2s-1Mpa-1 
       !real(r_4),intent(in) :: g, p0, vpd       !to calculate transpiration in molm-2s-1 
       real(r_8),intent(in) :: height            !m 
+      real(r_8),intent(in) :: awood_aux
       real(r_8) :: psi_xylem                    !MPa
 
       !real(r_4) :: g_in, p0_in, e_in
@@ -311,54 +301,68 @@ contains
       !e_in = g_in * (vpd/p0_in) ! calculando transpiracao mol H20 m-2 s-1
 
       
-      if(height .gt. 0.0D0) then
+      if(awood_aux .gt. 0.0D0 .and. height .gt. 0.0D0) then
          psi_g = rho * grav * height * 1e-6        !converts Pa to MPa
       else
          psi_g = 0.0D0
       endif
       print*,'psi_gravitational',psi_g
 
-      psi_xylem  = psi_soil - psi_g 
+      if(awood_aux .gt. 0.0D0 .and. height .gt. 0.0D0) then
+         psi_xylem = psi_soil - psi_g 
+      else
+         psi_xylem = 0.0D0
+      endif
 
    end function xylem_waterpotential
 
    !=================================================================
    !=================================================================
 
-   function xylem_conductance(krc_max,psi_xylem,psi_50) result(k)  
+   function xylem_conductance(krc_max,psi_xylem,psi_50,awood_aux,height) result(k)  
       !Xylem conductance (molm-2s-1MPa-1)
       !Based in Manzoni et al., 2013
       use types
-      !use global_par, only: vuln_curve
+      use global_par, only: vuln_curve
 
       real(r_8), intent(in) :: krc_max                !molm-2s-1Mpa-1 
       real(r_8), intent(in) :: psi_xylem              !MPa
       real(r_8), intent(in) :: psi_50                 !MPa
+      real(r_8),intent(in) :: awood_aux,height
       real(r_8) :: k                                  !molm-2s-1MPa-1
 
-      real(r_8) :: stem_slope     !MPa-1 - Slope of the linear portion of the xylem vulnerability function
-      real(r_8) :: a              !vulnerability curve
+      !real(r_8) :: stem_slope     !MPa-1 - Slope of the linear portion of the xylem vulnerability function
+      !real(r_8) :: a              !vulnerability curve
 
-      stem_slope = 65.15*(-psi_50)**(-1.25)
-      a = -4*stem_slope/100*psi_50
+      !stem_slope = 65.15*(-psi_50)**(-1.25)
+      !a = -4*stem_slope/100*psi_50
       !print*,'a',a
 
-      k = krc_max*(1+(psi_xylem/psi_50)**a)**(-1) 
+      if(awood_aux .gt. 0.0D0 .and. height .gt. 0.0D0) then
+         k = krc_max*(1+(psi_xylem/psi_50)**vuln_curve)**(-1) 
+      else
+         k = 0.0D0
+      endif
 
    end function xylem_conductance
 
    !=================================================================
    !=================================================================
 
-   function conductance_normalized(krc_max,k) result(k_norm)
+   function conductance_normalized(krc_max,k, awood_aux, height) result(k_norm)
       !Returns normalized xylem conductance (dimensionless)
       use types
 
       real(r_8),intent(in) :: krc_max         !molm-2s-1Mpa-1
       real(r_8),intent(in) :: k               !molm-2s-1Mpa-1
+      real(r_8),intent(in) :: awood_aux, height
       real(r_8) :: k_norm                     !dimensionless   
 
-      k_norm = k/krc_max
+      if(awood_aux .gt. 0.0D0 .and. height .gt. 0.0D0) then
+         k_norm = k/krc_max
+      else 
+         k_norm = 0.0D0
+      endif
 
    end function conductance_normalized
 

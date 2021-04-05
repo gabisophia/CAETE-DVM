@@ -196,7 +196,6 @@ contains
          do j = 1,3
             sto_budg(j,i) = sto_budg_in(j,i)
             cl1_pft(j,i) = cl1_in(j,i)
-           ! print*,'cl1_pft(j,i)',cl1_pft(j,i)
          enddo
       enddo
 
@@ -291,8 +290,10 @@ contains
 
          evap(p) = penman(p0,temp,rh,available_energy(temp),rc2(p)) !Actual evapotranspiration (evap, mm/day)
 
-         print*,'survivors',p, 'cawood:',ca1_pft(ri), 'cleaf j:',cl1_pft(1,ri), 'cleaf m:',cl1_pft(2,ri), 'cleaf s:',cl1_pft(3,ri),&
-         & 'LAI:',laia(p), 'GPP:',ph(P)
+         !print*,'survivors',p, 'cawood:',ca1_pft(ri), 'cleaf j:',cl1_pft(1,ri), 'cleaf m:',cl1_pft(2,ri), 'cleaf s:',cl1_pft(3,ri),&
+         !& 'LAI:',laia(p), 'GPP:',ph(P)
+
+         print*,'survivors',p, 'cawood:',ca1_pft(ri), 'height:', height_aux(p)
 
          ! Check if the carbon deficit can be compensated by stored carbon
          carbon_in_storage = sto_budg(1, ri)

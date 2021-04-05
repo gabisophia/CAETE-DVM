@@ -172,34 +172,33 @@ contains
     !=============
     !   P50
     !=========
-    psi50 = psi_fifty(dwood_t)
-    !print*,'P50',psi_50,'dwood_t',dwood_t
+    psi50 = psi_fifty(dwood_t,awood,height1)
+    print*,'P50',psi50,'dwood_t',dwood_t
 
     ! Klmax
     !=========
-    klmax = conductivity_xylemleaf(dwood_t,jl_out)
-    !print*,'klmax',klmax
+    klmax = conductivity_xylemleaf(dwood_t,jl_out,awood,height1)
+    print*,'klmax',klmax,'amax',jl_out,'awood',awood
 
     ! Krcmax
     !=========
-    krcmax = conductance_xylemax(klmax, height1)   
-    !print*,'krcmax',krcmax,'height1',height1
+    krcmax = conductance_xylemax(klmax, height1,awood)   
+    print*,'krcmax',krcmax,'height1',height1
 
     ! Psixylem
     !=========
-    psixylem = xylem_waterpotential(psisoil,height1)
-    !print*,'psixylem',psixylem
-    print*,'psisoil - prod',psisoil
+    psixylem = xylem_waterpotential(psisoil,height1,awood)
+    print*,'psixylem',psixylem
 
     ! k xylem
     !=========
-    kxylem = xylem_conductance(krcmax,psixylem,psi50)
-    !print*,'kxylem',kxylem
+    kxylem = xylem_conductance(krcmax,psixylem,psi50,awood,height1)
+    print*,'kxylem',kxylem
     
     ! k xylem
     !=========
-    knorm = conductance_normalized(krcmax,kxylem)
-    !print*,'knorm',knorm
+    knorm = conductance_normalized(krcmax,kxylem,awood,height1)
+    print*,'knorm',knorm
 
     ! VPD
     !========
