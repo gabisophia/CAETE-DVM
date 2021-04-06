@@ -26,7 +26,7 @@ module productivity
 
 contains
 
-  subroutine prod(dt,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
+  subroutine prod(dt,dwood_t,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
        & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,ph,ar,&
        & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,jl_out,sla, e)
 
@@ -49,7 +49,7 @@ contains
     real(r_8), intent(in) :: beta_leaf            !npp allocation to carbon pools (kg/m2/day)
     real(r_8), intent(in) :: beta_awood
     real(r_8), intent(in) :: beta_froot
-    real(r_8), intent(in) :: wmax
+    real(r_8), intent(in) :: wmax, dwood_t
     logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
 
 !     Output
@@ -92,6 +92,7 @@ contains
     real(r_8) :: age_crit
     real(r_8) :: cl_total              !Carbon sum of all the cohots (kg/m2)
     real(r_4) :: rc_pot, rc_aux
+    real(r_8) :: height
     integer(i_4) :: i
 
 !getting pls parameters
@@ -152,6 +153,11 @@ contains
 !     Photosynthesis
 !     ==============
 ! rate (molCO2/m2/s)
+
+    ! height
+    !========
+    height = height_allometry(ca1_prod, dwood_t)
+    print*,'height:',height
 
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,n2cl,&
          & p2cl,cl1_prod(:),tleaf,f1a,vm_out,jl_out)

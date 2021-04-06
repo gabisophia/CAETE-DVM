@@ -40,7 +40,7 @@ contains
       use productivity
       use omp_lib
 
-      use photo, only: pft_area_frac, sto_resp, hydraulic_system, pls_allometry
+      use photo, only: pft_area_frac, sto_resp!, pls_allometry !, hydraulic_system
       use water, only: evpot2, penman, available_energy, runoff
 
       !     ----------------------------INPUTS-------------------------------
@@ -206,13 +206,13 @@ contains
       soil_sat = wmax_in
 
       psi_soil = (p_sat*(-0.0098)) * (w/soil_sat) ** (-soil_text)
-      print*,'psi_soil - budget',psi_soil
+      !print*,'psi_soil - budget',psi_soil
 
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
 
-      call pls_allometry(dwood_aux,cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
-      &                  crown_aux)
+      !call pls_allometry(dwood_aux,cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
+      !&                  crown_aux)
 
       nlen = sum(run)    ! New length for the arrays in the main loop
       allocate(lp(nlen))
@@ -286,13 +286,13 @@ contains
          ri = lp(p)
          dt1 = dt(:,ri) ! Pick up the pls functional attributes list
 
-         call prod(dt1, ocp_wood(ri), catm, temp, soil_temp, p0, w, ipar, rh, emax&
+         call prod(dt1, dwood_aux(p), ocp_wood(ri), catm, temp, soil_temp, p0, w, ipar, rh, emax&
                &, cl1_pft(:,ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
                &, soil_sat, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
                &, wue(p), c_def(p), vcmax(p), jlout(p), specific_la(p), tra(p))
 
-         call hydraulic_system (dwood_aux(p), awood_aux(p), jlout(p), height_aux(p), psi_soil,&
-         &psi50(ri), klmax(ri), krcmax(ri), psig(ri), psixylem(ri), kxylem(ri), knorm(ri))
+         !call hydraulic_system (dwood_aux(p), awood_aux(p), jlout(p), height_aux(p), psi_soil,&
+         !&psi50(ri), klmax(ri), krcmax(ri), psig(ri), psixylem(ri), kxylem(ri), knorm(ri))
 
          evap(p) = penman(p0,temp,rh,available_energy(temp),rc2(p)) !Actual evapotranspiration (evap, mm/day)
 

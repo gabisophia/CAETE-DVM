@@ -30,7 +30,7 @@ module photo
         leaf_area_index          ,& ! (f), leaf area index(m2 m-2)
         f_four                   ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area           ,& ! (f), specific leaf area (m2 g-1)
-        hydraulic_system         ,& ! (f), subrotine of hydraulic system of the plants
+        !hydraulic_system         ,& ! (f), subrotine of hydraulic system of the plants
         water_stress_modifier    ,& ! (f), F5 - water stress modifier (dimensionless)
         leaf_age_factor          ,& ! (f), effect of leaf age on photosynthetic rate
         photosynthesis_rate      ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
@@ -50,7 +50,7 @@ module photo
         g_resp                   ,& ! (f), growth Respiration (kg m-2 yr-1)
         pft_area_frac            ,& ! (s), area fraction by biomass
         water_ue                 ,&
-        pls_allometry            ,&
+        height_allometry         ,&
         leap
 
 contains
@@ -210,62 +210,62 @@ contains
    !=================================================================
    !=================================================================
 
-   subroutine hydraulic_system (dwood_aux, awood, amax, height, psi_soil,&
-      &psi_50, kl_max, krc_max, psi_g, psi_xylem, k_xylem, k_norm)
+   !subroutine hydraulic_system (dwood_aux, awood, amax, height, psi_soil,&
+   !   &psi_50, kl_max, krc_max, psi_g, psi_xylem, k_xylem, k_norm)
 
-      use types 
-      use global_par, only: npls, rho, grav, vuln_curve
+   !   use types 
+   !   use global_par, only: npls, rho, grav, vuln_curve
 
-      integer(i_4),parameter :: npft = npls ! plss futuramente serao
-      real(r_8),dimension(npft),intent(in) :: dwood_aux, awood, amax, height
-      real(r_8),dimension(npft) :: dwood
-      real(r_8),intent(in) :: psi_soil
-      real(r_8),dimension(npft),intent(out) :: psi_50, kl_max, krc_max, psi_g, psi_xylem, k_xylem, k_norm
+   !   integer(i_4),parameter :: npft = npls ! plss futuramente serao
+   !   real(r_8),dimension(npft),intent(in) :: dwood_aux, awood, amax, height
+   !   real(r_8),dimension(npft) :: dwood
+   !   real(r_8),intent(in) :: psi_soil
+   !   real(r_8),dimension(npft),intent(out) :: psi_50, kl_max, krc_max, psi_g, psi_xylem, k_xylem, k_norm
       !real(r_8),dimension(npft) :: stem_stope, a_curve
-      integer(i_4) :: p
+   !   integer(i_4) :: p
 
-      dwood = dwood_aux
+   !   dwood = dwood_aux
 
-      do p = 1, npft !INICIALIZE OUTPUTS VARIABLES
-            psi_50(p) = 0.0D0
-            kl_max(p) = 0.0D0
-            krc_max(p) = 0.0D0
-            psi_g(p) = 0.0D0
-            psi_xylem(p) = 0.0D0
-            k_xylem(p) = 0.0D0
-            k_norm(p) = 0.0D0
-      enddo
+   !   do p = 1, npft !INICIALIZE OUTPUTS VARIABLES
+   !         psi_50(p) = 0.0D0
+   !         kl_max(p) = 0.0D0
+   !         krc_max(p) = 0.0D0
+   !         psi_g(p) = 0.0D0
+   !         psi_xylem(p) = 0.0D0
+   !         k_xylem(p) = 0.0D0
+   !         k_norm(p) = 0.0D0
+   !   enddo
 
       !PLS HYDRAULIC PARAMETERS 
-      do p = 1, npft !to grasses
-         if(awood(p) .le. 0.0D0) then
-            psi_50(p) = 0.0D0
-            kl_max(p) = 0.0D0
-            krc_max(p) = 0.0D0
-            psi_g(p) = 0.0D0
-            psi_xylem(p) = 0.0D0
-            k_xylem(p) = 0.0D0
-            k_norm(p) = 0.0D0
+   !   do p = 1, npft !to grasses
+   !      if(awood(p) .le. 0.0D0) then
+   !         psi_50(p) = 0.0D0
+   !         kl_max(p) = 0.0D0
+   !         krc_max(p) = 0.0D0
+   !         psi_g(p) = 0.0D0
+   !         psi_xylem(p) = 0.0D0
+   !         k_xylem(p) = 0.0D0
+   !         k_norm(p) = 0.0D0
 
-         else
-            psi_50(p) = -((3.57*dwood(p))**1.73)-1.09   !MPa
-            print*,'PSI_50',psi_50(p)
-            kl_max(p) = 0.0021 * exp((-26.6 * dwood(p))/(amax(p) * 1e6))
-            print*,'KL_MAX',kl_max(p)
-            krc_max(p) = ((kl_max(p) / height(p))*(55.55)) 
-            print*,'KRC_MAX',krc_max(p)
-            psi_g(p) = rho * grav * height(p) * 1e-6
-            print*,'PSI_G',psi_g(p)
-            psi_xylem(p)  = psi_soil - psi_g(p)
-            print*,'PSI_XYLEM',psi_xylem(p)
-            k_xylem(p) = krc_max(p)*(1+(psi_xylem(p)/psi_50(p))**vuln_curve)**(-1) 
-            print*,'K_XYLEM',k_xylem(p)
-            k_norm(p) = k_xylem(p)/krc_max(p)
-            print*,'K_NORM',k_norm(p)
-         endif
-      enddo
+   !      else
+   !         psi_50(p) = -((3.57*dwood(p))**1.73)-1.09   !MPa
+   !         print*,'PSI_50',psi_50(p)
+   !         kl_max(p) = 0.0021 * exp((-26.6 * dwood(p))/(amax(p) * 1e6))
+   !         print*,'KL_MAX',kl_max(p)
+   !         krc_max(p) = ((kl_max(p) / height(p))*(55.55)) 
+   !         print*,'KRC_MAX',krc_max(p)
+   !         psi_g(p) = rho * grav * height(p) * 1e-6
+   !         print*,'PSI_G',psi_g(p)
+   !         psi_xylem(p)  = psi_soil - psi_g(p)
+   !         print*,'PSI_XYLEM',psi_xylem(p)
+   !         k_xylem(p) = krc_max(p)*(1+(psi_xylem(p)/psi_50(p))**vuln_curve)**(-1) 
+   !         print*,'K_XYLEM',k_xylem(p)
+   !         k_norm(p) = k_xylem(p)/krc_max(p)
+   !         print*,'K_NORM',k_norm(p)
+   !      endif
+   !   enddo
   
-   end subroutine hydraulic_system
+   !end subroutine hydraulic_system
  
   !====================================================================
   !====================================================================   
@@ -1382,56 +1382,76 @@ contains
    !====================================================================
    !====================================================================
 
-   subroutine pls_allometry (dwood1, cleaf1, cfroot1, cawood1, awood, height, diameter,&
-      &crown_area)
+   !subroutine pls_allometry (dwood1, cleaf1, cfroot1, cawood1, awood, height, diameter,&
+   !   &crown_area)
 
-      use types 
+   !   use types 
+   !   use global_par
+   !   use allometry_par
+
+
+   !   integer(i_4),parameter :: npft = npls ! plss futuramente serao
+   !   real(r_8),dimension(npft),intent(in) :: cleaf1, cfroot1, cawood1, awood, dwood1
+   !   real(r_8),dimension(npft),intent(out) :: height, diameter, crown_area
+   !   real(r_8),dimension(npft) :: cleaf, cawood, cfroot, dwood
+   !   integer(i_4) :: p
+
+
+      ! ============================
+   !   dwood = dwood1
+   !   cleaf = cleaf1
+   !   cfroot = cfroot1
+   !   cawood = cawood1
+      ! ============================
+
+   !   do p = 1, npft !INICIALIZE OUTPUTS VARIABLES
+   !      height(p) = 0.0D0
+   !      diameter(p) = 0.0D0
+   !      crown_area(p) = 0.0D0
+   !   enddo
+
+      !PLS DIAMETER (in m.)
+   !   do p = 1, npft !to grasses
+   !      if(awood(p) .le. 0.0D0) then
+   !         height(p) = 0.0D0
+   !         diameter(p) = 0.0D0
+   !         crown_area(p) = 0.0D0
+   !         dwood(p) = 0.0D0
+   !      else
+   !         diameter(p) = (4*(cawood(p)*1.0D3)/(dwood(p)*1D7)*pi*k_allom2)&
+   !         &**(1/(2+k_allom3))
+
+   !         height(p) = k_allom2*(diameter(p)**k_allom3)
+
+   !         crown_area(p) = k_allom1*(diameter(p)**krp)
+   !      endif
+         !print*, 'height', height(p), p, 'cawood', cawood(p)
+   !   enddo
+
+   !end subroutine pls_allometry
+
+   !====================================================================
+   !====================================================================
+
+   function height_allometry(cawood1, dwood_aux) result(height_allom)    
+      use types
       use global_par
       use allometry_par
 
+      real(r_8), intent(in) :: cawood1, dwood_aux
+      real(r_8) :: height_allom
 
-      integer(i_4),parameter :: npft = npls ! plss futuramente serao
-      real(r_8),dimension(npft),intent(in) :: cleaf1, cfroot1, cawood1, awood, dwood1
-      real(r_8),dimension(npft),intent(out) :: height, diameter, crown_area
-      real(r_8),dimension(npft) :: cleaf, cawood, cfroot, dwood
-      integer(i_4) :: p
+      real(r_8) :: diam_allom
 
+      diam_allom = (4*(cawood1*1.0D3)/(dwood_aux*1D7)*pi*k_allom2)&
+      &**(1/(2+k_allom3))
 
-      ! ============================
-      dwood = dwood1
-      cleaf = cleaf1
-      cfroot = cfroot1
-      cawood = cawood1
-      ! ============================
+      height_allom = k_allom2*(diam_allom**k_allom3)
 
-      do p = 1, npft !INICIALIZE OUTPUTS VARIABLES
-         height(p) = 0.0D0
-         diameter(p) = 0.0D0
-         crown_area(p) = 0.0D0
-      enddo
+   end function
 
-      !PLS DIAMETER (in m.)
-      do p = 1, npft !to grasses
-         if(awood(p) .le. 0.0D0) then
-            height(p) = 0.0D0
-            diameter(p) = 0.0D0
-            crown_area(p) = 0.0D0
-            dwood(p) = 0.0D0
-         else
-            diameter(p) = (4*(cawood(p)*1.0D3)/(dwood(p)*1D7)*pi*k_allom2)&
-            &**(1/(2+k_allom3))
-
-            height(p) = k_allom2*(diameter(p)**k_allom3)
-
-            crown_area(p) = k_allom1*(diameter(p)**krp)
-         endif
-         !print*, 'height', height(p), p, 'cawood', cawood(p)
-      enddo
-
-   end subroutine pls_allometry
-
-   !====================================================================
-   !====================================================================
+   !=================================================================
+   !=================================================================
 
 end module photo
 
