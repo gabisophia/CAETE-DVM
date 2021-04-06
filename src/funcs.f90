@@ -57,7 +57,6 @@ module photo
         water_ue                 ,&
         diameter_pls             ,&
         height_pls               ,&
-        !pls_allometry            ,&
         leap
 
 contains
@@ -233,8 +232,6 @@ contains
          psi_50 = 0.0D0
       endif
 
-      print*,'height dentro do P50:',height
-
    end function psi_fifty
 
    !=================================================================
@@ -249,7 +246,7 @@ contains
       real(r_8),intent(in) :: dwood_aux        !g/cm3 - wood sendity
       real(r_8),intent(in) :: amax             !µmolm-2s-1 - light saturated photo rate PRECISO CONVERTER de mol pra µmol
       real(r_8),intent(in) :: awood_aux, height
-      real(r_8) :: kl_max                       !kgm-1s-1MPa-1   
+      real(r_8) :: kl_max                      !kgm-1s-1MPa-1   
 
       if(awood_aux .gt. 0.0D0 .and. height .gt. 0.0D0) then
          kl_max = 0.0021 * exp((-26.6 * dwood_aux)/(amax * 1e6))  ! µmol m-2 s-1 - 1e6 converts mol to µmol  
@@ -268,7 +265,7 @@ contains
       !Based in Christoffersen et al. 2016 TFS v.1-Hydro
       use types
 
-      real(r_8),intent(in) :: kl_max           !kgm-1s-1Mpa-1
+      real(r_8),intent(in) :: kl_max          !kgm-1s-1Mpa-1
       real(r_8),intent(in) :: height          !m
       real(r_8),intent(in) :: awood_aux
       real(r_8) :: krc_max                    !molm-2s-1Mpa-1
@@ -1487,57 +1484,6 @@ contains
       endif
 
    end subroutine pft_area_frac
-
-   !====================================================================
-   !====================================================================
-
-   !subroutine pls_allometry (dwood1, cleaf1, cfroot1, cawood1, awood, height, diameter,&
-   !   &crown_area)
-
-   !   use types 
-   !   use global_par
-   !   use allometry_par
-
-
-   !   integer(i_4),parameter :: npft = npls ! plss futuramente serao
-   !   real(r_8),dimension(npft),intent(in) :: cleaf1, cfroot1, cawood1, awood, dwood1
-   !   real(r_8),dimension(npft),intent(out) :: height, diameter, crown_area
-   !   real(r_8),dimension(npft) :: cleaf, cawood, cfroot, dwood
-   !   integer(i_4) :: p
-
-
-      ! ============================
-   !   dwood = dwood1
-   !   cleaf = cleaf1
-   !   cfroot = cfroot1
-   !   cawood = cawood1
-      ! ============================
-
-   !   do p = 1, npft !INICIALIZE OUTPUTS VARIABLES
-   !      height(p) = 0.0D0
-   !      diameter(p) = 0.0D0
-   !      crown_area(p) = 0.0D0
-   !   enddo
-
-      !PLS DIAMETER (in m.)
-   !   do p = 1, npft !to grasses
-   !      if(awood(p) .le. 0.0D0) then
-   !         height(p) = 0.0D0
-   !         diameter(p) = 0.0D0
-   !         crown_area(p) = 0.0D0
-   !         dwood(p) = 0.0D0
-   !      else
-   !         diameter(p) = (4*(cawood(p)*1.0D3)/(dwood(p)*1D7)*pi*k_allom2)&
-   !         &**(1/(2+k_allom3))
-
-   !         height(p) = k_allom2*(diameter(p)**k_allom3)
-
-   !         crown_area(p) = k_allom1*(diameter(p)**krp)
-   !      endif
-         !print*, 'height', height(p), p, 'cawood', cawood(p)
-   !   enddo
-
-   !end subroutine pls_allometry
 
    !====================================================================
    !====================================================================

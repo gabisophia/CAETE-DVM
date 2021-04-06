@@ -40,7 +40,7 @@ contains
       use productivity
       use omp_lib
 
-      use photo, only: pft_area_frac, sto_resp!, pls_allometry
+      use photo, only: pft_area_frac, sto_resp
       use water, only: evpot2, penman, available_energy, runoff
 
       !     ----------------------------INPUTS-------------------------------
@@ -176,7 +176,6 @@ contains
       real(r_8), dimension(3,npls) :: sto_budg
       real(r_8) :: soil_sat
       real(r_8) :: psi_soil
-      !real(r_8), dimension(npls) :: height_aux, diameter_aux, crown_aux
 
       !     START
       !     --------------
@@ -208,9 +207,6 @@ contains
       
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
-
-      !call pls_allometry(dwood_aux,cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
-      !&                  crown_aux)
 
       nlen = sum(run)    ! New length for the arrays in the main loop
       allocate(lp(nlen))
@@ -292,8 +288,6 @@ contains
 
          !print*,'survivors',p, 'cawood:',ca1_pft(ri), 'cleaf j:',cl1_pft(1,ri), 'cleaf m:',cl1_pft(2,ri), 'cleaf s:',cl1_pft(3,ri),&
          !& 'LAI:',laia(p), 'GPP:',ph(P)
-
-         !print*,'survivors',p, 'cawood:',ca1_pft(ri), 'height:', height_aux(p)
 
          ! Check if the carbon deficit can be compensated by stored carbon
          carbon_in_storage = sto_budg(1, ri)
