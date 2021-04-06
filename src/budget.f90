@@ -40,7 +40,7 @@ contains
       use productivity
       use omp_lib
 
-      use photo, only: pft_area_frac, sto_resp, pls_allometry
+      use photo, only: pft_area_frac, sto_resp!, pls_allometry
       use water, only: evpot2, penman, available_energy, runoff
 
       !     ----------------------------INPUTS-------------------------------
@@ -176,7 +176,7 @@ contains
       real(r_8), dimension(3,npls) :: sto_budg
       real(r_8) :: soil_sat
       real(r_8) :: psi_soil
-      real(r_8), dimension(npls) :: height_aux, diameter_aux, crown_aux
+      !real(r_8), dimension(npls) :: height_aux, diameter_aux, crown_aux
 
       !     START
       !     --------------
@@ -209,8 +209,8 @@ contains
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
 
-      call pls_allometry(dwood_aux,cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
-      &                  crown_aux)
+      !call pls_allometry(dwood_aux,cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
+      !&                  crown_aux)
 
       nlen = sum(run)    ! New length for the arrays in the main loop
       allocate(lp(nlen))
@@ -283,7 +283,7 @@ contains
          ri = lp(p)
          dt1 = dt(:,ri) ! Pick up the pls functional attributes list
 
-         call prod(dt1, dwood_aux(p), height_aux(p), ocp_wood(ri), catm, temp, soil_temp, p0, w, ipar, rh, emax&
+         call prod(dt1, dwood_aux(p), ocp_wood(ri), catm, temp, soil_temp, p0, w, ipar, rh, emax&
                &, cl1_pft(:,ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
                &, soil_sat, psi_soil, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
                &, wue(p), c_def(p), vcmax(p), specific_la(p), tra(p))

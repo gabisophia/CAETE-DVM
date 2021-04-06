@@ -26,7 +26,7 @@ module productivity
 
 contains
 
-  subroutine prod(dt,dwood_t,height1,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
+  subroutine prod(dt,dwood_t,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
        & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,psisoil,ph,ar,&
        & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla, e)
 
@@ -52,7 +52,7 @@ contains
     real(r_8), intent(in) :: wmax
     real(r_8), intent(in) :: psisoil
     real(r_8), intent(in) :: dwood_t
-    real(r_8), intent(in) :: height1
+    !real(r_8), intent(in) :: height1
     logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
 
 !     Output
@@ -98,6 +98,8 @@ contains
     integer(i_4) :: i
 
     !Hydraulic parameters
+    real(r_8) :: diameter
+    real(r_8) :: height1
     real(r_8) :: psi50
     real(r_8) :: klmax
     real(r_8) :: krcmax
@@ -133,19 +135,19 @@ contains
     leaf_age(2) = (tleaf * (1.0/2.0))
     leaf_age(3) = (tleaf * (5.0/6.0))
 
-    !do i = 1, 3
-    !    penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
-    !enddo
-    
-    do i = 1,3
-       if (i .le. age_limits(1)) then 
-          penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
-       else if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
-          penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
-       else 
-          penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
-       endif 
+    do i = 1, 3
+        penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
     enddo
+    
+    !do i = 1,3
+    !   if (i .le. age_limits(1)) then 
+    !      penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
+    !   else if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
+    !      penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
+    !   else 
+    !      penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
+    !   endif 
+    !enddo
 
   !  print*,'fa jovem',penalization_by_age(1)
   !  print*,'fa madura',penalization_by_age(2)
@@ -170,10 +172,16 @@ contains
     !=============
     !  Hydraulic
     !=============
+
+    diameter = diameter_pls(dwood_t,ca1_prod)
+    height1 = height_pls(diameter)
+    print*,'DIAMETER:',diameter
+    print*,'HEIGHT:',height1
+
     !   P50
     !=========
     psi50 = psi_fifty(dwood_t,awood,height1)
-    print*,'P50',psi50,'dwood_t'
+    print*,'P50',psi50,'dwood_t',dwood_t,'height_psi',height1
 
     ! Klmax
     !=========
