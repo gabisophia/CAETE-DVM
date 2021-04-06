@@ -37,7 +37,7 @@ def kth_func(Th, ThS, lbd, ksat):
 #        rwarn("water content < 0 IN kth_func")
         Th = 0.0
     kth = ksat * (Th / ThS) ** (3 + (2 / lbd))
-
+    
     return kth
 
 

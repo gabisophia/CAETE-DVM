@@ -203,7 +203,7 @@ contains
       soil_sat = wmax_in
 
       psi_soil = (p_sat*(-0.0098)) * (w/soil_sat) ** (-soil_text)
-      print*,'psi_soil - budget',psi_soil
+      !print*,'psisoil budget',psi_soil
       
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
@@ -287,7 +287,7 @@ contains
          evap(p) = penman(p0,temp,rh,available_energy(temp),rc2(p)) !Actual evapotranspiration (evap, mm/day)
 
          !print*,'survivors',p, 'cawood:',ca1_pft(ri), 'cleaf j:',cl1_pft(1,ri), 'cleaf m:',cl1_pft(2,ri), 'cleaf s:',cl1_pft(3,ri),&
-         !& 'LAI:',laia(p), 'GPP:',ph(P)
+         !& 'LAI:',laia(p), 'GPP:',ph(P), 'NPP:',nppa(p), 'f5:',f5(p)
 
          ! Check if the carbon deficit can be compensated by stored carbon
          carbon_in_storage = sto_budg(1, ri)

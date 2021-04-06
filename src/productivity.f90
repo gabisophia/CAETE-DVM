@@ -52,7 +52,6 @@ contains
     real(r_8), intent(in) :: wmax
     real(r_8), intent(in) :: psisoil
     real(r_8), intent(in) :: dwood_t
-    !real(r_8), intent(in) :: height1
     logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
 
 !     Output
@@ -94,7 +93,7 @@ contains
     real(r_8), dimension(3) :: penalization_by_age
     real(r_8) :: age_crit
     real(r_8) :: cl_total              !Carbon sum of all the cohots (kg/m2)
-    real(r_4) :: rc_pot, rc_aux
+    real(r_4) :: rc_pot, rc_aux, e_pot
     integer(i_4) :: i
 
     !Hydraulic parameters
@@ -135,19 +134,19 @@ contains
     leaf_age(2) = (tleaf * (1.0/2.0))
     leaf_age(3) = (tleaf * (5.0/6.0))
 
-    do i = 1, 3
-        penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
-    enddo
-    
-    !do i = 1,3
-    !   if (i .le. age_limits(1)) then 
-    !      penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
-    !   else if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
-    !      penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
-    !   else 
-    !      penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
-    !   endif 
+    !do i = 1, 3
+    !    penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
     !enddo
+    
+    do i = 1,3
+       if (i .le. age_limits(1)) then 
+          penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
+       else if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
+          penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
+       else 
+          penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
+       endif 
+    enddo
 
   !  print*,'fa jovem',penalization_by_age(1)
   !  print*,'fa madura',penalization_by_age(2)
@@ -175,37 +174,36 @@ contains
 
     diameter = diameter_pls(dwood_t,ca1_prod)
     height1 = height_pls(diameter)
-    print*,'DIAMETER:',diameter
-    print*,'HEIGHT:',height1
+    print*,'cawood:',ca1_prod,'height:',height1
 
     !   P50
     !=========
-    psi50 = psi_fifty(dwood_t,awood,height1)
-    print*,'P50',psi50,'dwood_t',dwood_t,'height_psi',height1
+    psi50 = psi_fifty(dwood_t,ca1_prod)
+    print*,'P50',psi50
 
     ! Klmax
     !=========
-    klmax = conductivity_xylemleaf(dwood_t,jl_out,awood,height1)
+    klmax = conductivity_xylemleaf(dwood_t,jl_out,ca1_prod)
     print*,'klmax',klmax
 
     ! Krcmax
     !=========
-    krcmax = conductance_xylemax(klmax, height1,awood)   
+    krcmax = conductance_xylemax(klmax,height1,ca1_prod)   
     print*,'krcmax',krcmax
 
     ! Psixylem
     !=========
-    psixylem = xylem_waterpotential(psisoil,height1,awood)
-    print*,'psixylem',psixylem
+    psixylem = xylem_waterpotential(psisoil,height1,ca1_prod)
+    print*,'psixylem',psixylem, 'psisoil',psisoil
 
     ! k xylem
     !=========
-    kxylem = xylem_conductance(krcmax,psixylem,psi50,awood,height1)
+    kxylem = xylem_conductance(krcmax,psixylem,psi50,ca1_prod)
     print*,'kxylem',kxylem
     
     ! k xylem
     !=========
-    knorm = conductance_normalized(krcmax,kxylem,awood,height1)
+    knorm = conductance_normalized(krcmax,kxylem,ca1_prod)
     print*,'knorm',knorm
 
     ! VPD
@@ -218,7 +216,7 @@ contains
 
     !Water stress response modifier (dimensionless)
     !----------------------------------------------
-    f5 =  water_stress_modifier(w, cf1_prod, rc_pot, emax, wmax, knorm, awood, height1)
+    f5 =  water_stress_modifier(w, cf1_prod, rc_pot, emax, wmax, knorm, ca1_prod)
     print*,'f5',f5
 
 !     Photosysthesis minimum and maximum temperature
@@ -237,7 +235,6 @@ contains
     rc_aux = canopy_resistence_real(vpd, f1(:), g1, catm)  ! RCM leaf level -!s m-1
 
     wue = water_ue(f1(:), rc_aux, p0, vpd)
-
 
     !     calcula a transpiração em mm/s
     e = transpiration(rc_aux, p0, vpd, 2)
