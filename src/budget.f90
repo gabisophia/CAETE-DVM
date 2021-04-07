@@ -31,7 +31,7 @@ contains
         &, laiavg, rcavg, f5avg, rmavg, rgavg, cleafavg_pft, cawoodavg_pft&
         &, cfrootavg_pft, storage_out_bdgt_1, ocpavg, wueavg, cueavg, c_defavg&
         &, vcmax_1, specific_la_1, nupt_1, pupt_1, litter_l_1, cwd_1, litter_fr_1, npp2pay_1, lit_nut_content_1&
-        &, delta_cveg_1, limitation_status_1, uptk_strat_1, cp, c_cost_cwm)
+        &, delta_cveg_1, limitation_status_1, uptk_strat_1, cleafavg, cp, c_cost_cwm)
 
 
       use types
@@ -102,7 +102,7 @@ contains
       integer(i_2),dimension(3,npls),intent(out) :: limitation_status_1
       integer(i_4),dimension(2,npls),intent(out) :: uptk_strat_1
       real(r_8),dimension(npls),intent(out) ::  npp2pay_1 ! C costs of N/P uptake
-      real(r_8),dimension(3),intent(out) :: cp
+      real(r_8),dimension(3),intent(out) :: cleafavg, cp
       real(r_8),intent(out) :: c_cost_cwm
       !     -----------------------Internal Variables------------------------
       integer(i_4) :: p, counter, nlen, ri, i, j
@@ -437,7 +437,11 @@ contains
       litter_fr_1 = sum(litter_fr * ocp_coeffs, mask= .not. isnan(litter_fr))
       c_cost_cwm = sum(npp2pay * ocp_coeffs, mask= .not. isnan(npp2pay))
 
-      cp(1) = sum(sum(cl1_int) * ocp_coeffs, mask= .not. isnan(sum(cl1_int)))
+      cleafavg(1) = sum(cl1_int(1,:) * ocp_coeffs, mask= .not. isnan(cl1_int(1,:)))
+      cleafavg(2) = sum(cl1_int(2,:) * ocp_coeffs, mask= .not. isnan(cl1_int(2,:)))
+      cleafavg(3) = sum(cl1_int(3,:) * ocp_coeffs, mask= .not. isnan(cl1_int(3,:)))
+
+      !cp(1) = sum(sum(cl1_int) * ocp_coeffs, mask= .not. isnan(sum(cl1_int)))
       cp(2) = sum(ca1_int * ocp_coeffs, mask= .not. isnan(ca1_int))
       cp(3) = sum(cf1_int * ocp_coeffs, mask= .not. isnan(cf1_int))
 

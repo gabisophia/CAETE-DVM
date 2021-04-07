@@ -126,7 +126,7 @@ def catch_out_budget(out):
            "laiavg", "rcavg", "f5avg", "rmavg", "rgavg", "cleafavg_pft", "cawoodavg_pft",
            "cfrootavg_pft", "stodbg", "ocpavg", "wueavg", "cueavg", "c_defavg", "vcmax",
            "specific_la", "nupt", "pupt", "litter_l", "cwd", "litter_fr", "npp2pay", "lnc", "delta_cveg",
-           "limitation_status", "uptk_strat", 'cp', 'c_cost_cwm']
+           "limitation_status", "uptk_strat","cleafavg", "cp", "c_cost_cwm"]
 
     return dict(zip(lst, out))
 
@@ -380,7 +380,9 @@ class grd:
                      'swsoil': self.swsoil,
                      'rm': self.rm,
                      'rg': self.rg,
-                     'cleaf': self.cleaf,
+                     'cleaf_jovem': self.cleaf[0],
+                     'cleaf_madura': self.cleaf[1],
+                     'cleaf_senesc': self.cleaf[2],
                      'cawood': self.cawood,
                      'cfroot': self.cfroot,
                      'area': self.area,
@@ -966,7 +968,9 @@ class grd:
                     self.cdef[step]=daily_output['c_defavg']
                     self.vcmax[step]=daily_output['vcmax']
                     self.specific_la[step]=daily_output['specific_la']
-                    self.cleaf[step]=daily_output['cp'][0]
+                    self.cleaf[0, step] = daily_output['cleafavg'][0]
+                    self.cleaf[1, step] = daily_output['cleafavg'][1]
+                    self.cleaf[2, step] = daily_output['cleafavg'][2]
                     self.cawood[step]=daily_output['cp'][1]
                     self.cfroot[step]=daily_output['cp'][2]
                     self.hresp[step]=soil_out['hr']
