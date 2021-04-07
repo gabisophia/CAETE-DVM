@@ -194,7 +194,7 @@ contains
     sla = spec_leaf_area(tleaf)  ! m2 g-1  ! Convertions made in leaf_area_index &  gross_ph + calls therein
 
     laia = leaf_area_index(cl1_prod(:), sla)
-    
+
     rc = rc_aux !* real(laia,kind=r_4) ! RCM -!s m-1 ! CANOPY SCALING --
 
 !     Canopy gross photosynthesis (kgC/m2/yr)
@@ -205,7 +205,7 @@ contains
 !     Autothrophic respiration
 !     ========================
 !     Maintenance respiration (kgC/m2/yr) (based in Ryan 1991)
-    rm = m_resp(temp,ts,cl1_prod,cf1_prod,ca1_prod &
+    rm = m_resp(temp,ts,cl1_prod(:),cf1_prod,ca1_prod &
          &,n2cl_resp,n2cw_resp,n2cf_resp,awood)
 
 ! c     Growth respiration (KgC/m2/yr)(based in Ryan 1991; Sitch et al.
