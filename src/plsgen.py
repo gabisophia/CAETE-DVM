@@ -27,6 +27,7 @@ from pathlib import Path
 
 import numpy as np
 from caete_module import photo as model
+from caete_module import global_par as gp
 
 __author__ = 'JP Darela'
 
@@ -62,13 +63,13 @@ def check_viability(trait_values, wood):
     """
 
     assert wood is not None
-    rtur = np.array(model.spinup3(1.0, trait_values))
+    rtur = np.array(model.spinup3(gp.cmin, trait_values))
     if wood:
-        if rtur[0] <= 0.5 or rtur[1] <= 0.5 or rtur[2] <= 0.5:
+        if rtur[0] <= gp.cmin or rtur[1] <= gp.cmin or rtur[2] <= gp.cmin:
             return False
         return True
     else:
-        if rtur[0] <= 0.5 or rtur[1] <= 0.5:
+        if rtur[0] <= gp.cmin or rtur[1] <= gp.cmin:
             return False
         return True
 
@@ -138,14 +139,14 @@ def table_gen(NPLS, fpath=None):
 
     def calc_ratios(pool):
 
-        pool_n2c = np.linspace(0.003, 0.04, 500)
-        pool_p2c = np.linspace(1e-5, 0.005, 500)
+        pool_n2c = np.linspace(0.001, 0.04, 500) # TODO increase ranges to left
+        pool_p2c = np.linspace(0.3e-5, 0.005, 500) # TODO
 
         if pool == 'leaf' or pool == 'root':
             pass
         else:
-            pool_n2c /= 75.0
-            pool_p2c /= 75.0
+            pool_n2c /= 100.0
+            pool_p2c /= 100.0
 
         x = [[a, b] for a in pool_n2c for b in pool_p2c if (
             (a / b) >= 3.0) and ((a / b) <= 50.0)]
@@ -158,13 +159,13 @@ def table_gen(NPLS, fpath=None):
 
     alloc_w = []
     alloc_g = []
-    r_ceil = 300000
+    r_ceil = 3000000
 
 # REVER O TEMPO DE RESIDÊNCIA DAS RAÌZES FINAS - VARIAR ENTRE 1 mes e 2 anos
     index0 = 0
     # rtime = vec_ranging(np.random.beta(2, 4, r_ceil),
     #                     0.083333, 2)
-    rtime = np.random.uniform(0.08333333333333333, 8.33333333333333, r_ceil)
+    rtime = np.random.uniform(0.08333333333333333, 5, r_ceil)
     print("CREATE GRASSy STRATEGIES - Checking potential npp/alocation")
     while index0 < diffg:
         restime = np.zeros(shape=(3,), dtype=np.float64)
@@ -186,7 +187,7 @@ def table_gen(NPLS, fpath=None):
     index1 = 0
     # rtime_wood = vec_ranging(np.random.beta(
     # 2, 4, r_ceil), 1.0, 150)
-    rtime_wood = np.random.uniform(2.0, 150.0, r_ceil)
+    rtime_wood = np.random.uniform(0.08333333333333333, 150.0, r_ceil)
     while index1 < diffw:
         restime = np.zeros(shape=(3,), dtype=np.float64)
         allocatio = plsa_wood[np.random.randint(0, plsa_wood.shape[0])]
@@ -209,7 +210,7 @@ def table_gen(NPLS, fpath=None):
     # # # COMBINATIONS
     # # # Random samples from  distributions (g1, tleaf ...)
     # # # Random variables
-    g1 = np.random.uniform(1.0, 15.0, NPLS)
+    g1 = np.random.uniform(1.0, 20.0, NPLS)
     # g1 = vec_ranging(np.random.beta(1.2, 2, NPLS), 1.0, 15.0) # dimensionles
     # # vcmax = np.random.uniform(3e-5, 100e-5,N) # molCO2 m-2 s-1
     resorption = np.random.uniform(0.3, 0.6, NPLS)
@@ -239,7 +240,7 @@ def table_gen(NPLS, fpath=None):
     froot_p2c = root[:, 1]
 
     # new traits
-    pdia = np.random.uniform(0.01, 0.2, NPLS)
+    pdia = np.random.uniform(0.01, 0.05, NPLS)
     np.place(pdia, test, 0.0)
     woods = np.where(alloc[:, 4] > 0.0)[0]
     # return woods
