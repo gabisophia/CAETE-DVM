@@ -73,26 +73,30 @@ contains
    !=================================================================
 
    function gross_ph(f1,cleaf,sla) result(ph)
+
       ! Returns gross photosynthesis rate (kgC m-2 y-1) (GPP)
       use types, only: r_4, r_8
       !implicit none
 
-      real(r_8),intent(in) :: f1    !molCO2 m-2 s-1
-      real(r_8),intent(in) :: cleaf !kgC m-2
+      real(r_8),dimension(3),intent(in) :: f1    !molCO2 m-2 s-1
+      real(r_8),dimension(3),intent(in) :: cleaf !kgC m-2
       real(r_8),intent(in) :: sla   !m2 gC-1
       real(r_4) :: ph
 
-      real(r_8) :: f4sun, f1in
+      real(r_8),dimension(3) :: f1in
+      real(r_8) :: f4sun 
       real(r_8) :: f4shade
+      real(r_4),dimension(3) :: ph_aux
 
-      f1in = f1
-      f4sun = f_four(1,cleaf,sla)
-      f4shade = f_four(2,cleaf,sla)
+      f1in(:) = f1(:)
+      f4sun = f_four(1,cleaf(:),sla)
+      f4shade = f_four(2,cleaf(:),sla)
 
-      ph = real((0.012D0*31557600.0D0*f1in*f4sun*f4shade), r_4)
+      ph_aux(:) = real((0.012D0*31557600.0D0*f1in(:)*f4sun*f4shade), r_4)
+      ph = sum(ph_aux(:))
       if(ph .lt. 0.0) ph = 0.0
-   end function gross_ph
 
+   end function gross_ph
    !=================================================================
    !=================================================================
 
@@ -299,37 +303,38 @@ contains
    !=================================================================
 
    function stomatal_conductance(vpd_in,f1_in,g1,ca) result(gs)
-    ! return stomatal resistence based on Medlyn et al. 2011a
-    ! Coded by Helena Alves do Prado
+      ! return stomatal resistence based on Medlyn et al. 2011a
+      ! Coded by Helena Alves do Prado
 
-    use types, only: r_4 ,r_8
+      use types, only: r_4 ,r_8
 
-    !implicit none
+      !implicit none
 
-    real(r_4),intent(in) :: f1_in    !Photosynthesis (molCO2/m2/s)
-    real(r_4),intent(in) :: vpd_in   !hPa
-    real(r_4),intent(in) :: g1       ! model m (slope) (sqrt(kPa))
-    real(r_8),intent(in) :: ca
-    real(r_8) :: gs       !Canopy conductance (molCO2 m-2 s-1)
-    !     Internal
-    !     --------
-    real(r_8) :: D1       !sqrt(kPA)
-    real(r_4) :: vapour_p_d
+      real(r_4),intent(in) :: f1_in    !Photosynthesis (molCO2/m2/s)
+      real(r_4),intent(in) :: vpd_in   !hPa
+      real(r_4),intent(in) :: g1       ! model m (slope) (sqrt(kPa))
+      real(r_8),intent(in) :: ca
+      real(r_8) :: gs       !Canopy conductance (molCO2 m-2 s-1)
+      !     Internal
+      !     --------
+      real(r_8) :: D1       !sqrt(kPA)
+      real(r_4) :: vapour_p_d
 
-    vapour_p_d = vpd_in
-    ! Assertions
-    if(vpd_in .le. 0.0) vapour_p_d = 0.001
-    if(vpd_in .gt. 4.0) vapour_p_d = 4.0
-    ! print *, 'vpd going mad in canopy_resistence'
-    ! stop
-    ! endif
+      vapour_p_d = vpd_in
+      ! Assertions
+      if(vpd_in .le. 0.0) vapour_p_d = 0.001
+      if(vpd_in .gt. 4.0) vapour_p_d = 4.0
+      ! print *, 'vpd going mad in canopy_resistence'
+      ! stop
+      ! endif
 
-    D1 = sqrt(vapour_p_d)
-    gs = 1.6 * (1.0 + (g1/D1)) * (f1_in/ca) !mol m-2 s-1
- end function stomatal_conductance
+      D1 = sqrt(vapour_p_d)
+      gs = 1.6 * (1.0 + (g1/D1)) * (f1_in/ca) !mol m-2 s-1
 
- !=================================================================
- !=================================================================
+   end function stomatal_conductance
+
+   !=================================================================
+   !=================================================================
 
    function water_ue(a, g, p0, vpd) result(wue)
       use types
@@ -350,11 +355,11 @@ contains
       else
          wue = real(a, kind=r_4)/e_in
       endif
+
    end function water_ue
 
-
- !=================================================================
- !=================================================================
+   !=================================================================
+   !=================================================================
 
    function transpiration(g, p0, vpd, unit) result(e)
       use types
@@ -377,8 +382,8 @@ contains
       else
          e = 18.0 * e_in * 1e-3    ! g m-2 s-1 * 1d-3  == Kg m-2 s-1  == mm s-1
       endif
-   end function transpiration
 
+   end function transpiration
 
    !=================================================================
    !=================================================================
@@ -404,10 +409,11 @@ contains
       vpd_ac = es * rh       ! RESULT in hPa == mbar! we want kPa (DIVIDE by 10.)
       !Vapor Pressure Deficit
       vpd_0 = (es - vpd_ac) / 10.
+
    end function vapor_p_defcit
 
-!=================================================================
-!=================================================================
+   !=================================================================
+   !=================================================================
 
    subroutine realized_npp(pot_npp_pool, nupt_pot, available_n,&
       &  rnpp, nl)
@@ -435,7 +441,7 @@ contains
          rnpp = max( 0.0D0, (available_n * pot_npp_pool) / nupt_pot)
       endif
 
-      end subroutine realized_npp
+   end subroutine realized_npp
 
    !=================================================================
    !=================================================================
@@ -873,8 +879,8 @@ contains
 200   continue
    end subroutine spinup2
 
-  !===================================================================
-  !===================================================================
+   !===================================================================
+   !===================================================================
 
    function m_resp(temp, ts,cl1_mr,cf1_mr,ca1_mr,&
         & n2cl,n2cw,n2cf,aawood_mr) result(rm)
@@ -928,43 +934,41 @@ contains
   !===================================================================
 
    function sto_resp(temp, sto_mr) result(rm)
-    use types, only: r_4,r_8
-    !implicit none
+      use types, only: r_4,r_8
+      !implicit none
 
-      real(r_4), intent(in) :: temp
-      real(r_8), dimension(3), intent(in) :: sto_mr
-      real(r_8) :: rm
+         real(r_4), intent(in) :: temp
+         real(r_8), dimension(3), intent(in) :: sto_mr
+         real(r_8) :: rm
 
-      real(r_8) :: stoc,ston
+         real(r_8) :: stoc,ston
 
-    !   Autothrophic respiration
-    !   ========================
+      !   Autothrophic respiration
+      !   ========================
 
-    stoc = sto_mr(1)
-    ston = sto_mr(2)
-   !  print*, ston
+      stoc = sto_mr(1)
+      ston = sto_mr(2)
+      !  print*, ston
 
-    if(stoc .le. 0.0D0) then
-       rm = 0.0D0
-       return
-    endif
+      if(stoc .le. 0.0D0) then
+         rm = 0.0D0
+         return
+      endif
 
-    if(ston .lt. 0.0D0) then
-      ston = 1.0D0/300.0D0
-    else
-      ston = ston/stoc
-    endif
+      if(ston .lt. 0.0D0) then
+         ston = 1.0D0/300.0D0
+      else
+         ston = ston/stoc
+      endif
 
-    rm = ((ston * stoc) * 27.0D0 * dexp(0.07D0*temp))
+      rm = ((ston * stoc) * 27.0D0 * dexp(0.07D0*temp))
 
-    if (rm .lt. 0) then
-       rm = 0.0
-    endif
-    return
+      if (rm .lt. 0) then
+         rm = 0.0
+      endif
+      return
 
-
- end function sto_resp
-
+   end function sto_resp
 
    !====================================================================
    !====================================================================
@@ -1187,208 +1191,208 @@ contains
   !=================================================================
   !=================================================================
 
-  subroutine soil_temp_sub(temp, tsoil)
-  ! Calcula a temperatura do solo. Aqui vamos mudar no futuro!
-  ! a tsoil deve ter relacao com a et realizada...
-  ! a profundidade do solo (H) e o coef de difusao (DIFFU) devem ser
-  ! variaveis (MAPA DE SOLO?; agua no solo?)
-  use types
-  use global_par
-  !implicit none
-  integer(i_4),parameter :: m = 1095
+   subroutine soil_temp_sub(temp, tsoil)
+      ! Calcula a temperatura do solo. Aqui vamos mudar no futuro!
+      ! a tsoil deve ter relacao com a et realizada...
+      ! a profundidade do solo (H) e o coef de difusao (DIFFU) devem ser
+      ! variaveis (MAPA DE SOLO?; agua no solo?)
+      use types
+      use global_par
+      !implicit none
+      integer(i_4),parameter :: m = 1095
 
-  real(r_4),dimension(m), intent( in) :: temp ! future __ make temps an allocatable array
-  real(r_4), intent(out) :: tsoil
+      real(r_4),dimension(m), intent( in) :: temp ! future __ make temps an allocatable array
+      real(r_4), intent(out) :: tsoil
 
-  ! internal vars
+      ! internal vars
 
-  integer(i_4) :: n, k
-  real(r_4) :: t0 = 0.0
-  real(r_4) :: t1 = 0.0
+      integer(i_4) :: n, k
+      real(r_4) :: t0 = 0.0
+      real(r_4) :: t1 = 0.0
 
-  tsoil = -9999.0
+      tsoil = -9999.0
 
-  do n=1,m !run to attain equilibrium
-     k = mod(n,12)
-     if (k.eq.0) k = 12
-     t1 = (t0*exp(-1.0/tau) + (1.0 - exp(-1.0/tau)))*temp(k)
-     tsoil = (t0 + t1)/2.0
-     t0 = t1
-  enddo
-  end subroutine soil_temp_sub
+      do n=1,m !run to attain equilibrium
+         k = mod(n,12)
+         if (k.eq.0) k = 12
+         t1 = (t0*exp(-1.0/tau) + (1.0 - exp(-1.0/tau)))*temp(k)
+         tsoil = (t0 + t1)/2.0
+         t0 = t1
+      enddo
+   end subroutine soil_temp_sub
 
-  !=================================================================
-  !=================================================================
+   !=================================================================
+   !=================================================================
 
-  function soil_temp(t0,temp) result(tsoil)
-    use types
-    use global_par, only: h, tau, diffu
-    !implicit none
+   function soil_temp(t0,temp) result(tsoil)
+      use types
+      use global_par, only: h, tau, diffu
+      !implicit none
 
-    real(r_4),intent( in) :: temp
-    real(r_4),intent( in) :: t0
-    real(r_4) :: tsoil
+      real(r_4),intent( in) :: temp
+      real(r_4),intent( in) :: t0
+      real(r_4) :: tsoil
 
-    real(r_4) :: t1 = 0.0
+      real(r_4) :: t1 = 0.0
 
-    t1 = (t0*exp(-1.0/tau) + (1.0 - exp(-1.0/tau)))*temp
-    tsoil = (t0 + t1)/2.0
-  end function soil_temp
+      t1 = (t0*exp(-1.0/tau) + (1.0 - exp(-1.0/tau)))*temp
+      tsoil = (t0 + t1)/2.0
+   end function soil_temp
 
-  !=================================================================
-  !=================================================================
+   !=================================================================
+   !=================================================================
 
-  function penman (spre,temp,ur,rn,rc2) result(evap)
-    use types, only: r_4
-    use global_par, only: rcmin, rcmax
-    use photo, only: tetens
-    !implicit none
-
-
-    real(r_4),intent(in) :: spre                 !Surface pressure (mbar)
-    real(r_4),intent(in) :: temp                 !Temperature (°C)
-    real(r_4),intent(in) :: ur                   !Relative humidity (0-1)
-    real(r_4),intent(in) :: rn                   !Radiation balance (W/m2)
-    real(r_4),intent(in) :: rc2                  !Canopy resistence (s/m)
-
-    real(r_4) :: evap                            !Evapotranspiration (mm/day)
-    !     Parameters
-    !     ----------
-    real(r_4) :: ra, h5, t1, t2, es, es1, es2, delta_e, delta
-    real(r_4) :: gama, gama2
+   function penman (spre,temp,ur,rn,rc2) result(evap)
+      use types, only: r_4
+      use global_par, only: rcmin, rcmax
+      use photo, only: tetens
+      !implicit none
 
 
-    ra = rcmin
-    h5 = 0.0275               !mb-1
+      real(r_4),intent(in) :: spre                 !Surface pressure (mbar)
+      real(r_4),intent(in) :: temp                 !Temperature (°C)
+      real(r_4),intent(in) :: ur                   !Relative humidity (0-1)
+      real(r_4),intent(in) :: rn                   !Radiation balance (W/m2)
+      real(r_4),intent(in) :: rc2                  !Canopy resistence (s/m)
 
-    !     Delta
-    !     -----
-    t1 = temp + 1.
-    t2 = temp - 1.
-    es1 = tetens(t1)       !Saturation partial pressure of water vapour at temperature T
-    es2 = tetens(t2)
+      real(r_4) :: evap                            !Evapotranspiration (mm/day)
+      !     Parameters
+      !     ----------
+      real(r_4) :: ra, h5, t1, t2, es, es1, es2, delta_e, delta
+      real(r_4) :: gama, gama2
 
-    delta = (es1-es2)/(t1-t2) !mbar/oC
-    !
-    !     Delta_e
-    !     -------
-    es = tetens (temp)
-    delta_e = es*(1. - ur)    !mbar
 
-    if ((delta_e.ge.(1./h5)-0.5).or.(rc2.ge.rcmax)) evap = 0.
-    if ((delta_e.lt.(1./h5)-0.5).or.(rc2.lt.rcmax)) then
-       !     Gama and gama2
-       !     --------------
-       gama  = spre*(1004.)/(2.45e6*0.622)
-       gama2 = gama*(ra + rc2)/ra
+      ra = rcmin
+      h5 = 0.0275               !mb-1
 
-       !     Real evapotranspiration
-       !     -----------------------
-       evap = (delta* rn + (1.20*1004./ra)*delta_e)/(delta+gama2) !W/m2
-       evap = evap*(86400./2.45e6) !mm/day
-       evap = amax1(evap,0.)  !Eliminates condensation
-    endif
-  end function penman
+      !     Delta
+      !     -----
+      t1 = temp + 1.
+      t2 = temp - 1.
+      es1 = tetens(t1)       !Saturation partial pressure of water vapour at temperature T
+      es2 = tetens(t2)
 
-  !=================================================================
-  !=================================================================
+      delta = (es1-es2)/(t1-t2) !mbar/oC
+      !
+      !     Delta_e
+      !     -------
+      es = tetens (temp)
+      delta_e = es*(1. - ur)    !mbar
 
-  function available_energy(temp) result(ae)
-    use types, only: r_4
-    !implicit none
+      if ((delta_e.ge.(1./h5)-0.5).or.(rc2.ge.rcmax)) evap = 0.
+      if ((delta_e.lt.(1./h5)-0.5).or.(rc2.lt.rcmax)) then
+         !     Gama and gama2
+         !     --------------
+         gama  = spre*(1004.)/(2.45e6*0.622)
+         gama2 = gama*(ra + rc2)/ra
 
-    real(r_4),intent(in) :: temp
-    real(r_4) :: ae
+         !     Real evapotranspiration
+         !     -----------------------
+         evap = (delta* rn + (1.20*1004./ra)*delta_e)/(delta+gama2) !W/m2
+         evap = evap*(86400./2.45e6) !mm/day
+         evap = amax1(evap,0.)  !Eliminates condensation
+      endif
+   end function penman
 
-    ae = 2.895 * temp + 52.326 !from NCEP-NCAR Reanalysis data
-  end function  available_energy
+   !=================================================================
+   !=================================================================
 
-  !=================================================================
-  !=================================================================
+   function available_energy(temp) result(ae)
+      use types, only: r_4
+      !implicit none
 
-  function runoff(wa) result(roff)
-    use types, only: r_4
-    !implicit none
+      real(r_4),intent(in) :: temp
+      real(r_4) :: ae
 
-    real(r_4),intent(in) :: wa
-    real(r_4):: roff
+      ae = 2.895 * temp + 52.326 !from NCEP-NCAR Reanalysis data
+   end function  available_energy
 
-    !  roff = 38.*((w/wmax)**11.) ! [Eq. 10]
-    roff = 11.5*((wa)**6.6) !from NCEP-NCAR Reanalysis data
-  end function  runoff
+   !=================================================================
+   !=================================================================
 
-  !=================================================================
-  !=================================================================
+   function runoff(wa) result(roff)
+      use types, only: r_4
+      !implicit none
 
-  function evpot2 (spre,temp,ur,rn) result(evap)
-    use types, only: r_4
-    use global_par, only: rcmin, rcmax
-    use photo, only: tetens
-    !implicit none
+      real(r_4),intent(in) :: wa
+      real(r_4):: roff
 
-    !Commments from CPTEC-PVM2 code
-!    c Entradas
-!c --------
-!c spre   = pressao aa supeficie (mb)
-!c temp   = temperatura (oC)
-!c ur     = umidade relativa  (0-1,adimensional)
-!c rn     = saldo de radiacao (W m-2)
-!c
-!c Saida
-!c -----
-!c evap  = evapotranspiracao potencial sem estresse (mm/dia)
+      !  roff = 38.*((w/wmax)**11.) ! [Eq. 10]
+      roff = 11.5*((wa)**6.6) !from NCEP-NCAR Reanalysis data
+   end function  runoff
 
-    !     Inputs
+   !=================================================================
+   !=================================================================
 
-    real(r_4),intent(in) :: spre                 !Surface pressure (mb)
-    real(r_4),intent(in) :: temp                 !Temperature (oC)
-    real(r_4),intent(in) :: ur                   !Relative humidity (0-1,dimensionless)
-    real(r_4),intent(in) :: rn                   !Radiation balance (W/m2)
-    !     Output
-    !     ------
-    !
-    real(r_4) :: evap                 !Evapotranspiration (mm/day)
-    !     Parameters
-    !     ----------
-    real(r_4) :: ra, t1, t2, es, es1, es2, delta_e, delta
-    real(r_4) :: gama, gama2, rc
+   function evpot2 (spre,temp,ur,rn) result(evap)
+      use types, only: r_4
+      use global_par, only: rcmin, rcmax
+      use photo, only: tetens
+      !implicit none
 
-    ra = rcmin            !s/m
+      !Commments from CPTEC-PVM2 code
+   !    c Entradas
+   !c --------
+   !c spre   = pressao aa supeficie (mb)
+   !c temp   = temperatura (oC)
+   !c ur     = umidade relativa  (0-1,adimensional)
+   !c rn     = saldo de radiacao (W m-2)
+   !c
+   !c Saida
+   !c -----
+   !c evap  = evapotranspiracao potencial sem estresse (mm/dia)
 
-    !     Delta
+      !     Inputs
 
-    t1 = temp + 1.
-    t2 = temp - 1.
-    es1 = tetens(t1)
-    es2 = tetens(t2)
-    delta = (es1-es2)/(t1-t2) !mb/oC
+      real(r_4),intent(in) :: spre                 !Surface pressure (mb)
+      real(r_4),intent(in) :: temp                 !Temperature (oC)
+      real(r_4),intent(in) :: ur                   !Relative humidity (0-1,dimensionless)
+      real(r_4),intent(in) :: rn                   !Radiation balance (W/m2)
+      !     Output
+      !     ------
+      !
+      real(r_4) :: evap                 !Evapotranspiration (mm/day)
+      !     Parameters
+      !     ----------
+      real(r_4) :: ra, t1, t2, es, es1, es2, delta_e, delta
+      real(r_4) :: gama, gama2, rc
 
-    !     Delta_e
-    !     -------
+      ra = rcmin            !s/m
 
-    es = tetens (temp)
-    delta_e = es*(1. - ur)    !mb
+      !     Delta
 
-    !     Stomatal Conductance
-    !     --------------------
+      t1 = temp + 1.
+      t2 = temp - 1.
+      es1 = tetens(t1)
+      es2 = tetens(t2)
+      delta = (es1-es2)/(t1-t2) !mb/oC
 
-    rc = rcmin
+      !     Delta_e
+      !     -------
 
-    !     Gama and gama2
-    !     --------------
+      es = tetens (temp)
+      delta_e = es*(1. - ur)    !mb
 
-    gama  = spre*(1004.)/(2.45e6*0.622)
-    gama2 = gama*(ra + rc)/ra
+      !     Stomatal Conductance
+      !     --------------------
 
-    !     Potencial evapotranspiration (without stress)
-    !     ---------------------------------------------
+      rc = rcmin
 
-    evap =(delta*rn + (1.20*1004./ra)*delta_e)/(delta+gama2) !W/m2
-    evap = evap*(86400./2.45e6) !mm/day
-    evap = amax1(evap,0.)     !Eliminates condensation
-  end function evpot2
+      !     Gama and gama2
+      !     --------------
 
-  !=================================================================
-  !=================================================================
+      gama  = spre*(1004.)/(2.45e6*0.622)
+      gama2 = gama*(ra + rc)/ra
+
+      !     Potencial evapotranspiration (without stress)
+      !     ---------------------------------------------
+
+      evap =(delta*rn + (1.20*1004./ra)*delta_e)/(delta+gama2) !W/m2
+      evap = evap*(86400./2.45e6) !mm/day
+      evap = amax1(evap,0.)     !Eliminates condensation
+   end function evpot2
+
+   !=================================================================
+   !=================================================================
 
 end module water
