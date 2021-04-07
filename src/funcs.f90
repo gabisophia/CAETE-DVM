@@ -555,8 +555,8 @@ contains
    !=================================================================
    !=================================================================
 
-   subroutine photosynthesis_rate(c_atm, temp,p0,ipar,ll,c4,nbio,pbio,cbio,&
-        & leaf_turnover,f1ab,vm, amax)
+   subroutine photosynthesis_rate(c_atm,temp,p0,ipar,ll,c4,nbio,pbio,cbio,&
+        & leaf_turnover,f1ab,vm,amax)
 
       ! f1ab SCALAR returns instantaneous photosynthesis rate at leaf level (molCO2/m2/s)
       ! vm SCALAR Returns maximum carboxilation Rate (Vcmax) (molCO2/m2/s)
@@ -569,7 +569,8 @@ contains
       real(r_4),intent(in) :: p0    ! atm Pressure hPa
       real(r_4),intent(in) :: ipar  ! mol Photons m-2 s-1
       real(r_8),intent(in) :: nbio, c_atm  ! gm-2, ppm
-      real(r_8),intent(in) :: pbio, cbio  ! kg m-2
+      real(r_8),intent(in) :: pbio  ! kg m-2
+      real(r_8),dimension(3),intent(in) :: cbio  ! kg m-2
       logical(l_1),intent(in) :: ll ! is light limited?
       integer(i_4),intent(in) :: c4 ! is C4 Photosynthesis pathway?
       real(r_8),intent(in) :: leaf_turnover   ! y
@@ -602,7 +603,7 @@ contains
       real(r_8) :: cm, cm0, cm1, cm2
 
       real(r_8) :: vm_nutri
-      real(r_8) :: nbio2, pbio2, cbio_aux
+      real(r_8) :: nbio2, pbio2, cbio_total, cbio_aux
       real(r_8) :: nmgg, pmgg
       real(r_8) :: coeffa, coeffb
 
@@ -620,8 +621,9 @@ contains
       ! vm = (dexp(vm_nutri)) * 1.0D-6 ! Vcmax convert µmol m-2 s-1 to mol m-2 s-1
 
       ! !### DOMINGUES et al. 2010
-      cbio_aux = cbio
-      if(cbio .le. 0.0D0) cbio_aux = 0.01
+      cbio_total = sum(cbio(:))
+      cbio_aux = cbio_total
+      if(cbio_total .le. 0.0D0) cbio_aux = 0.01
 
       nmgg = nbio2 / cbio_aux ! g(Nutrient) kg(Carbon)-1
       pmgg = pbio2 / cbio_aux ! g(Nutrient) kg(Carbon)-1
