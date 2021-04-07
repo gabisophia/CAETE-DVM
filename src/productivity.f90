@@ -38,37 +38,40 @@ contains
 
 !Input
 !-----
-    real(r_8),dimension(ntraits),intent(in) :: dt ! PLS data
+    real(r_8),dimension(ntraits),intent(in) :: dt     !PLS data
     real(r_4), intent(in) :: temp, ts                 !Mean monthly temperature (oC)
-    real(r_4), intent(in) :: p0                   !Mean surface pressure (hPa)
-    real(r_8), intent(in) :: w                    !Soil moisture kg m-2
-    real(r_4), intent(in) :: ipar                 !Incident photosynthetic active radiation (w/m2)
-    real(r_4), intent(in) :: rh,emax !Relative humidity/MAXIMUM EVAPOTRANSPIRATION
-    real(r_8), intent(in) :: catm, cl1_prod, cf1_prod, ca1_prod        !Carbon in plant tissues (kg/m2)
-    real(r_8), intent(in) :: beta_leaf            !npp allocation to carbon pools (kg/m2/day)
+    real(r_4), intent(in) :: p0                       !Mean surface pressure (hPa)
+    real(r_8), intent(in) :: w                        !Soil moisture kg m-2
+    real(r_4), intent(in) :: ipar                     !Incident photosynthetic active radiation (w/m2)
+    real(r_4), intent(in) :: rh,emax                  !Relative humidity/MAXIMUM EVAPOTRANSPIRATION
+    real(r_8), dimension(3),intent(in) :: cl1_prod    !Total carbon in each cohort of leaves (kg/m2)
+    real(r_8), intent(in) :: catm, cf1_prod, ca1_prod !Carbon in plant tissues (kg/m2)      
+    real(r_8), intent(in) :: beta_leaf                !npp allocation to carbon pools (kg/m2/day)
     real(r_8), intent(in) :: beta_awood
     real(r_8), intent(in) :: beta_froot, wmax
-    logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
+    logical(l_1), intent(in) :: light_limit           !True for no ligth limitation
 
 !     Output
 !     ------
-    real(r_4), intent(out) :: ph                   !Canopy gross photosynthesis (kgC/m2/yr)
-    real(r_4), intent(out) :: rc                   !Stomatal resistence (not scaled to canopy!) (s/m)
-    real(r_8), intent(out) :: laia                 !Autotrophic respiration (kgC/m2/yr)
-    real(r_4), intent(out) :: ar                   !Leaf area index (m2 leaf/m2 area)
-    real(r_4), intent(out) :: nppa                 !Net primary productivity (kgC/m2/yr)
+    real(r_4), intent(out) :: ph                      !Canopy gross photosynthesis (kgC/m2/yr)
+    real(r_4), intent(out) :: rc                      !Stomatal resistence (not scaled to canopy!) (s/m)
+    real(r_8), intent(out) :: laia                    !Autotrophic respiration (kgC/m2/yr)
+    real(r_4), intent(out) :: ar                      !Leaf area index (m2 leaf/m2 area)
+    real(r_4), intent(out) :: nppa                    !Net primary productivity (kgC/m2/yr)
     real(r_4), intent(out) :: vpd
-    real(r_8), intent(out) :: f5                   !Water stress response modifier (unitless)
-    real(r_4), intent(out) :: rm                   !autothrophic respiration (kgC/m2/day)
+    real(r_8), intent(out) :: f5                      !Water stress response modifier (unitless)
+    real(r_4), intent(out) :: rm                      !autothrophic respiration (kgC/m2/day)
     real(r_4), intent(out) :: rg
     real(r_4), intent(out) :: wue
-    real(r_4), intent(out) :: c_defcit     ! Carbon deficit gm-2 if it is positive, aresp was greater than npp + sto2(1)
-    real(r_8), intent(out) :: sla, e        !specific leaf area (m2/kg)
+    real(r_4), intent(out) :: c_defcit                !Carbon deficit gm-2 if it is positive, aresp was greater than npp + sto2(1)
+    real(r_8), intent(out) :: sla
+    real(r_8), intent(out) :: e                       !transpiration (molm2s)
     real(r_8), intent(out) :: vm_out
 !     Internal
 !     --------
 
-    real(r_8) :: tleaf,awood            !leaf/wood turnover time (yr)
+    real(r_8) :: tleaf    !leaf/wood turnover time (yr) 
+    real(r_8) :: awood            
     real(r_8) :: g1
     real(r_8) :: c4
 
@@ -80,12 +83,18 @@ contains
     integer(i_4) :: c4_int
     real(r_8) :: jl_out
 
-    real(r_8) :: f1       !Leaf level gross photosynthesis (molCO2/m2/s)
-    real(r_8) :: f1a      !auxiliar_f1
+    real(r_8), dimension(3) :: f1      !Leaf level gross photosynthesis (molCO2/m2/s)
+    real(r_8) :: f1a                   !auxiliar_f1
+    real(r_8), dimension(3) :: umol_penalties = (/-0.4, 1.0, 0.6/) !Penalization in photosynthesis for each cohort, defined by Wu et al (2016) and Albert et al (2018)
+    real(r_8), dimension(3) :: age_limits, leaf_age
+    real(r_8), dimension(3) :: penalization_by_age
+    real(r_8) :: age_crit
+    real(r_8) :: cl_total              !Carbon sum of all the cohots (kg/m2)
     real(r_4) :: rc_pot, rc_aux
+    integer(i_4) :: i
 
-!getting pls parameters
 
+! Getting pls parameters
 
     g1  = dt(1)
     tleaf = dt(3)
@@ -98,8 +107,43 @@ contains
     p2cl = dt(13)
 
 
-    n2cl = n2cl * (cl1_prod * 1D3) ! N in leaf g m-2
-    p2cl = p2cl * (cl1_prod * 1D3) ! P in leaf g m-2
+    !Simulation of leaf demography
+    !Obtain critical age
+    age_crit = (tleaf / 3.0) * 2.0
+
+    !Obtain age limits of each cohort
+    age_limits(1) = (tleaf * (1.0/6.0))
+    age_limits(2) = (tleaf * (4.0/6.0))
+    age_limits(3) = tleaf
+
+    !Obtain leaf age (a) - middle age of each cohort
+    leaf_age(1) = (tleaf * (1.0/12.0))
+    leaf_age(2) = (tleaf * (1.0/2.0))
+    leaf_age(3) = (tleaf * (5.0/6.0))
+
+    do i = 1, 3
+        penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
+    enddo
+    
+    !do i = 1,3
+    !   if (i .le. age_limits(1)) then 
+    !      penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
+    !   else if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
+    !      penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
+    !   else 
+    !      penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
+    !   endif 
+    !enddo
+
+    !print*,'fa jovem',penalization_by_age(1)
+    !print*,'fa madura',penalization_by_age(2)
+    !print*,'fa velha',penalization_by_age(3)
+
+    !Obtain total carbon of the leaf cohorts
+    cl_total = sum(cl1_prod)
+
+    n2cl = real(n2cl * (cl_total * 1e3), r_4) ! N in leaf g m-2
+    p2cl = real(p2cl * (cl_total * 1e3), r_4) ! P in leaf g m-2
 
     c4_int = idnint(c4)
 
@@ -107,7 +151,7 @@ contains
 !     ==============
 !     Photosynthesis
 !     ==============
-! rate (molCO2/m2/s)
+!   rate (molCO2/m2/s)
 
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,n2cl,&
          & p2cl,cl1_prod,tleaf,f1a,vm_out,jl_out)
@@ -128,11 +172,12 @@ contains
 
 !     Photosysthesis minimum and maximum temperature
 !     ----------------------------------------------
-
     if ((temp.ge.-10.0).and.(temp.le.50.0)) then
-       f1 = f1a * f5 ! :water stress factor ! Ancient floating-point underflow spring (from CPTEC-PVM2)
+        do i = 1,3
+            f1(i) = f1a * f5 * penalization_by_age(i) ! water stress factor and factor age ! Ancient floating-point underflow spring (from CPTEC-PVM2)
+        enddo
     else
-       f1 = 0.0      !Temperature above/below photosynthesis windown
+        f1 = 0.0      !Temperature above/below photosynthesis windown
     endif
 
     rc_aux = canopy_resistence(vpd, f1, g1, catm)  ! RCM leaf level -!s m-1

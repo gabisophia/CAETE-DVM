@@ -369,9 +369,9 @@ contains
          if(ca1_int(p) .lt. 0.0D0) ca1_int(p) = 0.0D0
          if(cf1_int(p) .lt. 0.0D0) cf1_int(p) = 0.0D0
 
-         print*,'cl1_pft(p)',cl1_pft(p),p
-         print*,'ca1_pft(p)',ca1_pft(p),p
-         print*,'cf1_pft(p)',cf1_pft(p),p
+         !print*,'cl1_pft(p)',cl1_pft(p),p
+         !print*,'ca1_pft(p)',ca1_pft(p),p
+         !print*,'cf1_pft(p)',cf1_pft(p),p
 
       enddo ! end pls_loop (p)
       !$OMP END PARALLEL DO
