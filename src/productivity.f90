@@ -134,19 +134,19 @@ contains
     leaf_age(2) = (tleaf * (1.0/2.0))
     leaf_age(3) = (tleaf * (5.0/6.0))
 
-    !do i = 1, 3
-    !    penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
-    !enddo
-    
-    do i = 1,3
-       if (i .le. age_limits(1)) then 
-          penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
-       else if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
-          penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
-       else 
-          penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
-       endif 
+    do i = 1, 3
+        penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
     enddo
+    
+    !do i = 1,3
+    !   if (i .le. age_limits(1)) then 
+    !      penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
+    !   else if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
+    !      penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
+    !   else 
+    !      penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
+    !   endif 
+    !enddo
 
   !  print*,'fa jovem',penalization_by_age(1)
   !  print*,'fa madura',penalization_by_age(2)
@@ -174,37 +174,37 @@ contains
 
     diameter = diameter_pls(dwood_t,ca1_prod)
     height1 = height_pls(diameter)
-    print*,'cawood:',ca1_prod,'height:',height1
+    !print*,'cawood:',ca1_prod,'height:',height1
 
     !   P50
     !=========
     psi50 = psi_fifty(dwood_t,ca1_prod)
-    print*,'P50',psi50
+    !print*,'P50',psi50
 
     ! Klmax
     !=========
     klmax = conductivity_xylemleaf(dwood_t,jl_out,ca1_prod)
-    print*,'klmax',klmax
+    !print*,'klmax',klmax
 
     ! Krcmax
     !=========
     krcmax = conductance_xylemax(klmax,height1,ca1_prod)   
-    print*,'krcmax',krcmax
+    !print*,'krcmax',krcmax
 
     ! Psixylem
     !=========
     psixylem = xylem_waterpotential(psisoil,height1,ca1_prod)
-    print*,'psixylem',psixylem, 'psisoil',psisoil
+    !print*,'psixylem',psixylem, 'psisoil',psisoil
 
     ! k xylem
     !=========
     kxylem = xylem_conductance(krcmax,psixylem,psi50,ca1_prod)
-    print*,'kxylem',kxylem
+    !print*,'kxylem',kxylem
     
     ! k xylem
     !=========
     knorm = conductance_normalized(krcmax,kxylem,ca1_prod)
-    print*,'knorm',knorm
+    !print*,'knorm',knorm
 
     ! VPD
     !========
@@ -217,7 +217,7 @@ contains
     !Water stress response modifier (dimensionless)
     !----------------------------------------------
     f5 =  water_stress_modifier(w, cf1_prod, rc_pot, emax, wmax, knorm, ca1_prod)
-    print*,'f5',f5
+    !print*,'f5',f5
 
 !     Photosysthesis minimum and maximum temperature
 !     ----------------------------------------------
