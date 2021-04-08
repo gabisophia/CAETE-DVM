@@ -160,7 +160,7 @@ def get_var_metadata(var):
               'froot_p2c': ['CWM- fine root P:C', 'g g-1', 'froot_p2c'],
               'amp': ['CWM- Percentage of fine root colonized by AM', '%', 'amp'],
               'pdia': ['CWM- NPP aloated to N fixers', 'fraction_of_npp', 'pdia'],
-              'dwood': ['CWM- leaf turnover time', 'years', 'dwood'],
+              'dwood': ['CWM- wood density', 'g/cm3', 'dwood'],
               'ls': ['Living Plant Life Strategies', 'unitless', 'ls']}
 
     out = {}
@@ -1166,7 +1166,7 @@ def ccc(table, pls_table, nc_out):
             'awood_p2c',
             'froot_p2c',
             'amp',
-            'pdia'
+            'pdia',
             'dwood']
 
     flt_attrs = get_var_metadata(vars)
