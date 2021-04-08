@@ -27,7 +27,7 @@ module productivity
 contains
 
   subroutine prod(dt,dwood_t,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
-       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,ph,ar,&
+       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,psisoil,ph,ar,&
        & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla,e)
 
     use types
@@ -49,6 +49,7 @@ contains
     real(r_8), intent(in) :: beta_awood
     real(r_8), intent(in) :: beta_froot
     real(r_8), intent(in) :: wmax
+    real(r_8), intent(in) :: psisoil
     real(r_8), intent(in) :: dwood_t
     logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
 
@@ -92,6 +93,7 @@ contains
     real(r_8) :: psi50
     real(r_8) :: klmax
     real(r_8) :: krcmax
+    real(r_8) :: psixylem
 
 !getting pls parameters
 
@@ -141,7 +143,12 @@ contains
     ! Krcmax
     !=========
     krcmax = conductance_xylemax(klmax,height1,ca1_prod)   
-    print*,'krcmax',krcmax
+    !print*,'krcmax',krcmax
+
+    ! Psixylem
+    !=========
+    psixylem = xylem_waterpotential(psisoil,height1,ca1_prod)
+    print*,'psixylem',psixylem, 'psisoil',psisoil
 
     ! VPD
     !========

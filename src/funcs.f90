@@ -33,6 +33,7 @@ module photo
         psi_fifty              ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
         conductivity_xylemleaf ,& ! (f), Maximum xylem conductivity per unit leaf area (kg m-1 s-1 Mpa-1)
         conductance_xylemax    ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
+        xylem_waterpotential   ,& ! (f), Xylem water potential (MPa)
         water_stress_modifier  ,& ! (f), F5 - water stress modifier (dimensionless)
         photosynthesis_rate    ,& ! (s), leaf level CO2 assimilation rate (molCO2 m-2 s-1)
         canopy_resistence      ,& ! (f), Canopy resistence (from Medlyn et al. 2011a) (s/m) == m s-1
@@ -257,6 +258,33 @@ contains
       endif
 
    end function conductance_xylemax
+
+   !=================================================================
+   !=================================================================
+
+   function xylem_waterpotential(psi_soil,height,cawood) result(psi_xylem)
+      !Xylem water potential (MPa)
+      !Based in Eller et al., 2018
+      use types
+      use global_par, only:rho,grav
+
+      real(r_8),intent(in) :: psi_soil         !MPa
+      real(r_8),intent(in) :: height           !m 
+      real(r_8),intent(in) :: cawood
+      real(r_8) :: psi_xylem                   !MPa
+
+      real(r_8) :: psi_g                       !MPa - gravitational potential
+      
+      if(cawood .gt. 0.0D0) then
+         psi_g = rho * grav * height * 1e-6        !converts Pa to MPa
+         psi_xylem = psi_soil - psi_g 
+         print*,'psi_gravitational',psi_g,'height',height,'psisoil',psi_soil
+      else
+         psi_g = 0.0D0
+         psi_xylem = 0.0D0
+      endif
+
+   end function xylem_waterpotential
 
    !=================================================================
    !=================================================================
