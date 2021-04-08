@@ -101,6 +101,7 @@ contains
     real(r_8) :: diameter
     real(r_8) :: height1
     real(r_8) :: psi50
+    real(r_8) :: klmax
 
 
 ! Getting pls parameters
@@ -175,7 +176,13 @@ contains
     !   P50
     !=========
     psi50 = psi_fifty(dwood_t,ca1_prod)
-    print*,'P50',psi50, 'wd',dwood_t
+    !print*,'P50',psi50, 'wd',dwood_t
+
+    ! Klmax
+    !=========
+    klmax = conductivity_xylemleaf(dwood_t,jl_out* 1e6,ca1_prod)
+    print*,'klmax',klmax,'amax',jl_out
+
 
     ! VPD
     !========
