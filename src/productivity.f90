@@ -89,6 +89,7 @@ contains
     !Hydraulic parameters
     real(r_8) :: diameter
     real(r_8) :: height1
+    real(r_8) :: psi50
 
 !getting pls parameters
 
@@ -125,6 +126,13 @@ contains
 
     diameter = diameter_pls(dwood_t,ca1_prod)
     height1 = height_pls(diameter)
+
+    !   P50
+    !=========
+    psi50 = psi_fifty(dwood_t,ca1_prod)
+    print*,'P50',psi50
+
+    
 
     ! VPD
     !========
