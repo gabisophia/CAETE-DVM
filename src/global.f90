@@ -45,6 +45,9 @@ module global_par
    real(r_8),parameter,public :: gm = 3.26D0 * 86400D0           ! (*86400 transform s/mm to dia/mm)
    real(r_8),parameter,public :: sapwood = 0.05D0                ! Fraction of wood tissues that are sapwood
    real(r_4),parameter,public :: ks = 0.25                       ! P Sorption
+   real(r_4),parameter,public :: rho = 997.0                     ! Density of water (Kg/m3)
+   real(r_4),parameter,public :: grav = 9.8                      ! Gravity (m/s2)
+   real(r_4),parameter,public :: vuln_curve = 3  
    integer(i_4),parameter,public :: npls = 200                   ! Number of Plant Life Strategies-PLSs simulated (Defined at compile time)
    integer(i_4),parameter,public :: ntraits = 18                 ! Number of traits for each PLS
 
