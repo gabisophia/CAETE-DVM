@@ -85,3 +85,22 @@ module photo_par
         e_vpm = 60592.0D0    ,&          ! Arrhenius eq. constant
         kp25 = 82.0D0                    ! µmol mol-1 (ppm)  MM constant PEPcase at
 end module photo_par
+
+module allometry_par
+   use types, only : r_8
+   implicit none
+
+   real(r_8), public, parameter ::       &
+         k_allom1 = 100.0     ,&          !allometric constant (Table 3; Sitch et al., 2003)
+         k_allom2 = 36.0      ,&
+         k_allom3 = 0.22      ,&
+         dw = 0.85            ,&          !value for testing purpose (DW will be a variant trait) g/cm-3
+         spec_leaf = 132      ,&          ! cm2/g - value for testing purpose (SLA is already calculate in the model; SLA will be a variant trait)
+         klatosa = 6000.0     ,&   
+         ltor = 0.77302587552347657 ,&    !ratio between increment in leaf and root
+         tol = 0.0000001      ,&
+         pi = 3.1415926536    ,&
+         krp = 1.6            ,&            !allometric constant (Table 3; Sitch et al., 2003)
+         turnover_rate_sapwood = 0.05  ,&       !fix value for allometry/allocation calculus (Table1, Sitch et al., 2003)
+         turnover_rate = 0.5                !fix value for leaf and root turnover (Table 1, Sitch et al., 2003)
+end module allometry_par

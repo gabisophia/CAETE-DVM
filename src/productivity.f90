@@ -26,9 +26,9 @@ module productivity
 
 contains
 
-  subroutine prod(dt,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
+  subroutine prod(dt,dwood_t,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
        & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,ph,ar,&
-       & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla, e)
+       & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla,e)
 
     use types
     use global_par
@@ -47,7 +47,9 @@ contains
     real(r_8), intent(in) :: catm, cl1_prod, cf1_prod, ca1_prod        !Carbon in plant tissues (kg/m2)
     real(r_8), intent(in) :: beta_leaf            !npp allocation to carbon pools (kg/m2/day)
     real(r_8), intent(in) :: beta_awood
-    real(r_8), intent(in) :: beta_froot, wmax
+    real(r_8), intent(in) :: beta_froot
+    real(r_8), intent(in) :: wmax
+    real(r_8), intent(in) :: dwood_t
     logical(l_1), intent(in) :: light_limit                !True for no ligth limitation
 
 !     Output
@@ -84,6 +86,10 @@ contains
     real(r_8) :: f1a      !auxiliar_f1
     real(r_4) :: rc_pot, rc_aux
 
+    !Hydraulic parameters
+    real(r_8) :: diameter
+    real(r_8) :: height1
+
 !getting pls parameters
 
 
@@ -112,6 +118,15 @@ contains
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,n2cl,&
          & p2cl,cl1_prod,tleaf,f1a,vm_out,jl_out)
 
+
+    !=============
+    !  Hydraulic
+    !=============
+
+    diameter = diameter_pls(dwood_t,ca1_prod)
+    height1 = height_pls(diameter)
+    print*,'diameter prod:',diameter
+    print*,'height prod:',height1
 
     ! VPD
     !========
