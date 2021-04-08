@@ -65,6 +65,8 @@ contains
     real(r_4), intent(out) :: c_defcit     ! Carbon deficit gm-2 if it is positive, aresp was greater than npp + sto2(1)
     real(r_8), intent(out) :: sla, e        !specific leaf area (m2/kg)
     real(r_8), intent(out) :: vm_out
+
+
 !     Internal
 !     --------
 
@@ -84,8 +86,12 @@ contains
     real(r_8) :: f1a      !auxiliar_f1
     real(r_4) :: rc_pot, rc_aux
 
-!getting pls parameters
+    !Hydraulic parameters
+    real(r_8) :: diameter
+    real(r_8) :: height1
 
+
+!getting pls parameters
 
     g1  = dt(1)
     tleaf = dt(3)
@@ -112,6 +118,14 @@ contains
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,n2cl,&
          & p2cl,cl1_prod,tleaf,f1a,vm_out,jl_out)
 
+    !=============
+    !  Hydraulic
+    !=============
+
+    diameter = diameter_pls(dwood_t,ca1_prod)
+    height1 = height_pls(diameter)
+    print*,'DIAMETER:',diameter
+    print*,'HEIGHT:',height1
 
     ! VPD
     !========
