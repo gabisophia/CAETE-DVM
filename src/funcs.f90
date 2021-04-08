@@ -46,6 +46,7 @@ module photo
         g_resp                 ,& ! (f), growth Respiration (kg m-2 yr-1)
         pft_area_frac          ,& ! (s), area fraction by biomass
         water_ue               ,&
+        pls_allometry          ,&
         leap
 
 contains
@@ -1146,6 +1147,61 @@ contains
 
    !====================================================================
    !====================================================================
+
+   subroutine pls_allometry (dwood1, cleaf1, cfroot1, cawood1, awood, height, diameter,&
+      &crown_area)
+      !Based in LPJ model (Smith et al., 2001; Sitch et al., 2003)
+      !and in TFSv.1 (Fyllas et al., 2014)
+
+      use types 
+      use global_par
+      use allometry_par
+
+
+      integer(i_4),parameter :: npft = npls ! plss futuramente serao
+      real(r_8),dimension(npft),intent(in) :: cleaf1, cfroot1, cawood1, awood, dwood1
+      real(r_8),dimension(npft),intent(out) :: height, diameter, crown_area
+      real(r_8),dimension(npft) :: cleaf, cawood, cfroot, dwood, height_2
+      integer(i_4) :: p
+
+
+      ! ============================
+      dwood = dwood1
+      cleaf = cleaf1
+      cfroot = cfroot1
+      cawood = cawood1
+      ! ============================
+
+      do p = 1, npft !INICIALIZE OUTPUTS VARIABLES
+         height(p) = 0.0D0
+         height_2(p) = 0.0D0 !TFS TEST
+         diameter(p) = 0.0D0
+         crown_area(p) = 0.0D0
+      enddo
+
+      !PLS DIAMETER (in m.)
+      do p = 1, npft !to grasses
+         if(awood(p) .le. 0.0D0) then
+            height(p) = 0.0D0 !in m.
+            height_2(p) = 0.0D0 !TFS test
+            diameter(p) = 0.0D0 !in m.
+            crown_area(p) = 0.0D0 !in m2.
+            dwood(p) = 0.0D0 !in g/cm-3 - is transfor to g/m-3 in diameter equation.
+         else
+            diameter(p) = (4*(cawood(p)*1.0D3)/(dwood(p)*1D7)*pi*k_allom2)&
+            &**(1/(2+k_allom3))
+            height(p) = k_allom2*(diameter(p)**k_allom3)
+            crown_area(p) = k_allom1*(diameter(p)**krp)
+
+            !--------------------------- TEST -----------------------------!
+            height_2(p) = 61.7*(1-exp(-0.0352*((diameter(p)*100)**0.694))) !TFS.v1 equation (Fyllas et al., 2014)
+         endif
+
+         !print*, 'HEIGHT_TFS=', height_2(p), 'cawood', cawood(p), p
+         !print*, 'HEIGHT_LPJ=', height(p), 'cawood', cawood(p), p
+
+      enddo
+   end subroutine pls_allometry
 
 end module photo
 
