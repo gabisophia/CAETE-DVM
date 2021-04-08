@@ -121,12 +121,10 @@ contains
 
     !=============
     !  Hydraulic
-    !=============
+    !=============y
 
     diameter = diameter_pls(dwood_t,ca1_prod)
     height1 = height_pls(diameter)
-    print*,'diameter prod:',diameter
-    print*,'height prod:',height1
 
     ! VPD
     !========
