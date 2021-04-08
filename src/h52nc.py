@@ -106,7 +106,9 @@ def get_var_metadata(var):
               'cue': ['Carbon use efficiency', 'unitless', 'cue'],
               'cawood': ['C in woody tissues', 'kg m-2', 'cawood'],
               'cfroot': ['C in fine roots', 'kg m-2', 'cfroot'],
-              'cleaf': ['C in leaves', 'kg m-2', 'cleaf'],
+              'cleaf_j': ['C in leaves', 'kg m-2', 'cleaf'],
+              'cleaf_m': ['C in leaves', 'kg m-2', 'cleaf'],
+              'cleaf_s': ['C in leaves', 'kg m-2', 'cleaf'],
               'cmass': ['total Carbon -Biomass', 'kg m-2', 'cmass'],
               'leaf_nolim': ['no lim. in leaf growth', 'Time fraction', 'leaf_nolim'],
               'leaf_lim_n': ['N lim. growth L', 'Time fraction', 'leaf_lim_n'],
@@ -158,6 +160,7 @@ def get_var_metadata(var):
               'froot_p2c': ['CWM- fine root P:C', 'g g-1', 'froot_p2c'],
               'amp': ['CWM- Percentage of fine root colonized by AM', '%', 'amp'],
               'pdia': ['CWM- NPP aloated to N fixers', 'fraction_of_npp', 'pdia'],
+              'dwood': ['CWM- leaf turnover time', 'years', 'dwood'],
               'ls': ['Living Plant Life Strategies', 'unitless', 'ls']}
 
     out = {}
@@ -641,7 +644,7 @@ def create_ncG3(table, interval, nc_out):
     elif out_data:
         print(f"\n\nSaving outputs in {nc_out.resolve()}")
 
-    vars = ["rcm", "runom", "evapm", "wsoil", "cleaf", "cawood",
+    vars = ["rcm", "runom", "evapm", "wsoil", "cleaf_j", "cleaf_m", "cleaf_s", "cawood",
             "cfroot", "litter_l", "cwd", "litter_fr", "litter_n",
             "litter_p", "sto_c", "sto_n", "sto_p", "c_cost"]
 
@@ -666,7 +669,9 @@ def create_ncG3(table, interval, nc_out):
     evapm = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     wsoil = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     swsoil = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
-    cleaf = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    cleaf_j = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    cleaf_m = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    cleaf_s = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     cawood = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     cfroot = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     litter_l = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
@@ -699,8 +704,12 @@ def create_ncG3(table, interval, nc_out):
             out['grid_y'], out['grid_x'], out['wsoil'])
         swsoil[i, :, :] = assemble_layer(
             out['grid_y'], out['grid_x'], out['swsoil'])
-        cleaf[i, :, :] = assemble_layer(
-            out['grid_y'], out['grid_x'], out['cleaf'])
+        cleaf_j[i, :, :] = assemble_layer(
+            out['grid_y'], out['grid_x'], out['cleaf_j'])
+        cleaf_m[i, :, :] = assemble_layer(
+            out['grid_y'], out['grid_x'], out['cleaf_m'])
+        cleaf_s[i, :, :] = assemble_layer(
+            out['grid_y'], out['grid_x'], out['cleaf_s'])
         cawood[i, :, :] = assemble_layer(
             out['grid_y'], out['grid_x'], out['cawood'])
         cfroot[i, :, :] = assemble_layer(
@@ -742,11 +751,11 @@ def create_ncG3(table, interval, nc_out):
     wsoil = swsoil + wsoil
     np.place(wsoil, mask=swsoil == -9999.0, vals=NO_DATA)
 
-    vars = ["rcm", "runom", "evapm", "wsoil", "cleaf", "cawood",
+    vars = ["rcm", "runom", "evapm", "wsoil", "cleaf_j", "cleaf_m", "cleaf_s" "cawood",
             "cfroot", "litter_l", "cwd", "litter_fr", "litter_n",
             "litter_p", "sto_c", "sto_n", "sto_p", "c_cost"]
 
-    arr = (rcm, runom, evapm, wsoil, cleaf, cawood, cfroot,
+    arr = (rcm, runom, evapm, wsoil, cleaf_j, cleaf_m, cleaf_s, cawood, cfroot,
            litter_l, cwd, litter_fr, litter_n, litter_p,
            sto1, sto2, sto3, c_cost)
 
@@ -995,6 +1004,7 @@ def ccc(table, pls_table, nc_out):
     froot_p2c = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     amp = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     pdia = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    dwood = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
 
     time_index = []
     pls_array = pls_table.read_where("PLS_id >= 0")
@@ -1041,6 +1051,8 @@ def ccc(table, pls_table, nc_out):
                                         out['area_0'], pls_array['amp'])
             pdia[i, :, :] = assemble_cwm(
                 out['grid_y'], out['grid_x'], out['area_0'], pls_array['pdia'])
+            dwood[i, :, :] = assemble_cwm(
+                out['grid_y'], out['grid_x'], out['area_0'], pls_array['dwood'])
 
             g1[i + 1, :, :] = assemble_cwm(out['grid_y'],
                                            out['grid_x'], out['area_f'], pls_array['g1'])
@@ -1076,6 +1088,8 @@ def ccc(table, pls_table, nc_out):
                                             out['area_f'], pls_array['amp'])
             pdia[i + 1, :, :] = assemble_cwm(
                 out['grid_y'], out['grid_x'], out['area_f'], pls_array['pdia'])
+            dwood[i + 1, :, :] = assemble_cwm(
+                out['grid_y'], out['grid_x'], out['area_f'], pls_array['dwood'])
         else:
             afdate = str2cf_date(interval[1])
             time_index.append(
@@ -1114,6 +1128,8 @@ def ccc(table, pls_table, nc_out):
                                             out['area_f'], pls_array['amp'])
             pdia[i + 1, :, :] = assemble_cwm(
                 out['grid_y'], out['grid_x'], out['area_f'], pls_array['pdia'])
+            dwood[i + 1, :, :] = assemble_cwm(
+                out['grid_y'], out['grid_x'], out['area_f'], pls_array['dwood'])
 
     arr = [g1,
            resopfrac,
@@ -1131,7 +1147,8 @@ def ccc(table, pls_table, nc_out):
            awood_p2c,
            froot_p2c,
            amp,
-           pdia]
+           pdia,
+           dwood]
 
     vars = ['g1',
             'resopfrac',
@@ -1149,7 +1166,8 @@ def ccc(table, pls_table, nc_out):
             'awood_p2c',
             'froot_p2c',
             'amp',
-            'pdia']
+            'pdia'
+            'dwood']
 
     flt_attrs = get_var_metadata(vars)
     write_snap_output(arr, vars, flt_attrs, time_index, nc_out)
