@@ -99,7 +99,7 @@ def turnover_combinations(verbose=False):
         print("Building grassy allocation combinations: \n")
         aleafg = np.arange(20., 80.1, 0.0125e1, dtype=np.float64)
         arootg = np.arange(20., 80.1, 0.0125e1, dtype=np.float64)
-
+        
         plsa_grass = [[a, 0.0, c]
                       for a in aleafg for c in arootg if (a + c) == 100]
         np.save(grassy_allocations_file, np.array(plsa_grass))
@@ -169,7 +169,7 @@ def table_gen(NPLS, fpath=None):
     print("CREATE GRASSy STRATEGIES - Checking potential npp/alocation")
     while index0 < diffg:
         restime = np.zeros(shape=(3,), dtype=np.float64)
-
+        dwood = 0.0
         allocatio = plsa_grass[np.random.randint(0, plsa_grass.shape[0])]
         restime[0] = rtime[np.random.randint(0, r_ceil)]
         restime[1] = 0.0
@@ -190,6 +190,7 @@ def table_gen(NPLS, fpath=None):
     rtime_wood = np.random.uniform(0.08333333333333333, 150.0, r_ceil)
     while index1 < diffw:
         restime = np.zeros(shape=(3,), dtype=np.float64)
+        dwood = np.random.uniform(0.5, 0.9, NPLS)
         allocatio = plsa_wood[np.random.randint(0, plsa_wood.shape[0])]
         restime[0] = rtime[np.random.randint(0, r_ceil)]
         restime[1] = rtime_wood[np.random.randint(0, r_ceil)]
@@ -256,11 +257,11 @@ def table_gen(NPLS, fpath=None):
     stack = (pls_id, g1, resorption, alloc[:, 0], alloc[:, 1], alloc[:, 2],
              alloc[:, 3], alloc[:, 4], alloc[:, 5], c4, leaf_n2c,
              awood_n2c, froot_n2c, leaf_p2c, awood_p2c, froot_p2c,
-             amp, pdia)
+             amp, pdia, dwood)
 
     head = ['PLS_id', 'g1', 'resopfrac', 'tleaf', 'twood', 'troot', 'aleaf', 'awood', 'aroot', 'c4',
             'leaf_n2c', 'awood_n2c', 'froot_n2c', 'leaf_p2c', 'awood_p2c', 'froot_p2c',
-            'amp', 'pdia']
+            'amp', 'pdia', 'dwood']
 
     if fpath is not None:
 

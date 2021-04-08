@@ -169,7 +169,7 @@ contains
       integer(i_4), dimension(:, :),allocatable :: uptk_strat        ! D0=2
       INTEGER(i_4), dimension(:), allocatable :: lp ! index of living PLSs
 
-      real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs
+      real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs, dwood_aux
       real(r_8), dimension(3,npls) :: sto_budg
       real(r_8) :: soil_sat
       !     START
@@ -180,6 +180,8 @@ contains
       ! create copies of some input variables (arrays) - ( they are passed by reference by standard)
       do i = 1,npls
          awood_aux(i) = dt(7,i)
+         dwood_aux(i) = dt(18,i)
+         print*,'dwood',dwood_aux(i)
          cl1_pft(i) = cl1_in(i)
          ca1_pft(i) = ca1_in(i)
          cf1_pft(i) = cf1_in(i)
@@ -190,9 +192,9 @@ contains
          do j = 1,3
             sto_budg(j,i) = sto_budg_in(j,i)
          enddo
-         print*,'cl1_pft(i)',cl1_pft(i),i
-         print*,'ca1_pft(i)',ca1_pft(i),i
-         print*,'cf1_pft(i)',cf1_pft(i),i
+         !print*,'cl1_pft(i)',cl1_pft(i),i
+         !print*,'ca1_pft(i)',ca1_pft(i),i
+         !print*,'cf1_pft(i)',cf1_pft(i),i
 
       enddo
 
@@ -369,9 +371,9 @@ contains
          if(ca1_int(p) .lt. 0.0D0) ca1_int(p) = 0.0D0
          if(cf1_int(p) .lt. 0.0D0) cf1_int(p) = 0.0D0
 
-         print*,'cl1_pft(p)',cl1_pft(p),p
-         print*,'ca1_pft(p)',ca1_pft(p),p
-         print*,'cf1_pft(p)',cf1_pft(p),p
+         !print*,'cl1_pft(p)',cl1_pft(p),p
+         !print*,'ca1_pft(p)',ca1_pft(p),p
+         !print*,'cf1_pft(p)',cf1_pft(p),p
 
       enddo ! end pls_loop (p)
       !$OMP END PARALLEL DO
