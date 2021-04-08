@@ -91,6 +91,7 @@ contains
     real(r_8) :: height1
     real(r_8) :: psi50
     real(r_8) :: klmax
+    real(r_8) :: krcmax
 
 !getting pls parameters
 
@@ -126,7 +127,6 @@ contains
 
     diameter = diameter_pls(dwood_t,ca1_prod)
     height1 = height_pls(diameter)
-    print*,'height',height1,'cawood',ca1_prod
 
     !   P50
     !=========
@@ -136,7 +136,12 @@ contains
     ! Klmax
     !=========
     klmax = conductivity_xylemleaf(dwood_t,jl_out,ca1_prod)
-    print*,'klmax',klmax
+    !print*,'klmax',klmax
+
+    ! Krcmax
+    !=========
+    krcmax = conductance_xylemax(klmax,height1,ca1_prod)   
+    print*,'krcmax',krcmax
 
     ! VPD
     !========
