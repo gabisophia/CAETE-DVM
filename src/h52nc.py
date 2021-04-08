@@ -751,7 +751,7 @@ def create_ncG3(table, interval, nc_out):
     wsoil = swsoil + wsoil
     np.place(wsoil, mask=swsoil == -9999.0, vals=NO_DATA)
 
-    vars = ["rcm", "runom", "evapm", "wsoil", "cleaf_j", "cleaf_m", "cleaf_s" "cawood",
+    vars = ["rcm", "runom", "evapm", "wsoil", "cleaf_j", "cleaf_m", "cleaf_s", "cawood",
             "cfroot", "litter_l", "cwd", "litter_fr", "litter_n",
             "litter_p", "sto_c", "sto_n", "sto_p", "c_cost"]
 
