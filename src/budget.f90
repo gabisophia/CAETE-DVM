@@ -29,7 +29,7 @@ contains
         &, mineral_n, labile_p, on, sop, op, catm, sto_budg_in, cl1_in, ca1_in, cf1_in, dleaf_in, dwood_in&
         &, droot_in, uptk_costs_in, wmax_in, evavg, epavg, phavg, aravg, nppavg&
         &, laiavg, rcavg, f5avg, rmavg, rgavg, cleafavg_pft, cawoodavg_pft&
-        &, cfrootavg_pft, storage_out_bdgt_1, ocpavg, wueavg, cueavg, c_defavg&
+        &, cfrootavg_pft, height_out, storage_out_bdgt_1, ocpavg, wueavg, cueavg, c_defavg&
         &, vcmax_1, specific_la_1, nupt_1, pupt_1, litter_l_1, cwd_1, litter_fr_1, npp2pay_1, lit_nut_content_1&
         &, delta_cveg_1, limitation_status_1, uptk_strat_1, cp, c_cost_cwm)
 
@@ -96,6 +96,7 @@ contains
       real(r_8),dimension(npls),intent(out) :: cleafavg_pft   !Carbon in plant tissues (kg m-2)
       real(r_8),dimension(npls),intent(out) :: cawoodavg_pft  !
       real(r_8),dimension(npls),intent(out) :: cfrootavg_pft  !
+      real(r_8),dimension(npls),intent(out) :: height_out
       real(r_8),dimension(npls),intent(out) :: ocpavg         ! [0-1] Gridcell occupation
       real(r_8),dimension(3,npls),intent(out) :: delta_cveg_1
       real(r_8),dimension(3,npls),intent(out) :: storage_out_bdgt_1
@@ -209,8 +210,6 @@ contains
 
       call pls_allometry(dwood_aux, cl1_pft, cf1_pft, ca1_pft, awood_aux, height_aux, diameter_aux,&
       &                   crown_aux)
-
-      print*,height_aux
 
       nlen = sum(run)    ! New length for the arrays in the main loop
       allocate(lp(nlen))
@@ -411,6 +410,7 @@ contains
       cleafavg_pft(:) = 0.0D0
       cawoodavg_pft(:) = 0.0D0
       cfrootavg_pft(:) = 0.0D0
+      height_aux(:) = 0.0D0
       delta_cveg_1(:, :) = 0.0D0
       storage_out_bdgt_1(:, :) = 0.0D0
       limitation_status_1(:,:) = 0
@@ -443,6 +443,7 @@ contains
       litter_fr_1 = sum(litter_fr * ocp_coeffs, mask= .not. isnan(litter_fr))
       c_cost_cwm = sum(npp2pay * ocp_coeffs, mask= .not. isnan(npp2pay))
 
+      height_out = sum(height_aux * ocp_coeffs, mask= .not. isnan(height_aux))
       cp(1) = sum(cl1_int * ocp_coeffs, mask= .not. isnan(cl1_int))
       cp(2) = sum(ca1_int * ocp_coeffs, mask= .not. isnan(ca1_int))
       cp(3) = sum(cf1_int * ocp_coeffs, mask= .not. isnan(cf1_int))
@@ -497,6 +498,8 @@ contains
          cleafavg_pft(ri)  = cl1_int(p)
          cawoodavg_pft(ri) = ca1_int(p)
          cfrootavg_pft(ri) = cf1_int(p)
+         height_out(ri)  = height_aux(p)
+         !print*,'height_out:',height_out(ri),'height_aux:',height_aux(p)
          delta_cveg_1(:,ri) = delta_cveg(:,p)
          storage_out_bdgt_1(:,ri) = storage_out_bdgt(:,p)
          limitation_status_1(:,ri) = limitation_status(:,p)

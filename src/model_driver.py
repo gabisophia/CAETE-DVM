@@ -70,8 +70,8 @@ if not sombrero:
         zone = 'c'
 
 if zone == 'c':
-    y0, y1 = 175, 186
-    x0, x1 = 235, 241
+    y0, y1 = 175, 180
+    x0, x1 = 235, 240
     folder = "central"
 
 elif zone == 's':
@@ -195,7 +195,7 @@ def apply_fun(grid):
 
 
 def apply_fun0(grid):
-    grid.run_caete('19790101', '19881231', spinup=45,
+    grid.run_caete('19790101', '19881231', spinup=2,
                    fix_co2='1983', save=False)
     return grid
 

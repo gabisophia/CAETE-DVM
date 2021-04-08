@@ -123,7 +123,7 @@ def neighbours_index(pos, matrix):
 # WARNING keep the lists of budget/carbon3 outputs updated with fortran code
 def catch_out_budget(out):
     lst = ["evavg", "epavg", "phavg", "aravg", "nppavg",
-           "laiavg", "rcavg", "f5avg", "rmavg", "rgavg", "cleafavg_pft", "cawoodavg_pft",
+           "laiavg", "rcavg", "f5avg", "rmavg", "rgavg", "height_out" "cleafavg_pft", "cawoodavg_pft",
            "cfrootavg_pft", "stodbg", "ocpavg", "wueavg", "cueavg", "c_defavg", "vcmax",
            "specific_la", "nupt", "pupt", "litter_l", "cwd", "litter_fr", "npp2pay", "lnc", "delta_cveg",
            "limitation_status", "uptk_strat", 'cp', 'c_cost_cwm']
@@ -274,6 +274,7 @@ class grd:
         self.vp_wdl = None
         self.vp_sto = None
         self.vp_lsid = None
+        self.vp_heightt = None
 
         # Hydraulics
         self.theta_sat = None
@@ -321,6 +322,7 @@ class grd:
         self.cleaf = np.zeros(shape=(n,), order='F')
         self.cawood = np.zeros(shape=(n,), order='F')
         self.cfroot = np.zeros(shape=(n,), order='F')
+        self.heightt = np.zeros(shape=(n,), order='F')
         self.wue = np.zeros(shape=(n,), order='F')
         self.cue = np.zeros(shape=(n,), order='F')
         self.cdef = np.zeros(shape=(n,), order='F')
@@ -383,6 +385,7 @@ class grd:
                      'cleaf': self.cleaf,
                      'cawood': self.cawood,
                      'cfroot': self.cfroot,
+                     'height': self.heightt,
                      'area': self.area,
                      'wue': self.wue,
                      'cue': self.cue,
@@ -431,6 +434,7 @@ class grd:
         self.cleaf = None
         self.cawood = None
         self.cfroot = None
+        self.heightt = None
         self.area = None
         self.wue = None
         self.cue = None
@@ -553,7 +557,8 @@ class grd:
         self.vp_dcf = np.zeros(shape=(npls,), order='F')
         self.vp_ocp = np.zeros(shape=(npls,), order='F')
         self.vp_sto = np.zeros(shape=(3, npls), order='F')
-
+        self.vp_heightt = np.zeros(shape=(npls,), order='F')
+        
         # # # SOIL
         self.sp_csoil = np.zeros(shape=(4,), order='F') + 1.0
         self.sp_snc = np.zeros(shape=(8,), order='F')
@@ -724,6 +729,7 @@ class grd:
                 dca = np.zeros(npls, order='F')
                 dcf = np.zeros(npls, order='F')
                 uptk_costs = np.zeros(npls, order='F')
+                heightt = np.zeros(npls, order='F')
 
                 sto[0, self.vp_lsid] = self.vp_sto[0, :]
                 sto[1, self.vp_lsid] = self.vp_sto[1, :]
@@ -739,6 +745,7 @@ class grd:
                     dca[n] = self.vp_dca[c]
                     dcf[n] = self.vp_dcf[c]
                     uptk_costs[n] = self.sp_uptk_costs[c]
+                    heightt[n] = self.vp_heightt[c]
                     c += 1
                 ton = self.sp_organic_n + self.sp_sorganic_n
                 top = self.sp_organic_p + self.sp_sorganic_p
@@ -777,6 +784,7 @@ class grd:
                     self.vp_dcf=np.zeros(shape=(self.vp_lsid.size,))
                     self.vp_sto=np.zeros(shape=(3, self.vp_lsid.size))
                     self.sp_uptk_costs=np.zeros(shape=(self.vp_lsid.size,))
+                    self.vp_heightt=np.zeros(shape=(self.vp_lsid.size,))
 
                     self.vp_ocp=np.zeros(shape=(self.vp_lsid.size,))
                     del awood
@@ -794,6 +802,7 @@ class grd:
                     self.vp_dcf=daily_output['delta_cveg'][2][self.vp_lsid]
                     self.vp_sto=daily_output['stodbg'][:, self.vp_lsid]
                     self.sp_uptk_costs=daily_output['npp2pay'][self.vp_lsid]
+                    self.vp_heightt=daily_output['height_out'][self.vp_lsid]
 
                 # UPDATE STATE VARIABLES
                 # WATER CWM
@@ -1070,6 +1079,7 @@ class grd:
         dca=self.vp_dca
         dcf=self.vp_dcf
         uptk_costs=np.zeros(npls, order='F')
+        heightt=self.vp_heightt
 
         for step in range(steps.size):
             loop += 1
