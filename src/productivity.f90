@@ -102,6 +102,7 @@ contains
     real(r_8) :: height1
     real(r_8) :: psi50
     real(r_8) :: klmax
+    real(r_8) :: krcmax
 
 
 ! Getting pls parameters
@@ -181,7 +182,12 @@ contains
     ! Klmax
     !=========
     klmax = conductivity_xylemleaf(dwood_t,jl_out* 1e6,ca1_prod)
-    print*,'klmax',klmax,'amax',jl_out
+    print*,'klmax',klmax
+
+    ! Krcmax
+    !=========
+    krcmax = conductance_xylemax(klmax,height1,ca1_prod)   
+    print*,'krcmax',krcmax,'klmax',klmax
 
 
     ! VPD
