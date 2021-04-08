@@ -121,19 +121,19 @@ contains
     leaf_age(2) = (tleaf * (1.0/2.0))
     leaf_age(3) = (tleaf * (5.0/6.0))
 
-    do i = 1, 3
-        penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
-    enddo
-    
-    !do i = 1,3
-    !   if (i .le. age_limits(1)) then 
-    !      penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
-    !   else if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
-    !      penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
-    !   else 
-    !      penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
-    !   endif 
+    !do i = 1, 3
+    !    penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
     !enddo
+    
+    do i = 1,3
+       if (i .le. age_limits(1)) then 
+          penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
+       else if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
+          penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
+       else 
+          penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
+       endif 
+    enddo
 
     !print*,'fa jovem',penalization_by_age(1)
     !print*,'fa madura',penalization_by_age(2)

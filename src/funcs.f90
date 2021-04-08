@@ -401,7 +401,7 @@ contains
       !     --------
       real(r_8) :: D1       !sqrt(kPA)
       real(r_4) :: vapour_p_d
-      real(r_4),dimension(3) :: gs_aux
+      real(r_8),dimension(3) :: gs_aux
 
       vapour_p_d = vpd_in
       ! Assertions
