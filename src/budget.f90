@@ -170,7 +170,7 @@ contains
       integer(i_4), dimension(:, :),allocatable :: uptk_strat        ! D0=2
       INTEGER(i_4), dimension(:), allocatable :: lp ! index of living PLSs
 
-      real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs
+      real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs, dwood_aux
       real(r_8), dimension(3,npls) :: sto_budg
       real(r_8) :: soil_sat
       !     START
@@ -181,6 +181,8 @@ contains
       ! create copies of some input variables (arrays) - ( they are passed by reference by standard)
       do i = 1,npls
          awood_aux(i) = dt(7,i)
+         dwood_aux(i) = dt(18,i)
+         print*,'dwood',dwood_aux(i)
          ca1_pft(i) = ca1_in(i)
          cf1_pft(i) = cf1_in(i)
          dleaf(i) = dleaf_in(i)
