@@ -94,6 +94,7 @@ contains
     real(r_8) :: klmax
     real(r_8) :: krcmax
     real(r_8) :: psixylem
+    real(r_8) :: kxylem
 
 !getting pls parameters
 
@@ -148,7 +149,12 @@ contains
     ! Psixylem
     !=========
     psixylem = xylem_waterpotential(psisoil,height1,ca1_prod)
-    print*,'psixylem',psixylem, 'psisoil',psisoil
+    !print*,'psixylem',psixylem
+
+    ! k xylem
+    !=========
+    kxylem = xylem_conductance(krcmax,psixylem,psi50,ca1_prod)
+    print*,'KXYLEM:',kxylem, 'P50:',psi50
 
     ! VPD
     !========
