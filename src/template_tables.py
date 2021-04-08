@@ -50,7 +50,9 @@ G3_1d = ["rcm",
          "evapm",
          "wsoil",
          "swsoil",
-         "cleaf",
+         "cleaf_j",
+         "cleaf_m",
+         "cleaf_s",
          "cawood",
          "cfroot",
          "litter_l",
@@ -141,22 +143,24 @@ class run_g3(tb.IsDescription):
     evapm = tb.Float32Col(dflt=0.0, pos=6)
     wsoil = tb.Float32Col(dflt=0.0, pos=7)
     swsoil = tb.Float32Col(dflt=0.0, pos=8)
-    cleaf = tb.Float32Col(dflt=0.0, pos=9)
-    cawood = tb.Float32Col(dflt=0.0, pos=10)
-    cfroot = tb.Float32Col(dflt=0.0, pos=11)
-    litter_l = tb.Float32Col(dflt=0.0, pos=12)
-    cwd = tb.Float32Col(dflt=0.0, pos=13)
-    litter_fr = tb.Float32Col(dflt=0.0, pos=14)
-    lnc1 = tb.Float32Col(dflt=0.0, pos=15)
-    lnc2 = tb.Float32Col(dflt=0.0, pos=16)
-    lnc3 = tb.Float32Col(dflt=0.0, pos=17)
-    lnc4 = tb.Float32Col(dflt=0.0, pos=18)
-    lnc5 = tb.Float32Col(dflt=0.0, pos=19)
-    lnc6 = tb.Float32Col(dflt=0.0, pos=20)
-    sto1 = tb.Float32Col(dflt=0.0, pos=21)
-    sto2 = tb.Float32Col(dflt=0.0, pos=22)
-    sto3 = tb.Float32Col(dflt=0.0, pos=23)
-    c_cost = tb.Float32Col(dflt=0.0, pos=24)
+    cleaf_j = tb.Float32Col(dflt=0.0, pos=9)
+    cleaf_m = tb.Float32Col(dflt=0.0, pos=10)
+    cleaf_s = tb.Float32Col(dflt=0.0, pos=11)
+    cawood = tb.Float32Col(dflt=0.0, pos=12)
+    cfroot = tb.Float32Col(dflt=0.0, pos=13)
+    litter_l = tb.Float32Col(dflt=0.0, pos=14)
+    cwd = tb.Float32Col(dflt=0.0, pos=15)
+    litter_fr = tb.Float32Col(dflt=0.0, pos=16)
+    lnc1 = tb.Float32Col(dflt=0.0, pos=17)
+    lnc2 = tb.Float32Col(dflt=0.0, pos=18)
+    lnc3 = tb.Float32Col(dflt=0.0, pos=19)
+    lnc4 = tb.Float32Col(dflt=0.0, pos=20)
+    lnc5 = tb.Float32Col(dflt=0.0, pos=21)
+    lnc6 = tb.Float32Col(dflt=0.0, pos=22)
+    sto1 = tb.Float32Col(dflt=0.0, pos=23)
+    sto2 = tb.Float32Col(dflt=0.0, pos=24)
+    sto3 = tb.Float32Col(dflt=0.0, pos=25)
+    c_cost = tb.Float32Col(dflt=0.0, pos=26)
 
 
 class PLS_temp(tb.IsDescription):

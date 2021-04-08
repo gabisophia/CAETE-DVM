@@ -106,7 +106,9 @@ def get_var_metadata(var):
               'cue': ['Carbon use efficiency', 'unitless', 'cue'],
               'cawood': ['C in woody tissues', 'kg m-2', 'cawood'],
               'cfroot': ['C in fine roots', 'kg m-2', 'cfroot'],
-              'cleaf': ['C in leaves', 'kg m-2', 'cleaf'],
+              'cleaf_j': ['C in leaves', 'kg m-2', 'cleaf'],
+              'cleaf_m': ['C in leaves', 'kg m-2', 'cleaf'],
+              'cleaf_s': ['C in leaves', 'kg m-2', 'cleaf'],
               'cmass': ['total Carbon -Biomass', 'kg m-2', 'cmass'],
               'leaf_nolim': ['no lim. in leaf growth', 'Time fraction', 'leaf_nolim'],
               'leaf_lim_n': ['N lim. growth L', 'Time fraction', 'leaf_lim_n'],
@@ -641,7 +643,7 @@ def create_ncG3(table, interval, nc_out):
     elif out_data:
         print(f"\n\nSaving outputs in {nc_out.resolve()}")
 
-    vars = ["rcm", "runom", "evapm", "wsoil", "cleaf", "cawood",
+    vars = ["rcm", "runom", "evapm", "wsoil", "cleaf_j", "cleaf_m", "cleaf_s", "cawood",
             "cfroot", "litter_l", "cwd", "litter_fr", "litter_n",
             "litter_p", "sto_c", "sto_n", "sto_p", "c_cost"]
 
@@ -666,7 +668,9 @@ def create_ncG3(table, interval, nc_out):
     evapm = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     wsoil = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     swsoil = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
-    cleaf = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    cleaf_j = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    cleaf_m = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    cleaf_s = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     cawood = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     cfroot = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     litter_l = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
@@ -699,8 +703,12 @@ def create_ncG3(table, interval, nc_out):
             out['grid_y'], out['grid_x'], out['wsoil'])
         swsoil[i, :, :] = assemble_layer(
             out['grid_y'], out['grid_x'], out['swsoil'])
-        cleaf[i, :, :] = assemble_layer(
-            out['grid_y'], out['grid_x'], out['cleaf'])
+        cleaf_j[i, :, :] = assemble_layer(
+            out['grid_y'], out['grid_x'], out['cleaf_j'])
+        cleaf_m[i, :, :] = assemble_layer(
+            out['grid_y'], out['grid_x'], out['cleaf_m'])
+        cleaf_s[i, :, :] = assemble_layer(
+            out['grid_y'], out['grid_x'], out['cleaf_s'])
         cawood[i, :, :] = assemble_layer(
             out['grid_y'], out['grid_x'], out['cawood'])
         cfroot[i, :, :] = assemble_layer(
@@ -742,11 +750,11 @@ def create_ncG3(table, interval, nc_out):
     wsoil = swsoil + wsoil
     np.place(wsoil, mask=swsoil == -9999.0, vals=NO_DATA)
 
-    vars = ["rcm", "runom", "evapm", "wsoil", "cleaf", "cawood",
+    vars = ["rcm", "runom", "evapm", "wsoil", "cleaf_j", "cleaf_m", "cleaf_s", "cawood",
             "cfroot", "litter_l", "cwd", "litter_fr", "litter_n",
             "litter_p", "sto_c", "sto_n", "sto_p", "c_cost"]
 
-    arr = (rcm, runom, evapm, wsoil, cleaf, cawood, cfroot,
+    arr = (rcm, runom, evapm, wsoil, cleaf_j, cleaf_m, cleaf_s, cawood, cfroot,
            litter_l, cwd, litter_fr, litter_n, litter_p,
            sto1, sto2, sto3, c_cost)
 
