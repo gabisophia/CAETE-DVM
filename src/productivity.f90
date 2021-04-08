@@ -90,6 +90,7 @@ contains
     real(r_8) :: diameter
     real(r_8) :: height1
     real(r_8) :: psi50
+    real(r_8) :: klmax
 
 !getting pls parameters
 
@@ -119,20 +120,23 @@ contains
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,n2cl,&
          & p2cl,cl1_prod,tleaf,f1a,vm_out,jl_out)
 
-
     !=============
     !  Hydraulic
     !=============y
 
     diameter = diameter_pls(dwood_t,ca1_prod)
     height1 = height_pls(diameter)
+    print*,'height',height1,'cawood',ca1_prod
 
     !   P50
     !=========
     psi50 = psi_fifty(dwood_t,ca1_prod)
-    print*,'P50',psi50
+    !print*,'P50',psi50
 
-    
+    ! Klmax
+    !=========
+    klmax = conductivity_xylemleaf(dwood_t,jl_out,ca1_prod)
+    print*,'klmax',klmax
 
     ! VPD
     !========
