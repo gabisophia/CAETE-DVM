@@ -182,7 +182,7 @@ contains
       do i = 1,npls
          awood_aux(i) = dt(7,i)
          dwood_aux(i) = dt(18,i)
-         print*,'dwood',dwood_aux(i)
+         !print*,'dwood',dwood_aux(i)
          ca1_pft(i) = ca1_in(i)
          cf1_pft(i) = cf1_in(i)
          dleaf(i) = dleaf_in(i)
@@ -277,7 +277,7 @@ contains
          ri = lp(p)
          dt1 = dt(:,ri) ! Pick up the pls functional attributes list
 
-         call prod(dt1, ocp_wood(ri),catm, temp, soil_temp, p0, w, ipar, rh, emax&
+         call prod(dt1, dwood_aux(ri), ocp_wood(ri),catm, temp, soil_temp, p0, w, ipar, rh, emax&
                &, cl1_pft(:,ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
                &, soil_sat, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
                &, wue(p), c_def(p), vcmax(p), specific_la(p), tra(p))
