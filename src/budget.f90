@@ -27,7 +27,7 @@ contains
 
    subroutine daily_budget(dt, w1, w2, ts, temp, p0, ipar, rh&
         &, mineral_n, labile_p, on, sop, op, catm, sto_budg_in, cl1_in, ca1_in, cf1_in, dleaf_in, dwood_in&
-        &, droot_in, uptk_costs_in, wmax_in, evavg, epavg, phavg, aravg, nppavg&
+        &, droot_in, uptk_costs_in, wmax_in, soil_text, p_sat, evavg, epavg, phavg, aravg, nppavg&
         &, laiavg, rcavg, f5avg, rmavg, rgavg, cleafavg_pft, cawoodavg_pft&
         &, cfrootavg_pft, storage_out_bdgt_1, ocpavg, wueavg, cueavg, c_defavg&
         &, vcmax_1, specific_la_1, nupt_1, pupt_1, litter_l_1, cwd_1, litter_fr_1, npp2pay_1, lit_nut_content_1&
@@ -56,7 +56,9 @@ contains
       real(r_4),intent(in) :: mineral_n            ! Solution N NOx/NaOH gm-2
       real(r_4),intent(in) :: labile_p             ! solution P O4P  gm-2
       real(r_8),intent(in) :: on, sop, op          ! Organic N, isoluble inorganic P, Organic P g m-2
-      real(r_8),intent(in) :: catm, wmax_in                 ! ATM CO2 concentration ppm
+      real(r_8),intent(in) :: catm                 ! ATM CO2 concentration ppm
+      real(r_8),intent(in) :: wmax_in
+      real(r_8),intent(in) :: soil_text, p_sat
 
 
       real(r_8),dimension(3,npls),intent(in)  :: sto_budg_in ! Rapid Storage Pool (C,N,P)  g m-2
@@ -173,6 +175,9 @@ contains
       real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs, dwood_aux
       real(r_8), dimension(3,npls) :: sto_budg
       real(r_8) :: soil_sat
+      real(r_8) :: psi_soil
+
+
       !     START
       !     --------------
       !     Grid cell area fraction 0-1
@@ -202,6 +207,9 @@ contains
       w = w1 + w2          ! soil water mm
       soil_temp = ts   ! soil temp °C
       soil_sat = wmax_in
+
+      psi_soil = ((p_sat*(-0.0098)) * (w/soil_sat) ** (-soil_text))
+      print*,'psisoil budget',psi_soil
 
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)

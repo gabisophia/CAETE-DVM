@@ -1273,7 +1273,6 @@ contains
       real(r_8) :: diam
 
       diam = (4*(cawood*1.0D3)/(dwood_aux*1D7)*pi*k_allom2)**(1/(2+k_allom3))
-      print*,'diameter funcs',diam
 
    end function diameter_pls
 
@@ -1288,7 +1287,6 @@ contains
       real(r_8) :: height
 
       height = k_allom2*(diam**k_allom3)
-      print*,'height funcs',height
 
    end function height_pls
 
