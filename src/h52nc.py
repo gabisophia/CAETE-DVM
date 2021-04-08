@@ -158,7 +158,8 @@ def get_var_metadata(var):
               'froot_p2c': ['CWM- fine root P:C', 'g g-1', 'froot_p2c'],
               'amp': ['CWM- Percentage of fine root colonized by AM', '%', 'amp'],
               'pdia': ['CWM- NPP aloated to N fixers', 'fraction_of_npp', 'pdia'],
-              'ls': ['Living Plant Life Strategies', 'unitless', 'ls']}
+              'ls': ['Living Plant Life Strategies', 'unitless', 'ls'],
+              'dwood': ['CWM- wood density', 'g/cm3', 'dwood'],}
 
     out = {}
     for v in var:
@@ -995,6 +996,7 @@ def ccc(table, pls_table, nc_out):
     froot_p2c = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     amp = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     pdia = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    dwood = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
 
     time_index = []
     pls_array = pls_table.read_where("PLS_id >= 0")
@@ -1041,6 +1043,8 @@ def ccc(table, pls_table, nc_out):
                                         out['area_0'], pls_array['amp'])
             pdia[i, :, :] = assemble_cwm(
                 out['grid_y'], out['grid_x'], out['area_0'], pls_array['pdia'])
+            dwood[i, :, :] = assemble_cwm(
+                out['grid_y'], out['grid_x'], out['area_0'], pls_array['dwood'])
 
             g1[i + 1, :, :] = assemble_cwm(out['grid_y'],
                                            out['grid_x'], out['area_f'], pls_array['g1'])
@@ -1076,6 +1080,8 @@ def ccc(table, pls_table, nc_out):
                                             out['area_f'], pls_array['amp'])
             pdia[i + 1, :, :] = assemble_cwm(
                 out['grid_y'], out['grid_x'], out['area_f'], pls_array['pdia'])
+            dwood[i + 1, :, :] = assemble_cwm(
+                out['grid_y'], out['grid_x'], out['area_f'], pls_array['dwood'])
         else:
             afdate = str2cf_date(interval[1])
             time_index.append(
@@ -1114,6 +1120,8 @@ def ccc(table, pls_table, nc_out):
                                             out['area_f'], pls_array['amp'])
             pdia[i + 1, :, :] = assemble_cwm(
                 out['grid_y'], out['grid_x'], out['area_f'], pls_array['pdia'])
+            dwood[i + 1, :, :] = assemble_cwm(
+                out['grid_y'], out['grid_x'], out['area_f'], pls_array['dwood'])
 
     arr = [g1,
            resopfrac,
@@ -1131,7 +1139,8 @@ def ccc(table, pls_table, nc_out):
            awood_p2c,
            froot_p2c,
            amp,
-           pdia]
+           pdia,
+           dwood]
 
     vars = ['g1',
             'resopfrac',
@@ -1149,7 +1158,8 @@ def ccc(table, pls_table, nc_out):
             'awood_p2c',
             'froot_p2c',
             'amp',
-            'pdia']
+            'pdia',
+            'dwood']
 
     flt_attrs = get_var_metadata(vars)
     write_snap_output(arr, vars, flt_attrs, time_index, nc_out)
