@@ -165,7 +165,7 @@ def table_gen(NPLS, fpath=None):
     index0 = 0
     # rtime = vec_ranging(np.random.beta(2, 4, r_ceil),
     #                     0.083333, 2)
-    rtime = np.random.uniform(0.08333333333333333, 5, r_ceil)
+    rtime = np.random.uniform(0.08333333333333333, 7.0, r_ceil)
     print("CREATE GRASSy STRATEGIES - Checking potential npp/alocation")
     while index0 < diffg:
         restime = np.zeros(shape=(3,), dtype=np.float64)
