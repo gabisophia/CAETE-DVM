@@ -168,7 +168,7 @@ contains
 !   rate (molCO2/m2/s)
 
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,n2cl,&
-         & p2cl,cl1_prod(:),tleaf,f1a,vm_out,jl_out)
+         & p2cl,cl1_prod(:),f1a,vm_out,jl_out)
 
     !=============
     !  Hydraulic

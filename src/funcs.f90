@@ -710,7 +710,7 @@ contains
    !=================================================================
 
    subroutine photosynthesis_rate(c_atm,temp,p0,ipar,ll,c4,nbio,pbio,cbio,&
-        & leaf_turnover,f1ab,vm,amax)
+        & f1ab,vm,amax)
 
       ! f1ab SCALAR returns instantaneous photosynthesis rate at leaf level (molCO2/m2/s)
       ! vm SCALAR Returns maximum carboxilation Rate (Vcmax) (molCO2/m2/s)
@@ -727,7 +727,7 @@ contains
       real(r_8),dimension(3),intent(in) :: cbio  ! kg m-2
       logical(l_1),intent(in) :: ll ! is light limited?
       integer(i_4),intent(in) :: c4 ! is C4 Photosynthesis pathway?
-      real(r_8),intent(in) :: leaf_turnover   ! y
+      !real(r_8),intent(in) :: leaf_turnover   ! y
       ! O
       real(r_8),intent(out) :: f1ab ! Gross CO2 Assimilation Rate mol m-2 s-1
       real(r_8),intent(out) :: vm   ! PLS Vcmax mol m-2 s-1
