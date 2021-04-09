@@ -309,7 +309,6 @@ contains
       if(cawood .gt. 0.0D0) then   
          stem_slope = 65.15*(-psi_50)**(-1.25)
          a = -4*stem_slope/100*psi_50
-         print*,'a',a   
          k = krc_max*(1+(psi_xylem/psi_50)**a)**(-1) 
       else
          k = 0.0D0
@@ -320,7 +319,7 @@ contains
    !=================================================================
    !=================================================================
 
-   function conductance_normalized(krc_max,k, cawood) result(k_norm)
+   function conductance_normalized(krc_max,k,cawood) result(k_norm)
       !Returns normalized xylem conductance (dimensionless)
       use types
 
@@ -368,16 +367,17 @@ contains
       ep_aux = real(ep, kind=r_8)
       if (rc .gt. rcmax) rc_aux = real(rcmax, r_8)
 
-      pt = csru*(cfroot*1000.0D0) * k_norm  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
       if(rc_aux .gt. rcmin) then
          gc = (1.0D0/(rc_aux * 1.15741D-08))  ! s/m
       else
          gc =  1.0D0/(rcmin_aux * 1.15741D-8) ! BIANCA E HELENA - Mudei este esquema..
       endif
 
-      !d =(ep * alfm) / (1. + gm/gc) !(based in Gerten et al. 2004)
+      d =(ep * alfm) / (1. + gm/gc) !(based in Gerten et al. 2004)
       d = (ep_aux * alfm) / (1.0D0 + (gm/gc))
+
       if(d .gt. 0.0D0 .and. cawood .gt. 0.0D0) then
+         pt = csru*(cfroot*1000.0D0) * k_norm  !(based in Pavlick et al. 2013; *1000. converts kgC/m2 to gC/m2)
          f5_64 = pt/d
          !print*, f5_64, 'f564'
          f5_64 = exp((f5_64 * (-0.1D0)))
