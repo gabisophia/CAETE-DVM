@@ -26,7 +26,7 @@ module productivity
 
 contains
 
-  subroutine prod(dt,dwood_t,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
+  subroutine prod(dt,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
        & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,psisoil,ph,ar,&
        & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla,e)
 
@@ -51,7 +51,6 @@ contains
     real(r_8), intent(in) :: beta_froot
     real(r_8), intent(in) :: wmax
     real(r_8), intent(in) :: psisoil
-    real(r_8), intent(in) :: dwood_t
     logical(l_1), intent(in) :: light_limit           !True for no ligth limitation
 
 !     Output
@@ -79,6 +78,7 @@ contains
     real(r_8) :: awood            
     real(r_8) :: g1
     real(r_8) :: c4
+    real(r_8) :: wd
 
     real(r_8) :: n2cl
     real(r_8) :: n2cl_resp
@@ -91,7 +91,7 @@ contains
     real(r_8), dimension(3) :: f1      !Leaf level gross photosynthesis (molCO2/m2/s)
     real(r_8) :: f1a                   !auxiliar_f1
     real(r_8), dimension(3) :: umol_penalties = (/-0.4, 1.0, 0.6/) !Penalization in photosynthesis for each cohort, defined by Wu et al (2016) and Albert et al (2018)
-    real(r_8), dimension(3) :: age_limits, leaf_age
+    real(r_8), dimension(3) :: leaf_age
     real(r_8), dimension(3) :: penalization_by_age
     real(r_8) :: age_crit
     real(r_8) :: cl_total              !Carbon sum of all the cohots (kg/m2)
@@ -119,39 +119,25 @@ contains
     n2cw_resp = dt(11)
     n2cf_resp = dt(12)
     p2cl = dt(13)
-
+    wd = dt(18)
+    print*,'wd',wd
 
     !Simulation of leaf demography
     !Obtain critical age
     age_crit = (tleaf / 3.0) * 2.0
-
-    !Obtain age limits of each cohort
-    age_limits(1) = (tleaf * (1.0/6.0))
-    age_limits(2) = (tleaf * (4.0/6.0))
-    age_limits(3) = tleaf
 
     !Obtain leaf age (a) - middle age of each cohort
     leaf_age(1) = (tleaf * (1.0/12.0))
     leaf_age(2) = (tleaf * (1.0/2.0))
     leaf_age(3) = (tleaf * (5.0/6.0))
 
-    !do i = 1, 3
-    !    penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
-    !enddo
-    
-    do i = 1,3
-       if (i .le. age_limits(1)) then 
-          penalization_by_age(1) = leaf_age_factor(umol_penalties(1), age_crit, leaf_age(1))
-       else if (i .gt. age_limits(1) .and. i .le. age_limits(2)) then
-          penalization_by_age(2) = leaf_age_factor(umol_penalties(2), age_crit, leaf_age(2))
-       else 
-          penalization_by_age(3) = leaf_age_factor(umol_penalties(3), age_crit, leaf_age(3))   
-       endif 
+    do i = 1, 3
+        penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
     enddo
 
-    !print*,'fa jovem',penalization_by_age(1)
-    !print*,'fa madura',penalization_by_age(2)
-    !print*,'fa velha',penalization_by_age(3)
+    print*,'fa jovem',penalization_by_age(1)
+    print*,'fa madura',penalization_by_age(2)
+    print*,'fa velha',penalization_by_age(3)
 
     !Obtain total carbon of the leaf cohorts
     cl_total = sum(cl1_prod)
@@ -174,18 +160,18 @@ contains
     !  Hydraulic
     !=============
 
-    diameter = diameter_pls(dwood_t,ca1_prod)
+    diameter = diameter_pls(wd,ca1_prod)
     height1 = height_pls(diameter)
 
     !   P50
     !=========
-    psi50 = psi_fifty(dwood_t,ca1_prod)
-    !print*,'P50',psi50, 'wd',dwood_t
+    psi50 = psi_fifty(wd,ca1_prod)
+    print*,'P50',psi50, 'wd',wd
 
     ! Klmax
     !=========
-    klmax = conductivity_xylemleaf(dwood_t,jl_out* 1e6,ca1_prod)
-    !print*,'klmax',klmax
+    klmax = conductivity_xylemleaf(wd,jl_out* 1e6,ca1_prod)
+    print*,'klmax',klmax
 
     ! Krcmax
     !=========
