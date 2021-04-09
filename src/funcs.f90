@@ -306,11 +306,10 @@ contains
       real(r_8) :: stem_slope     !MPa-1 - Slope of the linear portion of the xylem vulnerability function
       real(r_8) :: a              !vulnerability curve
 
-      stem_slope = 65.15*(-psi_50)**(-1.25)
-      a = -4*stem_slope/100*psi_50
-      print*,'a',a
-
-      if(cawood .gt. 0.0D0) then
+      if(cawood .gt. 0.0D0) then   
+         stem_slope = 65.15*(-psi_50)**(-1.25)
+         a = -4*stem_slope/100*psi_50
+         print*,'a',a   
          k = krc_max*(1+(psi_xylem/psi_50)**a)**(-1) 
       else
          k = 0.0D0
