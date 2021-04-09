@@ -140,7 +140,7 @@ contains
     ! Klmax
     !=========
     klmax = conductivity_xylemleaf(dwood_t,jl_out*1e6,ca1_prod)
-    !print*,'klmax',klmax
+    print*,'klmax',klmax
 
     ! Krcmax
     !=========
@@ -150,12 +150,12 @@ contains
     ! Psixylem
     !=========
     psixylem = xylem_waterpotential(psisoil,height1,ca1_prod)
-    !print*,'psixylem',psixylem
+    print*,'psixylem',psixylem, 'psisoil',psisoil
 
     ! k xylem
     !=========
     kxylem = xylem_conductance(krcmax,psixylem,psi50,ca1_prod)
-    !print*,'KXYLEM:',kxylem, 'P50:',psi50
+    print*,'kxylem:',kxylem,'krcmax:',krcmax,'P50:',psi50,'psi xylema:',psixylem
 
     ! k xylem
     !=========
@@ -174,7 +174,7 @@ contains
     !Water stress response modifier (dimensionless)
     !----------------------------------------------
     f5 =  water_stress_modifier(w, cf1_prod, rc_pot, emax, wmax, knorm, ca1_prod)
-    !print*,'f5',f5
+    print*,'f5',f5
 
 
 !     Photosysthesis minimum and maximum temperature
