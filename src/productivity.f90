@@ -120,7 +120,6 @@ contains
     n2cf_resp = dt(12)
     p2cl = dt(13)
     wd = dt(18)
-    print*,'wd',wd
 
     !Simulation of leaf demography
     !Obtain critical age
@@ -135,9 +134,9 @@ contains
         penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
     enddo
 
-    print*,'fa jovem',penalization_by_age(1)
-    print*,'fa madura',penalization_by_age(2)
-    print*,'fa velha',penalization_by_age(3)
+    !print*,'fa jovem',penalization_by_age(1)
+    !print*,'fa madura',penalization_by_age(2)
+    !print*,'fa velha',penalization_by_age(3)
 
     !Obtain total carbon of the leaf cohorts
     cl_total = sum(cl1_prod)
@@ -162,16 +161,17 @@ contains
 
     diameter = diameter_pls(wd,ca1_prod)
     height1 = height_pls(diameter)
+    !print*,'height:',height1,'cawood:',ca1_prod
 
     !   P50
     !=========
     psi50 = psi_fifty(wd,ca1_prod)
-    print*,'P50',psi50, 'wd',wd
+    !print*,'P50',psi50, 'wd',wd
 
     ! Klmax
     !=========
     klmax = conductivity_xylemleaf(wd,jl_out* 1e6,ca1_prod)
-    print*,'klmax',klmax
+    !print*,'klmax',klmax
 
     ! Krcmax
     !=========

@@ -186,7 +186,6 @@ contains
       ! create copies of some input variables (arrays) - ( they are passed by reference by standard)
       do i = 1,npls
          awood_aux(i) = dt(7,i)
-         !print*,'dwood',dwood_aux(i)
          ca1_pft(i) = ca1_in(i)
          cf1_pft(i) = cf1_in(i)
          dleaf(i) = dleaf_in(i)
@@ -208,7 +207,7 @@ contains
       soil_sat = wmax_in
 
       psi_soil = ((p_sat*(-0.0098)) * (w/soil_sat) ** (-soil_text))
-      print*,'psisoil budget',psi_soil
+      !print*,'psisoil budget',psi_soil
 
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
@@ -354,15 +353,44 @@ contains
 
          ! Mass Balance
 
+         !if(c_def(p) .gt. 0.0) then
+         !   if(dt1(7) .gt. 0.0D0) then
+         !      cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.125)
+         !      cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.125)
+         !      cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.5)
+         !      ca1_int(p) = ca2(p) - ((c_def(p) * 1e-3) * 0.125)
+         !      cf1_int(p) = cf2(p) - ((c_def(p) * 1e-3) * 0.125)
+         !   else
+         !      cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.166666666666)
+         !      cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.166666666666)
+         !      cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.5)
+         !      ca1_int(p) = 0.0D0
+         !      cf1_int(p) = cf2(p) - ((c_def(p) * 1e-3) * 0.166666666666)
+         !   endif
+         !else
+         !   if(dt1(7) .gt. 0.0D0) then
+         !      cl1_int(:,p) = cl2(:,p)
+         !      ca1_int(p) = ca2(p)
+         !      cf1_int(p) = cf2(p)
+         !   else
+         !      cl1_int(:,p) = cl2(:,p)
+         !      ca1_int(p) = 0.0D0
+         !      cf1_int(p) = cf2(p)
+         !   endif
+         !endif
          if(c_def(p) .gt. 0.0) then
             if(dt1(7) .gt. 0.0D0) then
-               cl1_int(:,p) = cl2(:,p) - ((c_def(p) * 1e-3) * 0.333333333)
-               ca1_int(p) = ca2(p) - ((c_def(p) * 1e-3) * 0.333333333)
-               cf1_int(p) = cf2(p) - ((c_def(p) * 1e-3) * 0.333333333)
+               cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.25)
+               cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.25)
+               cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.5)
+               ca1_int(p) = ca2(p)
+               cf1_int(p) = cf2(p)
             else
-               cl1_int(:,p) = cl2(:,p) - ((c_def(p) * 1e-3) * 0.5)
+               cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.25)
+               cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.25)
+               cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.5)
                ca1_int(p) = 0.0D0
-               cf1_int(p) = cf2(p) - ((c_def(p) * 1e-3) * 0.5)
+               cf1_int(p) = cf2(p)
             endif
          else
             if(dt1(7) .gt. 0.0D0) then
@@ -381,7 +409,9 @@ contains
          if(ca1_int(p) .lt. 0.0D0) ca1_int(p) = 0.0D0
          if(cf1_int(p) .lt. 0.0D0) cf1_int(p) = 0.0D0
 
-         !print*,'cl1_pft(p)',cl1_pft(p),p
+         !print*,'cl1_pft(1,p)',cl1_pft(1,p),p
+         !print*,'cl1_pft(2,p)',cl1_pft(2,p),p
+         !print*,'cl1_pft(3,p)',cl1_pft(3,p),p
          !print*,'ca1_pft(p)',ca1_pft(p),p
          !print*,'cf1_pft(p)',cf1_pft(p),p
 
