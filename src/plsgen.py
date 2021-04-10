@@ -169,7 +169,7 @@ def table_gen(NPLS, fpath=None):
     print("CREATE GRASSy STRATEGIES - Checking potential npp/alocation")
     while index0 < diffg:
         restime = np.zeros(shape=(3,), dtype=np.float64)
-        dwood = 0.0
+        wd = 0.0
         allocatio = plsa_grass[np.random.randint(0, plsa_grass.shape[0])]
         restime[0] = rtime[np.random.randint(0, r_ceil)]
         restime[1] = 0.0
