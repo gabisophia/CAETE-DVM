@@ -288,6 +288,9 @@ contains
                &, soil_sat, psi_soil, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
                &, wue(p), c_def(p), vcmax(p), specific_la(p), tra(p))
 
+         !print*,'survivors',p, 'cawood:',ca1_pft(ri), 'cleaf j:',cl1_pft(1,ri), 'cleaf m:',cl1_pft(2,ri), 'cleaf s:',cl1_pft(3,ri),&
+         !& 'LAI:',laia(p), 'SLA:',specific_la(p), 'GPP:',ph(P),'NPP:',nppa(p)
+
          evap(p) = penman(p0,temp,rh,available_energy(temp),rc2(p)) !Actual evapotranspiration (evap, mm/day)
 
          ! Check if the carbon deficit can be compensated by stored carbon
@@ -355,15 +358,15 @@ contains
 
          if(c_def(p) .gt. 0.0) then
             if(dt1(7) .gt. 0.0D0) then
-               cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.25)
-               cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.25)
-               cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.5)
+               cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.2)
+               cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.2)
+               cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.6)
                ca1_int(p) = ca2(p)
                cf1_int(p) = cf2(p)
             else
-               cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.25)
-               cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.25)
-               cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.5)
+               cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.2)
+               cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.2)
+               cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.6)
                ca1_int(p) = 0.0D0
                cf1_int(p) = cf2(p)
             endif

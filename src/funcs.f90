@@ -82,7 +82,7 @@ contains
    !=================================================================
    !=================================================================
 
-   function gross_ph(f1,cleaf,sla) result(ph)
+   function gross_ph(f1,cleaf,sla_var) result(ph)
 
       ! Returns gross photosynthesis rate (kgC m-2 y-1) (GPP)
       use types, only: r_4, r_8
@@ -90,7 +90,7 @@ contains
 
       real(r_8),dimension(3),intent(in) :: f1    !molCO2 m-2 s-1
       real(r_8),dimension(3),intent(in) :: cleaf !kgC m-2
-      real(r_8),intent(in) :: sla   !m2 gC-1
+      real(r_8),intent(in) :: sla_var   !m2 gC-1
       real(r_4) :: ph
 
       real(r_8),dimension(3) :: f1in
@@ -99,8 +99,8 @@ contains
       real(r_4),dimension(3) :: ph_aux
 
       f1in(:) = f1(:)
-      f4sun = f_four(1,cleaf(:),sla)
-      f4shade = f_four(2,cleaf(:),sla)
+      f4sun = f_four(1,cleaf(:),sla_var)
+      f4shade = f_four(2,cleaf(:),sla_var)
 
       ph_aux(:) = real((0.012D0*31557600.0D0*f1in(:)*f4sun*f4shade), r_4)
       ph = sum(ph_aux(:))
@@ -110,20 +110,20 @@ contains
    !=================================================================
    !=================================================================
 
-   function leaf_area_index(cleaf, sla) result(lai)
+   function leaf_area_index(cleaf, sla_var) result(lai)
       ! Returns Leaf Area Index m2 m-2
 
       use types, only: r_8
       !implicit none
 
       real(r_8),dimension(3),intent(in) :: cleaf !kgC m-2
-      real(r_8),intent(in) :: sla   !m2 gC-1
+      real(r_8),intent(in) :: sla_var   !m2 gC-1
       real(r_8) :: lai
 
       real(r_8) :: cl_total
       cl_total = sum(cleaf(:))
 
-      lai  = cl_total * 1.0D3 * sla  ! Converts cleaf from (KgC m-2) to (gCm-2)
+      lai  = cl_total * 1.0D3 * sla_var  ! Converts cleaf from (KgC m-2) to (gCm-2)
       if(lai .lt. 0.0D0) lai = 0.0D0
 
    end function leaf_area_index
@@ -152,7 +152,7 @@ contains
    !=================================================================
    !=================================================================
 
-   function f_four(fs,cleaf,sla) result(lai_ss)
+   function f_four(fs,cleaf,sla_var) result(lai_ss)
       ! Function used to scale LAI from leaf to canopy level (2 layers)
       use types, only: i_4, r_4, r_8
       use photo_par, only: p26, p27
@@ -166,14 +166,14 @@ contains
       ! Any other number returns sunlai (not scaled to canopy)
 
       real(r_8),dimension(3),intent(in) :: cleaf ! carbon in leaf (kg m-2)
-      real(r_8),intent(in) :: sla   ! specific leaf area (m2 gC-1)
+      real(r_8),intent(in) :: sla_var   ! specific leaf area (m2 gC-1)
       real(r_8) :: lai_ss           ! leaf area index (m2 m-2)
 
       real(r_8) :: lai
       real(r_8) :: sunlai
       real(r_8) :: shadelai
 
-      lai = leaf_area_index(cleaf(:),sla)
+      lai = leaf_area_index(cleaf(:),sla_var)
 
       sunlai = (1.0D0-(dexp(-p26*lai)))/p26
       shadelai = lai - sunlai

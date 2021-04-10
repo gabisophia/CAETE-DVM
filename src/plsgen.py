@@ -170,6 +170,7 @@ def table_gen(NPLS, fpath=None):
     while index0 < diffg:
         restime = np.zeros(shape=(3,), dtype=np.float64)
         wd = 0.0
+        sla_var = np.random.uniform(0.005, 0.013, NPLS)
         allocatio = plsa_grass[np.random.randint(0, plsa_grass.shape[0])]
         restime[0] = rtime[np.random.randint(0, r_ceil)]
         restime[1] = 0.0
@@ -247,6 +248,9 @@ def table_gen(NPLS, fpath=None):
     wd = np.random.uniform(0.5, 0.9, NPLS)
     np.place(wd, test, 0.0)
 
+    sla_var = np.random.uniform(0.005, 0.013, NPLS)
+    np.place(sla_var, test, 0.0)
+
     # return woods
 
     for i in woods:
@@ -260,11 +264,11 @@ def table_gen(NPLS, fpath=None):
     stack = (pls_id, g1, resorption, alloc[:, 0], alloc[:, 1], alloc[:, 2],
              alloc[:, 3], alloc[:, 4], alloc[:, 5], c4, leaf_n2c,
              awood_n2c, froot_n2c, leaf_p2c, awood_p2c, froot_p2c,
-             amp, pdia, wd)
+             amp, pdia, wd, sla_var)
 
     head = ['PLS_id', 'g1', 'resopfrac', 'tleaf', 'twood', 'troot', 'aleaf', 'awood', 'aroot', 'c4',
             'leaf_n2c', 'awood_n2c', 'froot_n2c', 'leaf_p2c', 'awood_p2c', 'froot_p2c',
-            'amp', 'pdia', 'wd']
+            'amp', 'pdia', 'wd', 'sla_var']
 
     if fpath is not None:
 
