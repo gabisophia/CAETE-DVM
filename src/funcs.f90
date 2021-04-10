@@ -304,7 +304,7 @@ contains
       !Xylem conductance (molm-2s-1MPa-1)
       !Based in Manzoni et al., 2013
       use types
-      use global_par, only: vuln_curve
+      !use global_par, only: vuln_curve
 
       real(r_8), intent(in) :: krc_max                !molm-2s-1Mpa-1 
       real(r_8), intent(in) :: psi_xylem              !MPa
@@ -312,15 +312,13 @@ contains
       real(r_8),intent(in) :: cawood
       real(r_8) :: k                                  !molm-2s-1MPa-1
 
-      !real(r_8) :: stem_slope     !MPa-1 - Slope of the linear portion of the xylem vulnerability function
-      !real(r_8) :: a              !vulnerability curve
-
-      !stem_slope = 65.15*(-psi_50)**(-1.25)
-      !a = -4*stem_slope/100*psi_50
-      !print*,'a',a
+      real(r_8) :: stem_slope     !MPa-1 - Slope of the linear portion of the xylem vulnerability function
+      real(r_8) :: a              !vulnerability curve
 
       if(cawood .gt. 0.0D0) then
-         k = krc_max*(1+(psi_xylem/psi_50)**vuln_curve)**(-1) 
+         stem_slope = 65.15*(-psi_50)**(-1.25)
+         a = -4*stem_slope/100*psi_50
+         k = krc_max*(1+(psi_xylem/psi_50)**a)**(-1) 
       else
          k = 0.0D0
       endif

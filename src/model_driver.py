@@ -70,8 +70,8 @@ if not sombrero:
         zone = 'c'
 
 if zone == 'c':
-    y0, y1 = 175, 180
-    x0, x1 = 235, 240
+    y0, y1 = 175, 186
+    x0, x1 = 235, 241
     folder = "central"
 
 elif zone == 's':
@@ -195,7 +195,7 @@ def apply_fun(grid):
 
 
 def apply_fun0(grid):
-    grid.run_caete('19790101', '19881231', spinup=2,
+    grid.run_caete('19790101', '19881231', spinup=45,
                    fix_co2='1983', save=False)
     return grid
 
@@ -317,9 +317,9 @@ if __name__ == "__main__":
     fh.close()
 
     print("\nEND OF MODEL EXECUTION ", time.ctime(), "\n\n")
-    #print("Saving db - This will take some hours\n")
-    #write_h5(dump_folder)
-    #print("\n\nSaving netCDF4 files")
-    #h5path = Path(os.path.join(dump_folder, Path('CAETE.h5'))).resolve()
-    #h52nc(h5path, nc_outputs)
-    #print(time.ctime())
+    print("Saving db - This will take some hours\n")
+    write_h5(dump_folder)
+    print("\n\nSaving netCDF4 files")
+    h5path = Path(os.path.join(dump_folder, Path('CAETE.h5'))).resolve()
+    h52nc(h5path, nc_outputs)
+    print(time.ctime())

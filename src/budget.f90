@@ -353,31 +353,6 @@ contains
 
          ! Mass Balance
 
-         !if(c_def(p) .gt. 0.0) then
-         !   if(dt1(7) .gt. 0.0D0) then
-         !      cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.125)
-         !      cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.125)
-         !      cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.5)
-         !      ca1_int(p) = ca2(p) - ((c_def(p) * 1e-3) * 0.125)
-         !      cf1_int(p) = cf2(p) - ((c_def(p) * 1e-3) * 0.125)
-         !   else
-         !      cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.166666666666)
-         !      cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.166666666666)
-         !      cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.5)
-         !      ca1_int(p) = 0.0D0
-         !      cf1_int(p) = cf2(p) - ((c_def(p) * 1e-3) * 0.166666666666)
-         !   endif
-         !else
-         !   if(dt1(7) .gt. 0.0D0) then
-         !      cl1_int(:,p) = cl2(:,p)
-         !      ca1_int(p) = ca2(p)
-         !      cf1_int(p) = cf2(p)
-         !   else
-         !      cl1_int(:,p) = cl2(:,p)
-         !      ca1_int(p) = 0.0D0
-         !      cf1_int(p) = cf2(p)
-         !   endif
-         !endif
          if(c_def(p) .gt. 0.0) then
             if(dt1(7) .gt. 0.0D0) then
                cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.25)
