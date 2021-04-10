@@ -764,7 +764,7 @@ class grd:
                         f"Gridcell {self.xyname} has less than 1 living Plant Life Strategies - Re-populating")
                     # REPOPULATE]
                     # UPDATE vegetation pools
-                    self.vp_cleaf=np.zeros(shape=(self.vp_lsid.size,)) + 0.5
+                    self.vp_cleaf=np.zeros(shape=(self.vp_lsid.size,)) + (0.5/3)
                     self.vp_cwood=np.zeros(shape=(self.vp_lsid.size,))
                     self.vp_croot=np.zeros(shape=(self.vp_lsid.size,)) + 0.5
                     awood=self.pls_table[6, :]

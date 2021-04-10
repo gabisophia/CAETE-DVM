@@ -66,7 +66,7 @@ G3 = G3_1d + G3_3d + G3_6d
 
 PLS_head = ['PLS_id', 'g1', 'resopfrac', 'tleaf', 'twood', 'troot', 'aleaf', 'awood', 'aroot', 'c4',
             'leaf_n2c', 'awood_n2c', 'froot_n2c', 'leaf_p2c', 'awood_p2c', 'froot_p2c',
-            'amp', 'pdia', 'dwood']
+            'amp', 'pdia', 'wd']
 
 
 class run_g1(tb.IsDescription):
@@ -179,7 +179,7 @@ class PLS_temp(tb.IsDescription):
     froot_p2c = tb.Float32Col(dflt=0.0, pos=15)
     amp = tb.Float32Col(dflt=0.0, pos=16)
     pdia = tb.Float32Col(dflt=0.0, pos=17)
-    dwood = tb.Float32Col(dflt=0.0, pos=18)
+    wd = tb.Float32Col(dflt=0.0, pos=18)
 
 
 class spin_snapshots(tb.IsDescription):
