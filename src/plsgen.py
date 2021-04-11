@@ -170,7 +170,7 @@ def table_gen(NPLS, fpath=None):
     while index0 < diffg:
         restime = np.zeros(shape=(3,), dtype=np.float64)
         wd = 0.0
-        sla_var = np.random.uniform(0.005, 0.013, NPLS)
+        sla_var = np.random.uniform(0.002, 0.02, NPLS)
         allocatio = plsa_grass[np.random.randint(0, plsa_grass.shape[0])]
         restime[0] = rtime[np.random.randint(0, r_ceil)]
         restime[1] = 0.0
@@ -248,7 +248,7 @@ def table_gen(NPLS, fpath=None):
     wd = np.random.uniform(0.5, 0.9, NPLS)
     np.place(wd, test, 0.0)
 
-    sla_var = np.random.uniform(0.005, 0.013, NPLS)
+    sla_var = np.random.uniform(0.002, 0.02, NPLS)
     np.place(sla_var, test, 0.0)
 
     # return woods

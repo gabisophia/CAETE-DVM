@@ -358,15 +358,15 @@ contains
 
          if(c_def(p) .gt. 0.0) then
             if(dt1(7) .gt. 0.0D0) then
-               cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.2)
-               cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.2)
-               cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.6)
+               cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.1)
+               cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.1)
+               cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.8)
                ca1_int(p) = ca2(p)
                cf1_int(p) = cf2(p)
             else
-               cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.2)
-               cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.2)
-               cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.6)
+               cl1_int(1,p) = cl2(1,p) - ((c_def(p) * 1e-3) * 0.1)
+               cl1_int(2,p) = cl2(2,p) - ((c_def(p) * 1e-3) * 0.1)
+               cl1_int(3,p) = cl2(3,p) - ((c_def(p) * 1e-3) * 0.8)
                ca1_int(p) = 0.0D0
                cf1_int(p) = cf2(p)
             endif
