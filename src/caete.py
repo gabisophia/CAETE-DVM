@@ -47,7 +47,15 @@ print(f"RUNNING CAETÊ with {gp.npls} Plant Life Strategies")
 # GLOBAL
 out_ext = ".pkz"
 npls = gp.npls
-mask = np.load("../input/mask/mask_raisg-360-720.npy")
+
+while True:
+    maskp = input("TWO MASK OPTIONS: AMAZON BIOME (a); PAN-AMAZON (b): ")
+    if maskp == 'b':
+        mask = np.load("../input/mask/mask_raisg-360-720.npy")
+        break
+    if maskp == 'a':
+        mask = np.load("../input/mask/mask_BIOMA.npy")
+        break
 
 Pan_Amazon_RECTANGLE = "y = 160:221 x = 201:272"
 
