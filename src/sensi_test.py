@@ -7,8 +7,8 @@ import joblib
 from post_processing import write_h5
 from h52nc import h52nc
 
-run_path = Path("gabriela@sombrero.cpa.unicamp.br:/home/Phenology_Module/CAETE-DVM/outputs/Pheno_Module_NEWMASK/RUN_Pheno_Module_NEWMASK_.pkz")
-pls_path = Path("gabriela@sombrero.cpa.unicamp.br:/home/Phenology_Module/CAETE-DVM/outputs/Pheno_Module_NEWMASK/pls_attrs.csv")
+run_path = Path("/home/amazonfaceme/gabriela/Phenology_Module/CAETE-DVM/outputs/Pheno_Module_NEWMASK/RUN_Pheno_Module_NEWMASK_.pkz")
+pls_path = Path("/home/amazonfaceme/gabriela/Phenology_Module/CAETE-DVM/outputs/Pheno_Module_NEWMASK/pls_attrs.csv")
 
 # Experiment - No eCO2 - HISTORICAL and  red precipitation
 
