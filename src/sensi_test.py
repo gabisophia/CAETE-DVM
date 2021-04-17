@@ -7,13 +7,13 @@ import joblib
 from post_processing import write_h5
 from h52nc import h52nc
 
-run_path = Path("RUN_Pheno_Module_NEWMASK_.pkz")
-pls_path = Path("pls_attrs.csv")
+run_path = Path("gabriela@sombrero.cpa.unicamp.br:/home/Phenology_Module/CAETE-DVM/outputs/Pheno_Module_NEWMASK/RUN_Pheno_Module_NEWMASK_.pkz")
+pls_path = Path("gabriela@sombrero.cpa.unicamp.br:/home/Phenology_Module/CAETE-DVM/outputs/Pheno_Module_NEWMASK/pls_attrs.csv")
 
 # Experiment - No eCO2 - HISTORICAL and  red precipitation
 
 # new outputs folder
-dump_folder = Path("RedPREC_HIST")
+dump_folder = Path("LowPREC_HIST")
 
 with open(run_path, 'rb') as fh:
     init_conditions = joblib.load(fh)
