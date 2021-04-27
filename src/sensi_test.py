@@ -13,7 +13,7 @@ pls_path = Path("/home/amazonfaceme/gabriela/Phenology_Module/CAETE-DVM/outputs/
 # Experiment - No eCO2 - HISTORICAL and  red precipitation
 
 # new outputs folder
-dump_folder = Path("LowPREC_HIST")
+dump_folder = Path("LowPREC_eCO2")
 
 with open(run_path, 'rb') as fh:
     init_conditions = joblib.load(fh)
@@ -24,11 +24,11 @@ for gridcell in init_conditions:
     #gridcell.pr -= (gridcell.pr * 0.9)
 
 
-def fun(gridcell):
-    gridcell.run_caete("19790101", "20161231")
-
 #def fun(gridcell):
-#    gridcell.run_caete("19790101", "20161231"), fix_co2="1983")
+#    gridcell.run_caete("19790101", "20161231")
+
+def fun(gridcell):
+    gridcell.run_caete("19790101", "20161231", fix_co2=600.0)
 
 
 n_proc = mp.cpu_count() // 2
