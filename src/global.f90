@@ -48,7 +48,7 @@ module global_par
    real(r_4),parameter,public :: rho = 997.0                     ! Density of water (Kg/m3)
    real(r_4),parameter,public :: grav = 9.8                      ! Gravity (m/s2)
    real(r_4),parameter,public :: vuln_curve = 3  
-   integer(i_4),parameter,public :: npls = 1000                  ! Number of Plant Life Strategies-PLSs simulated (Defined at compile time)
+   integer(i_4),parameter,public :: npls = 20                    ! Number of Plant Life Strategies-PLSs simulated (Defined at compile time)
    integer(i_4),parameter,public :: ntraits = 19                 ! Number of traits for each PLS
 
 end module global_par
