@@ -162,7 +162,8 @@ def get_var_metadata(var):
               'pdia': ['CWM- NPP aloated to N fixers', 'fraction_of_npp', 'pdia'],
               'wd': ['CWM- wood density', 'g/cm3', 'wd'],
               'sla_var': ['Specific Leaf Area (variant)', 'm2/g', 'sla_var'],
-              'ls': ['Living Plant Life Strategies', 'unitless', 'ls']}
+              'ls': ['Living Plant Life Strategies', 'unitless', 'ls'],
+              'psisoil': ['soil_water_potential', 'MPa', 'psi_soil']}
 
     out = {}
     for v in var:

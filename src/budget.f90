@@ -27,7 +27,7 @@ contains
 
    subroutine daily_budget(dt, w1, w2, ts, temp, p0, ipar, rh&
         &, mineral_n, labile_p, on, sop, op, catm, sto_budg_in, cl1_in, ca1_in, cf1_in, dleaf_in, dwood_in&
-        &, droot_in, uptk_costs_in, wmax_in, soil_text, p_sat, evavg, epavg, phavg, aravg, nppavg&
+        &, droot_in, uptk_costs_in, wmax_in, soil_text, p_sat, evavg, epavg, pot_soil, phavg, aravg, nppavg&
         &, laiavg, rcavg, f5avg, rmavg, rgavg, cleafavg_pft, cawoodavg_pft&
         &, cfrootavg_pft, storage_out_bdgt_1, ocpavg, wueavg, cueavg, c_defavg&
         &, vcmax_1, specific_la_1, nupt_1, pupt_1, litter_l_1, cwd_1, litter_fr_1, npp2pay_1, lit_nut_content_1&
@@ -74,6 +74,7 @@ contains
       !     ----------------------------OUTPUTS------------------------------
       real(r_4),intent(out) :: epavg          !Maximum evapotranspiration (mm/day)
       real(r_8),intent(out) :: evavg          !Actual evapotranspiration Daily average (mm/day)
+      real(r_8),intent(out) :: pot_soil        !Soil water potential (MPa)
       real(r_8),intent(out) :: phavg          !Daily photosynthesis (Kg m-2 y-1)
       real(r_8),intent(out) :: aravg          !Daily autotrophic respiration (Kg m-2 y-1)
       real(r_8),intent(out) :: nppavg         !Daily NPP (average between PFTs)(Kg m-2 y-1)
@@ -123,6 +124,7 @@ contains
       real(r_8),dimension(npls) :: cf1_pft, ca1_pft
       real(r_4) :: soil_temp
       real(r_4) :: emax
+      real(r_8) :: psi_soil
 
       real(r_8),dimension(:),allocatable :: ocp_coeffs
       ! real(r_4),dimension(:),allocatable :: rimelt !Runoff due to soil ice melting
@@ -175,7 +177,6 @@ contains
       real(r_8), dimension(npls) :: awood_aux, dleaf, dwood, droot, uptk_costs
       real(r_8), dimension(3,npls) :: sto_budg
       real(r_8) :: soil_sat
-      real(r_8) :: psi_soil
 
 
       !     START
@@ -396,6 +397,7 @@ contains
       enddo ! end pls_loop (p)
       !$OMP END PARALLEL DO
       epavg = emax !mm/day
+      pot_soil = psi_soil !MPa
 
       ! FILL OUTPUT DATA
       evavg = 0.0D0

@@ -21,7 +21,8 @@ G1_1d = ['emaxm',
          'cdef',
          'vcmax',
          'specific_la',
-         'ls']
+         'ls',
+         'psisoil']
 
 G1_2d = ['nupt', ]
 
@@ -99,6 +100,7 @@ class run_g1(tb.IsDescription):
     pupt1 = tb.Float32Col(dflt=0.0, pos=21)
     pupt2 = tb.Float32Col(dflt=0.0, pos=22)
     pupt3 = tb.Float32Col(dflt=0.0, pos=23)
+    psisoil = tb.Float32Col(dflt=0.0, pos=24)
 
 
 class run_g2(tb.IsDescription):

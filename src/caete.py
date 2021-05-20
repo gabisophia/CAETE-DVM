@@ -130,7 +130,7 @@ def neighbours_index(pos, matrix):
 
 # WARNING keep the lists of budget/carbon3 outputs updated with fortran code
 def catch_out_budget(out):
-    lst = ["evavg", "epavg", "phavg", "aravg", "nppavg",
+    lst = ["evavg", "epavg", "pot_soil", "phavg", "aravg", "nppavg",
            "laiavg", "rcavg", "f5avg", "rmavg", "rgavg", "cleafavg_pft", "cawoodavg_pft",
            "cfrootavg_pft", "stodbg", "ocpavg", "wueavg", "cueavg", "c_defavg", "vcmax",
            "specific_la", "nupt", "pupt", "litter_l", "cwd", "litter_fr", "npp2pay", "lnc", "delta_cveg",
@@ -207,6 +207,7 @@ class grd:
         self.soil_temp = None
         self.emaxm = None
         self.tsoil = None
+        self.psisoil = None
         self.photo = None
         self.aresp = None
         self.npp = None
@@ -307,6 +308,7 @@ class grd:
         n: int NUmber of days being simulated"""
         self.emaxm = []
         self.tsoil = []
+        self.psisoil = []
         self.photo = np.zeros(shape=(n,), order='F')
         self.aresp = np.zeros(shape=(n,), order='F')
         self.npp = np.zeros(shape=(n,), order='F')
@@ -369,6 +371,7 @@ class grd:
         self.outputs[spiname] = os.path.join(self.out_dir, spiname)
         to_pickle = {'emaxm': np.array(self.emaxm),
                      "tsoil": np.array(self.tsoil),
+                     'psisoil': np.array(self.psisoil),
                      "photo": self.photo,
                      "aresp": self.aresp,
                      'npp': self.npp,
@@ -419,6 +422,7 @@ class grd:
         # Flush attrs
         self.emaxm = []
         self.tsoil = []
+        self.psisoil = []
         self.photo = None
         self.aresp = None
         self.npp = None
@@ -530,6 +534,7 @@ class grd:
 
         self.tsoil = []
         self.emaxm = []
+        self.psisoil = []
 
         # STATE
         # Water
@@ -960,6 +965,7 @@ class grd:
                     self.carbon_costs[step]=daily_output['c_cost_cwm']
                     self.emaxm.append(daily_output['epavg'])
                     self.tsoil.append(self.soil_temp)
+                    self.psisoil.append(daily_output['pot_soil'])
                     self.photo[step]=daily_output['phavg']
                     self.aresp[step]=daily_output['aravg']
                     self.npp[step]=daily_output['nppavg']
