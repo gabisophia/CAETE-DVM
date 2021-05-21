@@ -59,7 +59,7 @@ contains
       real(r_8),intent(in) :: on, sop, op          ! Organic N, isoluble inorganic P, Organic P g m-2
       real(r_8),intent(in) :: catm                 ! ATM CO2 concentration ppm
       real(r_8),intent(in) :: wmax_in
-      real(r_8),intent(in) :: soil_text, p_sat
+      real(r_8),intent(in) :: soil_text, p_sat     !soil texture (dimensionless) and soil saturation water potential (MPa)
 
 
       real(r_8),dimension(3,npls),intent(in) :: sto_budg_in ! Rapid Storage Pool (C,N,P)  g m-2
@@ -75,8 +75,13 @@ contains
       !     ----------------------------OUTPUTS------------------------------
       real(r_4),intent(out) :: epavg          !Maximum evapotranspiration (mm/day)
       real(r_8),intent(out) :: evavg          !Actual evapotranspiration Daily average (mm/day)
-      real(r_8),intent(out) :: pot_soil        !Soil water potential (MPa)
-      real(r_8),intent(out) :: p50avg,klmavg,krcmavg,pxylemavg,kxylemavg,knormavg
+      real(r_8),intent(out) :: pot_soil       !Soil water potential (MPa)
+      real(r_8),intent(out) :: p50avg         !xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
+      real(r_8),intent(out) :: klmavg         !Maximum xylem conductivity per unit leaf area (kgm-1s-1MPa-1)
+      real(r_8),intent(out) :: krcmavg        !Maximum xylem conductance per unit leaf area (molm-2s-1Mpa-1)
+      real(r_8),intent(out) :: pxylemavg      !Xylem water potential (MPa)
+      real(r_8),intent(out) :: kxylemavg      !Xylem conductance (molm-2s-1MPa-1)
+      real(r_8),intent(out) :: knormavg       !Returns normalized xylem conductance (dimensionless)
       real(r_8),intent(out) :: phavg          !Daily photosynthesis (Kg m-2 y-1)
       real(r_8),intent(out) :: aravg          !Daily autotrophic respiration (Kg m-2 y-1)
       real(r_8),intent(out) :: nppavg         !Daily NPP (average between PFTs)(Kg m-2 y-1)
@@ -87,14 +92,14 @@ contains
       real(r_8),intent(out) :: rgavg          !maintenance/growth respiration (Kg m-2 y-1)
       real(r_8),intent(out) :: wueavg         ! Water use efficiency
       real(r_8),intent(out) :: cueavg         ! [0-1]
-      real(r_8),intent(out) :: vcmax_1          ! µmol m-2 s-1
-      real(r_8),intent(out) :: specific_la_1    ! m2 g(C)-1
+      real(r_8),intent(out) :: vcmax_1        ! µmol m-2 s-1
+      real(r_8),intent(out) :: specific_la_1  ! m2 g(C)-1
       real(r_8),intent(out) :: c_defavg       ! kg(C) m-2 Carbon deficit due to negative NPP - i.e. ph < ar
-      real(r_8),intent(out) :: litter_l_1       ! g m-2
-      real(r_8),intent(out) :: cwd_1            ! g m-2
-      real(r_8),intent(out) :: litter_fr_1      ! g m-2
-      real(r_8),dimension(2),intent(out) :: nupt_1         ! g m-2 (1) from Soluble (2) from organic
-      real(r_8),dimension(3),intent(out) :: pupt_1         ! g m-2
+      real(r_8),intent(out) :: litter_l_1     ! g m-2
+      real(r_8),intent(out) :: cwd_1          ! g m-2
+      real(r_8),intent(out) :: litter_fr_1    ! g m-2
+      real(r_8),dimension(2),intent(out) :: nupt_1            ! g m-2 (1) from Soluble (2) from organic
+      real(r_8),dimension(3),intent(out) :: pupt_1            ! g m-2
       real(r_8),dimension(6),intent(out) :: lit_nut_content_1 ! g(Nutrient)m-2 ! Lit_nut_content variables         [(lln),(rln),(cwdn),(llp),(rl),(cwdp)]
 
       ! FULL OUTPUT
@@ -139,7 +144,12 @@ contains
       ! real(r_4),dimension(:),allocatable :: roff   !Total runoff
       real(r_4),dimension(:),allocatable :: evap   !Actual evapotranspiration (mm/day)
       !c     Carbon Cycle
-      real(r_8),dimension(:),allocatable :: p50,klm,krcm,pxylem,kxyl,knor
+      real(r_8),dimension(:),allocatable :: p50    !xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
+      real(r_8),dimension(:),allocatable :: klm    !Maximum xylem conductivity per unit leaf area (kgm-1s-1MPa-1)
+      real(r_8),dimension(:),allocatable :: krcm   !Maximum xylem conductance per unit leaf area (molm-2s-1Mpa-1)
+      real(r_8),dimension(:),allocatable :: pxylem !Xylem water potential (MPa)
+      real(r_8),dimension(:),allocatable :: kxyl   !Xylem conductance (molm-2s-1MPa-1)
+      real(r_8),dimension(:),allocatable :: knor   !Returns normalized xylem conductance (dimensionless)
       real(r_4),dimension(:),allocatable :: ph     !Canopy gross photosynthesis (kgC/m2/yr)
       real(r_4),dimension(:),allocatable :: ar     !Autotrophic respiration (kgC/m2/yr)
       real(r_4),dimension(:),allocatable :: nppa   !Net primary productivity / auxiliar

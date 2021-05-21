@@ -56,7 +56,12 @@ contains
 
 !     Output
 !     ------
-    real(r_8), intent(out) :: psi50,klmax,krcmax,psixylem,kxylem,knorm
+    real(r_8), intent(out) :: psi50                   !xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
+    real(r_8), intent(out) :: klmax                   !Maximum xylem conductivity per unit leaf area (kgm-1s-1MPa-1)
+    real(r_8), intent(out) :: krcmax                  !Maximum xylem conductance per unit leaf area (molm-2s-1Mpa-1)
+    real(r_8), intent(out) :: psixylem                !Xylem water potential (MPa)
+    real(r_8), intent(out) :: kxylem                  !Xylem conductance (molm-2s-1MPa-1)
+    real(r_8), intent(out) :: knorm                   !Returns normalized xylem conductance (dimensionless)
     real(r_4), intent(out) :: ph                      !Canopy gross photosynthesis (kgC/m2/yr)
     real(r_4), intent(out) :: rc                      !Stomatal resistence (not scaled to canopy!) (s/m)
     real(r_8), intent(out) :: laia                    !Autotrophic respiration (kgC/m2/yr)
