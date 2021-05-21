@@ -163,7 +163,8 @@ def get_var_metadata(var):
               'wd': ['CWM- wood density', 'g/cm3', 'wd'],
               'sla_var': ['Specific Leaf Area (variant)', 'm2/g', 'sla_var'],
               'ls': ['Living Plant Life Strategies', 'unitless', 'ls'],
-              'psisoil': ['soil_water_potential', 'MPa', 'psi_soil']}
+              'psisoil': ['soil_water_potential', 'MPa', 'psi_soil'],
+              'psi_50': ['xylem_water_potential_50lost', 'MPa', 'psi50']}
 
     out = {}
     for v in var:
@@ -441,7 +442,7 @@ def create_ncG1(table, interval, nc_out):
         print(f"\n\nSaving outputs in {nc_out.resolve()}")
 
     vars = ['photo', 'aresp', 'npp', 'lai', 'wue', 'cue',
-            'vcmax', 'sla', 'nupt', 'pupt', 'ls']
+            'vcmax', 'sla', 'nupt', 'pupt', 'ls', 'psi_50']
 
     dates = time_queries(interval)
     dm1 = len(dates)
@@ -472,6 +473,7 @@ def create_ncG1(table, interval, nc_out):
     pupt1 = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     pupt2 = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     pupt3 = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    psi_50 = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
 
     print("\nQuerying data from file FOR", end=': ')
     for v in vars:
@@ -508,6 +510,8 @@ def create_ncG1(table, interval, nc_out):
             out['grid_y'], out['grid_x'], out['pupt2'])
         pupt3[i, :, :] = assemble_layer(
             out['grid_y'], out['grid_x'], out['pupt3'])
+        psi_50[i, :, :] = assemble_layer(
+            out['grid_y'], out['grid_x'], out['psi_50'])
         print_progress(i + 1,
                        len(dates),
                        prefix='Progress:',
@@ -519,10 +523,10 @@ def create_ncG1(table, interval, nc_out):
     np.place(pupt1, mask=pupt2 == -9999.0, vals=NO_DATA)
 
     vars = ['photo', 'aresp', 'npp', 'lai', 'wue', 'cue',
-            'vcmax', 'sla', 'nupt', 'pupt', 'ls']
+            'vcmax', 'sla', 'nupt', 'pupt', 'ls', 'psi_50']
 
     arr = (photo, aresp, npp, lai, wue, cue, vcmax,
-           specific_la, nupt1, pupt1, ls)
+           specific_la, nupt1, pupt1, ls, psi_50)
     var_attrs = get_var_metadata(vars)
     write_daily_output(arr, vars, var_attrs, time_index, nc_out)
 

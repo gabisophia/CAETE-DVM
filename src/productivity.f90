@@ -27,7 +27,7 @@ module productivity
 contains
 
   subroutine prod(dt,light_limit,catm,temp,ts,p0,w,ipar,rh,emax,cl1_prod,&
-       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,psisoil,ph,ar,&
+       & ca1_prod,cf1_prod,beta_leaf,beta_awood,beta_froot,wmax,psisoil,psi50,ph,ar,&
        & nppa,laia,f5,vpd,rm,rg,rc,wue,c_defcit,vm_out,sla,e)
 
     use types
@@ -55,6 +55,7 @@ contains
 
 !     Output
 !     ------
+    real(r_8), intent(out) :: psi50
     real(r_4), intent(out) :: ph                      !Canopy gross photosynthesis (kgC/m2/yr)
     real(r_4), intent(out) :: rc                      !Stomatal resistence (not scaled to canopy!) (s/m)
     real(r_8), intent(out) :: laia                    !Autotrophic respiration (kgC/m2/yr)
@@ -102,7 +103,7 @@ contains
     !Hydraulic parameters
     real(r_8) :: diameter
     real(r_8) :: height1
-    real(r_8) :: psi50
+    !real(r_8) :: psi50
     real(r_8) :: klmax
     real(r_8) :: krcmax
     real(r_8) :: psixylem
