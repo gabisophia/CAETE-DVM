@@ -28,7 +28,8 @@ G1_1d = ['emaxm',
          'krc_max',
          'psi_xylem',
          'k_xylem',
-         'k_norm']
+         'k_norm',
+         'f5']
 
 G1_2d = ['nupt', ]
 
@@ -113,6 +114,7 @@ class run_g1(tb.IsDescription):
     psi_xylem = tb.Float32Col(dflt=0.0, pos=28)
     k_xylem = tb.Float32Col(dflt=0.0, pos=29)
     k_norm = tb.Float32Col(dflt=0.0, pos=30)
+    f5 = tb.Float32Col(dflt=0.0, pos=31)
 
 
 class run_g2(tb.IsDescription):
