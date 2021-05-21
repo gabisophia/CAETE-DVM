@@ -27,12 +27,13 @@ contains
 
    subroutine daily_budget(dt, w1, w2, ts, temp, p0, ipar, rh&
         &, mineral_n, labile_p, on, sop, op, catm, sto_budg_in, cl1_in, ca1_in, cf1_in, dleaf_in, dwood_in&
-        &, droot_in, uptk_costs_in, wmax_in, soil_text, p_sat, evavg, epavg, pot_soil, p50avg, phavg, aravg, nppavg&
-        &, laiavg, rcavg, f5avg, rmavg, rgavg, cleafavg_pft, cawoodavg_pft&
+        &, droot_in, uptk_costs_in, wmax_in, soil_text, p_sat, evavg, epavg, pot_soil, p50avg, klmavg, krcmavg&
+        &, pxylemavg, kxylemavg, knormavg, phavg, aravg, nppavg, laiavg, rcavg, f5avg, rmavg, rgavg, cleafavg_pft, cawoodavg_pft&
         &, cfrootavg_pft, storage_out_bdgt_1, ocpavg, wueavg, cueavg, c_defavg&
         &, vcmax_1, specific_la_1, nupt_1, pupt_1, litter_l_1, cwd_1, litter_fr_1, npp2pay_1, lit_nut_content_1&
         &, delta_cveg_1, limitation_status_1, uptk_strat_1, cleafavg, cp, c_cost_cwm)
 
+        !klmax,krcmax,psixylem,kxylem,knorm
 
       use types
       use global_par
@@ -75,7 +76,7 @@ contains
       real(r_4),intent(out) :: epavg          !Maximum evapotranspiration (mm/day)
       real(r_8),intent(out) :: evavg          !Actual evapotranspiration Daily average (mm/day)
       real(r_8),intent(out) :: pot_soil        !Soil water potential (MPa)
-      real(r_8),intent(out) :: p50avg
+      real(r_8),intent(out) :: p50avg,klmavg,krcmavg,pxylemavg,kxylemavg,knormavg
       real(r_8),intent(out) :: phavg          !Daily photosynthesis (Kg m-2 y-1)
       real(r_8),intent(out) :: aravg          !Daily autotrophic respiration (Kg m-2 y-1)
       real(r_8),intent(out) :: nppavg         !Daily NPP (average between PFTs)(Kg m-2 y-1)
@@ -138,7 +139,7 @@ contains
       ! real(r_4),dimension(:),allocatable :: roff   !Total runoff
       real(r_4),dimension(:),allocatable :: evap   !Actual evapotranspiration (mm/day)
       !c     Carbon Cycle
-      real(r_8),dimension(:),allocatable :: p50
+      real(r_8),dimension(:),allocatable :: p50,klm,krcm,pxylem,kxyl,knor
       real(r_4),dimension(:),allocatable :: ph     !Canopy gross photosynthesis (kgC/m2/yr)
       real(r_4),dimension(:),allocatable :: ar     !Autotrophic respiration (kgC/m2/yr)
       real(r_4),dimension(:),allocatable :: nppa   !Net primary productivity / auxiliar
@@ -231,7 +232,12 @@ contains
 
       allocate(evap(nlen))
       allocate(nppa(nlen))
-      allocate(p50(nlen))
+      allocate(p50(nlen))   
+      allocate(klm(nlen))
+      allocate(krcm(nlen))
+      allocate(pxylem(nlen))
+      allocate(kxyl(nlen))
+      allocate(knor(nlen))
       allocate(ph(nlen))
       allocate(ar(nlen))
       allocate(laia(nlen))
@@ -289,7 +295,8 @@ contains
 
          call prod(dt1, ocp_wood(ri),catm, temp, soil_temp, p0, w, ipar, rh, emax&
                &, cl1_pft(:,ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
-               &, soil_sat, psi_soil, p50(p), ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
+               &, soil_sat, psi_soil, p50(p), klm(p), krcm(p), pxylem(p), kxyl(p), knor(p)&
+               &, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
                &, wue(p), c_def(p), vcmax(p), specific_la(p), tra(p))
 
          !print*,'survivors',p, 'cawood:',ca1_pft(ri), 'cleaf j:',cl1_pft(1,ri), 'cleaf m:',cl1_pft(2,ri), 'cleaf s:',cl1_pft(3,ri),&
@@ -405,7 +412,12 @@ contains
       ! FILL OUTPUT DATA
       evavg = 0.0D0
       rcavg = 0.0D0
-      p50avg = 0.0D0
+      p50avg = 0.0D0   
+      klmavg = 0.0D0
+      krcmavg = 0.0D0
+      pxylemavg = 0.0D0
+      kxylemavg = 0.0D0
+      knormavg = 0.0D0
       f5avg = 0.0D0
       laiavg = 0.0D0
       phavg = 0.0D0
@@ -443,6 +455,11 @@ contains
 
       evavg = sum(real(evap, kind=r_8) * ocp_coeffs, mask= .not. isnan(evap))
       p50avg = sum(real(p50, kind=r_8) * ocp_coeffs, mask= .not. isnan(p50))
+      klmavg = sum(real(klm, kind=r_8) * ocp_coeffs, mask= .not. isnan(klm))
+      krcmavg = sum(real(krcm, kind=r_8) * ocp_coeffs, mask= .not. isnan(krcm))
+      pxylemavg = sum(real(pxylem, kind=r_8) * ocp_coeffs, mask= .not. isnan(pxylem))
+      kxylemavg = sum(real(kxyl, kind=r_8) * ocp_coeffs, mask= .not. isnan(kxyl))
+      knormavg = sum(real(knor, kind=r_8) * ocp_coeffs, mask= .not. isnan(knor))
       phavg = sum(real(ph, kind=r_8) * ocp_coeffs, mask= .not. isnan(ph))
       aravg = sum(real(ar, kind=r_8) * ocp_coeffs, mask= .not. isnan(ar))
       nppavg = sum(real(nppa, kind=r_8) * ocp_coeffs, mask= .not. isnan(nppa))
@@ -537,7 +554,12 @@ contains
       ! deallocate(roff)
       deallocate(evap)
       deallocate(nppa)
-      deallocate(p50)
+      deallocate(p50)       
+      deallocate(klm)
+      deallocate(krcm)
+      deallocate(pxylem)
+      deallocate(kxyl)
+      deallocate(knor)
       deallocate(ph)
       deallocate(ar)
       deallocate(laia)

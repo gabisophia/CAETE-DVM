@@ -23,7 +23,12 @@ G1_1d = ['emaxm',
          'specific_la',
          'ls',
          'psisoil',
-         'psi_50']
+         'psi_50',
+         'kl_max',
+         'krc_max',
+         'psi_xylem',
+         'k_xylem',
+         'k_norm']
 
 G1_2d = ['nupt', ]
 
@@ -103,6 +108,11 @@ class run_g1(tb.IsDescription):
     pupt3 = tb.Float32Col(dflt=0.0, pos=23)
     psisoil = tb.Float32Col(dflt=0.0, pos=24)
     psi_50 = tb.Float32Col(dflt=0.0, pos=25)
+    kl_max = tb.Float32Col(dflt=0.0, pos=26)
+    krc_max = tb.Float32Col(dflt=0.0, pos=27)
+    psi_xylem = tb.Float32Col(dflt=0.0, pos=28)
+    k_xylem = tb.Float32Col(dflt=0.0, pos=29)
+    k_norm = tb.Float32Col(dflt=0.0, pos=30)
 
 
 class run_g2(tb.IsDescription):

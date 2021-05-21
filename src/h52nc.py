@@ -164,7 +164,12 @@ def get_var_metadata(var):
               'sla_var': ['Specific Leaf Area (variant)', 'm2/g', 'sla_var'],
               'ls': ['Living Plant Life Strategies', 'unitless', 'ls'],
               'psisoil': ['soil_water_potential', 'MPa', 'psi_soil'],
-              'psi_50': ['xylem_water_potential_50lost', 'MPa', 'psi50']}
+              'psi_50': ['xylem_water_potential_50lost', 'MPa', 'psi50'],
+              'kl_max': ['Maximum xylem conductivity per unit leaf area', 'kgm-1s-1MPa-1', 'kl_max'],
+              'krc_max': ['Maximum xylem conductance', 'molm-2s-1Mpa-1', 'krc_max'],
+              'psi_xylem': ['xylem_water_potential', 'MPa', 'psi_xylem'],
+              'k_xylem': ['Xylem conductance', 'molm-2s-1Mpa-1', 'k_xylem'],
+              'k_norm': ['normalized xylem conductance', 'dimensionless', 'k_norm']}
 
     out = {}
     for v in var:
@@ -442,7 +447,8 @@ def create_ncG1(table, interval, nc_out):
         print(f"\n\nSaving outputs in {nc_out.resolve()}")
 
     vars = ['photo', 'aresp', 'npp', 'lai', 'wue', 'cue',
-            'vcmax', 'sla', 'nupt', 'pupt', 'ls', 'psi_50']
+            'vcmax', 'sla', 'nupt', 'pupt', 'ls', 'psi_50',
+            'kl_max', 'krc_max', 'psi_xylem', 'k_xylem', 'k_norm']
 
     dates = time_queries(interval)
     dm1 = len(dates)
@@ -474,6 +480,11 @@ def create_ncG1(table, interval, nc_out):
     pupt2 = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     pupt3 = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     psi_50 = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    kl_max = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    krc_max = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    psi_xylem = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    k_xylem = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    k_norm = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
 
     print("\nQuerying data from file FOR", end=': ')
     for v in vars:
@@ -512,6 +523,16 @@ def create_ncG1(table, interval, nc_out):
             out['grid_y'], out['grid_x'], out['pupt3'])
         psi_50[i, :, :] = assemble_layer(
             out['grid_y'], out['grid_x'], out['psi_50'])
+        kl_max[i, :, :] = assemble_layer(
+            out['grid_y'], out['grid_x'], out['kl_max'])    
+        krc_max[i, :, :] = assemble_layer(
+            out['grid_y'], out['grid_x'], out['krc_max'])
+        psi_xylem[i, :, :] = assemble_layer(
+            out['grid_y'], out['grid_x'], out['psi_xylem'])
+        k_xylem[i, :, :] = assemble_layer(
+            out['grid_y'], out['grid_x'], out['k_xylem'])
+        k_norm[i, :, :] = assemble_layer(
+            out['grid_y'], out['grid_x'], out['k_norm'])            
         print_progress(i + 1,
                        len(dates),
                        prefix='Progress:',
@@ -523,10 +544,12 @@ def create_ncG1(table, interval, nc_out):
     np.place(pupt1, mask=pupt2 == -9999.0, vals=NO_DATA)
 
     vars = ['photo', 'aresp', 'npp', 'lai', 'wue', 'cue',
-            'vcmax', 'sla', 'nupt', 'pupt', 'ls', 'psi_50']
+            'vcmax', 'sla', 'nupt', 'pupt', 'ls', 'psi_50',
+            'kl_max', 'krc_max', 'psi_xylem', 'k_xylem', 'k_norm']
 
     arr = (photo, aresp, npp, lai, wue, cue, vcmax,
-           specific_la, nupt1, pupt1, ls, psi_50)
+           specific_la, nupt1, pupt1, ls, psi_50,
+           kl_max, krc_max, psi_xylem, k_xylem, k_norm)
     var_attrs = get_var_metadata(vars)
     write_daily_output(arr, vars, var_attrs, time_index, nc_out)
 
