@@ -163,7 +163,7 @@ def get_var_metadata(var):
               'wd': ['CWM- wood density', 'g/cm3', 'wd'],
               'sla_var': ['Specific Leaf Area (variant)', 'm2/g', 'sla_var'],
               'ls': ['Living Plant Life Strategies', 'unitless', 'ls'],
-              'psisoil': ['soil_water_potential', 'MPa', 'psi_soil'],
+              'psisoil': ['soil_water_potential', 'MPa', 'psisoil'],
               'psi_50': ['xylem_water_potential_50lost', 'MPa', 'psi_50'],
               'kl_max': ['Maximum xylem conductivity per unit leaf area', 'kgm-1s-1MPa-1', 'kl_max'],
               'krc_max': ['Maximum xylem conductance', 'molm-2s-1Mpa-1', 'krc_max'],
@@ -448,7 +448,7 @@ def create_ncG1(table, interval, nc_out):
         print(f"\n\nSaving outputs in {nc_out.resolve()}")
 
     vars = ['photo', 'aresp', 'npp', 'lai', 'wue', 'cue',
-            'vcmax', 'sla', 'nupt', 'pupt', 'ls', 'psi_50',
+            'vcmax', 'sla', 'nupt', 'pupt', 'ls', 'psisoil', 'psi_50',
             'kl_max', 'krc_max', 'psi_xylem', 'k_xylem', 'k_norm', 'f5']
 
     dates = time_queries(interval)
@@ -480,6 +480,7 @@ def create_ncG1(table, interval, nc_out):
     pupt1 = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     pupt2 = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     pupt3 = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
+    psisoil = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     psi_50 = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     kl_max = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
     krc_max = np.zeros(shape=(dm1, 61, 71), dtype=np.float32) - 9999.0
@@ -523,6 +524,8 @@ def create_ncG1(table, interval, nc_out):
             out['grid_y'], out['grid_x'], out['pupt2'])
         pupt3[i, :, :] = assemble_layer(
             out['grid_y'], out['grid_x'], out['pupt3'])
+        psisoil[i, :, :] = assemble_layer(
+            out['grid_y'], out['grid_x'], out['psisoil'])
         psi_50[i, :, :] = assemble_layer(
             out['grid_y'], out['grid_x'], out['psi_50'])
         kl_max[i, :, :] = assemble_layer(
@@ -548,11 +551,11 @@ def create_ncG1(table, interval, nc_out):
     np.place(pupt1, mask=pupt2 == -9999.0, vals=NO_DATA)
 
     vars = ['photo', 'aresp', 'npp', 'lai', 'wue', 'cue',
-            'vcmax', 'sla', 'nupt', 'pupt', 'ls', 'psi_50',
+            'vcmax', 'sla', 'nupt', 'pupt', 'ls', 'psisoil', 'psi_50',
             'kl_max', 'krc_max', 'psi_xylem', 'k_xylem', 'k_norm', 'f5']
 
     arr = (photo, aresp, npp, lai, wue, cue, vcmax,
-           specific_la, nupt1, pupt1, ls, psi_50,
+           specific_la, nupt1, pupt1, ls, psisoil, psi_50,
            kl_max, krc_max, psi_xylem, k_xylem, k_norm, f5)
     var_attrs = get_var_metadata(vars)
     write_daily_output(arr, vars, var_attrs, time_index, nc_out)
