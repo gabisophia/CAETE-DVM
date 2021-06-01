@@ -30,16 +30,15 @@ def ksat_func(ThS, Th33, lbd):
     ksat = 1930 * (ThS - Th33) ** (3 - lbd)
     return ksat
 
-
 def kth_func(Th, ThS, lbd, ksat):
     """soil conductivity in unsaturated condition. Output in mm/h"""
     if Th < 0.0:
 #        rwarn("water content < 0 IN kth_func")
         Th = 0.0
     kth = ksat * (Th / ThS) ** (3 + (2 / lbd))
-
+    #print('kth:',kth)
+    #print('ksat:',ksat)
     return kth
-
 
 class soil_water:
 
@@ -112,11 +111,13 @@ class soil_water:
             runoff1 += (self.w1 - self.w1_max)
             self.w1 = self.w1_max
             flux1_mm = self.ksat_1 * 24.0  # Kg m-2 day-1
+                #print(flux1_mm, ':ksat_1')
         else:
             # unsaturated condition (no runoff)
             w1_vol = self.w1 / self.p1_vol
             flux1_mm = kth_func(w1_vol, self.ws1, self.lbd_1,
                                 self.ksat_1) * 24.0  # Kg m-2 day-1
+                #print(flux1_mm, ':kth_1')
 
         # Update pool 1
 
@@ -167,6 +168,6 @@ if __name__ == "__main__":
         roff = wp._update_pool(evapo, evapo)
         wp.w1 = np.float(0.0) if wp.w1 < 0.0 else wp.w1
         wp.w2 = np.float(0.0) if wp.w2 < 0.0 else wp.w2
-        print(wp.w1, ':w1')
-        print(wp.w2, ':w2')
-        print(roff, ' :runoff')
+        #print(wp.w1, ':w1')
+        #print(wp.w2, ':w2')
+        #print(roff, ' :runoff')

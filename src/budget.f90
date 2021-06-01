@@ -27,7 +27,7 @@ contains
 
    subroutine daily_budget(dt, w1, w2, ts, temp, p0, ipar, rh&
         &, mineral_n, labile_p, on, sop, op, catm, sto_budg_in, cl1_in, ca1_in, cf1_in, dleaf_in, dwood_in&
-        &, droot_in, uptk_costs_in, wmax_in, soil_text, p_sat, evavg, epavg, pot_soil, p50avg, klmavg, krcmavg&
+        &, droot_in, uptk_costs_in, wmax_in, soil_text, p_sat, t_sat, evavg, epavg, pot_soil, p50avg, klmavg, krcmavg&
         &, pxylemavg, kxylemavg, knormavg, phavg, aravg, nppavg, laiavg, rcavg, f5avg, rmavg, rgavg, cleafavg_pft, cawoodavg_pft&
         &, cfrootavg_pft, storage_out_bdgt_1, ocpavg, wueavg, cueavg, c_defavg&
         &, vcmax_1, specific_la_1, nupt_1, pupt_1, litter_l_1, cwd_1, litter_fr_1, npp2pay_1, lit_nut_content_1&
@@ -59,7 +59,7 @@ contains
       real(r_8),intent(in) :: on, sop, op          ! Organic N, isoluble inorganic P, Organic P g m-2
       real(r_8),intent(in) :: catm                 ! ATM CO2 concentration ppm
       real(r_8),intent(in) :: wmax_in
-      real(r_8),intent(in) :: soil_text, p_sat     !soil texture (dimensionless) and soil saturation water potential (MPa)
+      real(r_8),intent(in) :: soil_text, p_sat, t_sat     !soil texture (dimensionless) / soil saturation water potential (MPa) / maximum soil water 
 
 
       real(r_8),dimension(3,npls),intent(in) :: sto_budg_in ! Rapid Storage Pool (C,N,P)  g m-2
@@ -220,8 +220,8 @@ contains
       soil_temp = ts   ! soil temp °C
       soil_sat = wmax_in
 
-      psi_soil = ((p_sat*(-0.0098)) * (w/soil_sat) ** (-soil_text))
-      !print*,'psisoil budget',psi_soil
+      psi_soil = ((p_sat*(-0.0098)) * ((w/1000)/t_sat) ** (-soil_text))
+      print*,'psoil',psi_soil,'psat',p_sat,'b',soil_text,'w',w,'wmax',t_sat
 
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
@@ -309,7 +309,7 @@ contains
                &, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
                &, wue(p), c_def(p), vcmax(p), specific_la(p), tra(p))
 
-         !print*,'survivors',p, 'cawood:',ca1_pft(ri), 'cleaf j:',cl1_pft(1,ri), 'cleaf m:',cl1_pft(2,ri), 'cleaf s:',cl1_pft(3,ri),&
+         !print*,'survivors',p, 'cawood:',ca1_pft(ri), 'cfroot:',cf1_pft(ri), 'cleaf j:',cl1_pft(1,ri), 'cleaf m:',cl1_pft(2,ri), 'cleaf s:',cl1_pft(3,ri),&
          !& 'LAI:',laia(p), 'SLA:',specific_la(p), 'GPP:',ph(P),'NPP:',nppa(p)
 
          evap(p) = penman(p0,temp,rh,available_energy(temp),rc2(p)) !Actual evapotranspiration (evap, mm/day)

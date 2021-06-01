@@ -685,21 +685,35 @@ contains
 
    !=================================================================
    !=================================================================
+
    ! def nrubisco(leaf_t, n_in):
       ! from math import e
 
       ! tl = e**(-(leaf_t + 1.03)) + 0.08
 
       ! return tl * (n_in * 0.7)
+
+   !function nrubisco(leaf_t,n_in) result(nb)
+      !use types
+      !real(r_8), intent(in) :: leaf_t
+      !real(r_8), intent(in) :: n_in
+      !real(r_8) :: nb, tl
+      !real(r_8) :: e = 2.718281828459045D0
+
+      !tl = e**(-(leaf_t + 1.2)) + 0.04
+
+      !nb = tl * n_in
+
+   !end function nrubisco
+
    function nrubisco(leaf_t,n_in) result(nb)
+      !based in Menezes et al., 2021
       use types
       real(r_8), intent(in) :: leaf_t
       real(r_8), intent(in) :: n_in
       real(r_8) :: nb, tl
-      real(r_8) :: e = 2.718281828459045D0
-
-      tl = e**(-(leaf_t + 1.2)) + 0.04
-
+      
+      tl = -0.12 * (leaf_t - 0.7) + 1.31
       nb = tl * n_in
 
    end function nrubisco
@@ -707,7 +721,7 @@ contains
    !=================================================================
    !=================================================================
 
-   subroutine photosynthesis_rate(c_atm,temp,p0,ipar,ll,c4,nbio,pbio,cbio,&
+   subroutine photosynthesis_rate(c_atm,temp,p0,ipar,ll,c4,leaf_turnover,nbio,pbio,cbio,&
         & f1ab,vm,amax)
 
       ! f1ab SCALAR returns instantaneous photosynthesis rate at leaf level (molCO2/m2/s)
@@ -725,7 +739,7 @@ contains
       real(r_8),dimension(3),intent(in) :: cbio  ! kg m-2
       logical(l_1),intent(in) :: ll ! is light limited?
       integer(i_4),intent(in) :: c4 ! is C4 Photosynthesis pathway?
-      !real(r_8),intent(in) :: leaf_turnover   ! y
+      real(r_8),intent(in) :: leaf_turnover   ! y
       ! O
       real(r_8),intent(out) :: f1ab ! Gross CO2 Assimilation Rate mol m-2 s-1
       real(r_8),intent(out) :: vm   ! PLS Vcmax mol m-2 s-1
@@ -760,7 +774,7 @@ contains
       real(r_8) :: coeffa, coeffb
 
       ! Calculating Fraction of leaf Nitrogen that is lignin
-      nbio2 = nbio !nrubisco(leaf_turnover, nbio)
+      nbio2 = nrubisco(leaf_turnover, nbio) !nbio
       pbio2 = pbio !nrubisco(leaf_turnover, pbio)
 
       if (nbio2 .lt. 0.01D0) nbio2 = 0.01D0

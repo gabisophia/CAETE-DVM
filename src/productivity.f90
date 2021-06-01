@@ -161,7 +161,7 @@ contains
 !     ==============
 !   rate (molCO2/m2/s)
 
-    call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,n2cl,&
+    call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,tleaf,n2cl,&
          & p2cl,cl1_prod(:),f1a,vm_out,jl_out)
 
     !=============
@@ -240,6 +240,7 @@ contains
     sla = spec_leaf_area(tleaf)  ! m2 g-1  ! Convertions made in leaf_area_index &  gross_ph + calls therein
 
     laia = leaf_area_index(cl1_prod(:), sla_var)
+    !print*,'lai:',laia,'cl1_prod(1):',cl1_prod(1),'cl1_prod(2):',cl1_prod(2),'cl1_prod(3):',cl1_prod(3),'sla:',sla_var
 
     rc = rc_aux !* real(laia,kind=r_4) ! RCM -!s m-1 ! CANOPY SCALING --
 
