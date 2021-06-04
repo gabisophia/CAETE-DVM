@@ -103,7 +103,7 @@ contains
     real(r_8), dimension(3) :: penalization_by_age
     real(r_8) :: age_crit
     real(r_8) :: cl_total              !Carbon sum of all the cohots (kg/m2)
-    real(r_4) :: rc_pot, rc_aux
+    real(r_4) :: rc_pot, rc_aux, e_pot
     integer(i_4) :: i
 
     !Hydraulic parameters
@@ -164,9 +164,20 @@ contains
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,tleaf,n2cl,&
          & p2cl,cl1_prod(:),f1a,vm_out,jl_out)
 
-    !=============
-    !  Hydraulic
-    !=============
+    ! VPD
+    !========
+    vpd = vapor_p_defcit(temp,rh)
+
+    !Stomatal resistence
+    !===================
+    rc_pot = canopy_resistence_pot(vpd, f1a, g1, catm) ! Potential RCM leaf level - s m-1
+
+    e_pot = transpiration(rc_pot, p0, vpd, 1)
+    !print*, 'e_pot:',e_pot
+
+    !==========================
+    !  Hydraulic without stress
+    !==========================
 
     diameter = diameter_pls(wd,ca1_prod)
     height1 = height_pls(diameter)
@@ -202,15 +213,6 @@ contains
     knorm = conductance_normalized(krcmax,kxylem,ca1_prod)
     !print*,'knorm:',knorm,'krcmax:',krcmax,'kxylem:',kxylem
 
-
-    ! VPD
-    !========
-    vpd = vapor_p_defcit(temp,rh)
-
-    !Stomatal resistence
-    !===================
-    rc_pot = canopy_resistence_pot(vpd, f1a, g1, catm) ! Potential RCM leaf level - s m-1
-
     !Water stress response modifier (dimensionless)
     !----------------------------------------------
     f5 =  water_stress_modifier(w, cf1_prod, rc_pot, emax, wmax, knorm, ca1_prod)
@@ -233,6 +235,7 @@ contains
 
     ! Calcula a transpiração em mm/s
     e = transpiration(rc_aux, p0, vpd, 2)
+    !print*, 'e_real:',e
 
     ! Leaf area index (m2/m2)
     ! recalcula rc e escalona para dossel

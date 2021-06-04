@@ -221,7 +221,7 @@ contains
       soil_sat = wmax_in
 
       psi_soil = ((p_sat*(-0.0098)) * ((w/1000)/t_sat) ** (-soil_text))
-      print*,'psoil',psi_soil,'psat',p_sat,'b',soil_text,'w',w,'wmax',t_sat
+      !print*,'psoil',psi_soil,'psat',p_sat*(-0.0098),'b',soil_text,'w',w/1000,'wmax',t_sat
 
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)
