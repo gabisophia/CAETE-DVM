@@ -103,7 +103,8 @@ contains
     real(r_8), dimension(3) :: penalization_by_age
     real(r_8) :: age_crit
     real(r_8) :: cl_total              !Carbon sum of all the cohots (kg/m2)
-    real(r_4) :: rc_pot, rc_aux, e_pot
+    real(r_4) :: rc_pot, rc_aux
+    real(r_8) :: e_pot
     integer(i_4) :: i
 
     !Hydraulic parameters
@@ -112,7 +113,7 @@ contains
     !real(r_8) :: psi50
     !real(r_8) :: klmax
     !real(r_8) :: krcmax
-    !real(r_8) :: psixylem
+    real(r_8) :: psixylem_aux
     !real(r_8) :: kxylem
     !real(r_8) :: knorm
 
@@ -200,8 +201,8 @@ contains
 
     ! Psixylem
     !=========
-    psixylem = xylem_waterpotential(psisoil,height1,ca1_prod)
-    !print*,'psixylem',psixylem, 'psisoil',psisoil
+    psixylem = xylem_waterpotential(psisoil,height1,e_pot,krcmax,ca1_prod)
+    print*,'psixylem',psixylem, 'psisoil',psisoil
 
     ! k xylem
     !=========
@@ -234,7 +235,7 @@ contains
     wue = water_ue(f1(:), rc_aux, p0, vpd)
 
     ! Calcula a transpiração em mm/s
-    e = transpiration(rc_aux, p0, vpd, 2)
+    e = transpiration(rc_aux, p0, vpd, 1)
     !print*, 'e_real:',e
 
     ! Leaf area index (m2/m2)

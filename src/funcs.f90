@@ -273,14 +273,16 @@ contains
    !=================================================================
    !=================================================================
 
-   function xylem_waterpotential(psi_soil,height,cawood) result(psi_xylem)
+   function xylem_waterpotential(psi_soil,height,e,krc_max,cawood) result(psi_xylem)
       !Xylem water potential (MPa)
       !Based in Eller et al., 2018
       use types
       use global_par, only:rho,grav
 
       real(r_8),intent(in) :: psi_soil         !MPa
-      real(r_8),intent(in) :: height           !m 
+      real(r_8),intent(in) :: height           !m
+      real(r_8),intent(in) :: e                !molm-2s-1 - transpiration
+      real(r_8),intent(in) :: krc_max          !molm-2s-1Mpa-1
       real(r_8),intent(in) :: cawood
       real(r_8) :: psi_xylem                   !MPa
 
@@ -288,7 +290,7 @@ contains
 
       if(cawood .gt. 0.0D0) then
          psi_g = rho * grav * height * 1e-6        !converts Pa to MPa
-         psi_xylem = psi_soil - psi_g 
+         psi_xylem = psi_soil - psi_g - (e/krc_max)
          !print*,'psi_gravitational',psi_g,'height',height,'psisoil',psi_soil
       else
          psi_g = 0.0D0
