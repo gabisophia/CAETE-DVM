@@ -223,6 +223,7 @@ contains
       psi_soil = ((p_sat*(-0.0098)) * (w/soil_sat) ** (-soil_text))
       !print*,'psoil',psi_soil,'psat',p_sat*(-0.0098),'b',soil_text,'w',w,'wmax',soil_sat
 
+      !GAMBIARRA
       !I will put a if just to make the adjustments in other variables, after that I solve the psisoil problem
       !Maybe I can put a if for W, it makes more sense but I have to study the diferences in each Amazon region
       if (psi_soil .lt. -5.0) then
