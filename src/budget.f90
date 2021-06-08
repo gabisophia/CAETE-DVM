@@ -131,7 +131,7 @@ contains
       real(r_8),dimension(npls) :: cf1_pft, ca1_pft
       real(r_4) :: soil_temp
       real(r_4) :: emax
-      real(r_8) :: psi_soil
+      real(r_8) :: psi_soil,psi_soil1
 
       real(r_8),dimension(:),allocatable :: ocp_coeffs
       ! real(r_4),dimension(:),allocatable :: rimelt !Runoff due to soil ice melting
@@ -220,8 +220,17 @@ contains
       soil_temp = ts   ! soil temp °C
       soil_sat = wmax_in
 
-      psi_soil = ((p_sat*(-0.0098)) * ((w/1000)/t_sat) ** (-soil_text))
-      !print*,'psoil',psi_soil,'psat',p_sat*(-0.0098),'b',soil_text,'w',w/1000,'wmax',t_sat
+      psi_soil = ((p_sat*(-0.0098)) * (w/soil_sat) ** (-soil_text))
+      !print*,'psoil',psi_soil,'psat',p_sat*(-0.0098),'b',soil_text,'w',w,'wmax',soil_sat
+
+      !I will put a if just to make the adjustments in other variables, after that I solve the psisoil problem
+      !Maybe I can put a if for W, it makes more sense but I have to study the diferences in each Amazon region
+      if (psi_soil .lt. -5.0) then
+         psi_soil = -4.0
+      else
+         psi_soil = psi_soil
+      end if 
+      !print*,'w',w,'w1',w1,'w2',w2,'psisoil',psi_soil
 
       call pft_area_frac(cl1_pft, cf1_pft, ca1_pft, awood_aux,&
       &                  ocpavg, ocp_wood, run, ocp_mm)

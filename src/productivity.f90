@@ -113,7 +113,7 @@ contains
     !real(r_8) :: psi50
     !real(r_8) :: klmax
     !real(r_8) :: krcmax
-    real(r_8) :: psixylem_aux
+    !real(r_8) :: psixylem
     !real(r_8) :: kxylem
     !real(r_8) :: knorm
 
@@ -187,17 +187,17 @@ contains
     !   P50
     !=========
     psi50 = psi_fifty(wd,ca1_prod)
-    !print*,'P50',psi50, 'wd',wd
+    print*,'P50',psi50, 'wd',wd
 
     ! Klmax
     !=========
     klmax = conductivity_xylemleaf(wd,jl_out* 1e6,ca1_prod)
-    !print*,'klmax',klmax
+    print*,'klmax',klmax
 
     ! Krcmax
     !=========
     krcmax = conductance_xylemax(klmax,height1,ca1_prod)   
-    !print*,'krcmax',krcmax,'klmax',klmax
+    print*,'krcmax',krcmax,'klmax',klmax
 
     ! Psixylem
     !=========
@@ -207,17 +207,17 @@ contains
     ! k xylem
     !=========
     kxylem = xylem_conductance(krcmax,psixylem,psi50,ca1_prod)
-    !print*,'KXYLEM:',kxylem, 'P50:',psi50, 'KRCMAX:',krcmax
+    print*,'KXYLEM:',kxylem, 'P50:',psi50, 'KRCMAX:',krcmax
 
     ! k xylem
     !=========
     knorm = conductance_normalized(krcmax,kxylem,ca1_prod)
-    !print*,'knorm:',knorm,'krcmax:',krcmax,'kxylem:',kxylem
+    print*,'knorm:',knorm,'krcmax:',krcmax,'kxylem:',kxylem
 
     !Water stress response modifier (dimensionless)
     !----------------------------------------------
     f5 =  water_stress_modifier(w, cf1_prod, rc_pot, emax, wmax, knorm, ca1_prod)
-    !print*,'f5',f5
+    print*,'f5',f5
 
 
 !     Photosysthesis minimum and maximum temperature
