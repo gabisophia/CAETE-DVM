@@ -30,9 +30,9 @@ module photo
         leaf_area_index          ,& ! (f), leaf area index(m2 m-2)
         f_four                   ,& ! (f), auxiliar function (calculates f4sun or f4shade or sunlai)
         spec_leaf_area           ,& ! (f), specific leaf area (m2 g-1)
-        gross_ph_2               ,& ! (f),
-        leaf_area_index_photo    ,& ! (f), 
-        f_four_photo             ,& ! (f),
+        !gross_ph_2               ,& ! (f),
+        !leaf_area_index_photo    ,& ! (f), 
+        !f_four_photo             ,& ! (f),
         psi_fifty                ,& ! (f), Xylem water potential when the plant loses 50% of their maximum xylem conductance (MPa)
         conductivity_xylemleaf   ,& ! (f), Maximum xylem conductivity per unit leaf area (kg m-1 s-1 Mpa-1)
         conductance_xylemax      ,& ! (f), Maximum xylem conductance per unit leaf area (mol m-2 s-1 Mpa-1)
@@ -211,109 +211,111 @@ contains
    !=================================================================
    !=================================================================
 
-   function gross_ph_2(f1) result(ph)
+   ! function gross_ph_2(f1) result(ph)
 
-      ! Returns gross photosynthesis rate (kgC m-2 y-1) (GPP)
-      use types, only: r_4, r_8
-      !implicit none
+   !    ! Returns gross photosynthesis rate (kgC m-2 y-1) (GPP)
+   !    use types, only: r_4, r_8
+   !    !implicit none
 
-      real(r_8),dimension(3),intent(in) :: f1    !molCO2 m-2 s-1
-      real(r_4) :: ph
+   !    real(r_8),dimension(3),intent(in) :: f1    !molCO2 m-2 s-1
+   !    real(r_4) :: ph
 
-      real(r_8),dimension(3) :: f1in
-      real(r_8) :: f4sun 
-      real(r_8) :: f4shade
-      real(r_4),dimension(3) :: ph_aux
+   !    real(r_8) :: f1in
+   !    real(r_8) :: f4sun 
+   !    real(r_8) :: f4shade
+   !    real(r_4),dimension(3) :: ph_aux
 
-      f1in(:) = f1(:)
-      f4sun = f_four_photo(1,f1(:))
-      f4shade = f_four_photo(2,f1(:))
+   !    !f1in(:) = f1(:)
+   !    f1in = sum(f1)
+   !    f4sun = f_four_photo(1,f1(:))
+   !    f4shade = f_four_photo(2,f1(:))
 
-      ph_aux(:) = real((0.012D0*31557600.0D0*f1in(:)*f4sun*f4shade), r_4)
-      ph = sum(ph_aux(:))
-      if(ph .lt. 0.0) ph = 0.0
+   !    !ph_aux(:) = real((0.012D0*31557600.0D0*f1in(:)*f4sun*f4shade), r_4)
+   !    !ph = sum(ph_aux(:))
+   !    ph = real((0.012D0*31557600.0D0*f1in*f4sun*f4shade), r_4)
+   !    if(ph .lt. 0.0) ph = 0.0
 
-   end function gross_ph_2
+   ! end function gross_ph_2
 
    !=================================================================
    !=================================================================
 
-   function leaf_area_index_photo(f1) result(lai_photo)
-      use types, only: r_4, r_8
-      use photo_par, only: p25
+   ! function leaf_area_index_photo(f1) result(lai_photo)
+   !    use types, only: r_4, r_8
+   !    use photo_par, only: p25
 
-      real(r_8),dimension(3),intent(in) :: f1    !molCO2 m-2 s-1
-      real(r_4) :: lai_photo 
+   !    real(r_8),dimension(3),intent(in) :: f1    !molCO2 m-2 s-1
+   !    real(r_4) :: lai_photo 
 
-      real(r_8),dimension(3) :: f1in
-      !real(r_4),dimension(3) :: lai_aux
+   !    real(r_8) :: f1in
+   !    !real(r_4),dimension(3) :: lai_aux
 
-      f1in(:) = sum(f1(:))
-      !lai_aux(:) = 0.2D0*exp(2.5*(f1in(:)/0.000008))
-      !lai_aux(:) = 0.2D0 * exp((2.5D0 * f1in(:))/p25)
-      !lai_photo = sum(lai_aux(:))
-      lai_photo = 0.2D0*exp(2.5*(f1in(:)/0.000008))
-      if(lai_photo .lt. 0.0D0) lai_photo = 0.0D0
+   !    f1in = sum(f1(:))
+   !    !lai_aux(:) = 0.2D0*exp(2.5*(f1in(:)/0.000008))
+   !    !lai_aux(:) = 0.2D0 * exp((2.5D0 * f1in(:))/p25)
+   !    !lai_photo = sum(lai_aux(:))
+   !    lai_photo = 0.2D0*exp(2.5*(f1in/0.000008))
+   !    if(lai_photo .lt. 0.0D0) lai_photo = 0.0D0
 
-   end function leaf_area_index_photo
+   ! end function leaf_area_index_photo
    
-   !=================================================================
-   !=================================================================
+   ! !=================================================================
+   ! !=================================================================
 
-   function f_four_photo(fs,f1) result(lai_ss)
-      ! Function used to scale LAI from leaf to canopy level (2 layers)
-      use types, only: i_4, r_4, r_8
-      use photo_par, only: p26, p27
-      !implicit none
+   ! function f_four_photo(fs,f1) result(lai_ss)
+   !    ! Function used to scale LAI from leaf to canopy level (2 layers)
+   !    use types, only: i_4, r_4, r_8
+   !    use photo_par, only: p26, p27
+   !    !implicit none
 
-      integer(i_4),intent(in) :: fs !function mode:
-      ! 1  == f4sun   --->  to gross assimilation
-      ! 2  == f4shade --->  too
-      ! 90 == sun LAI
-      ! 20 == shade LAI
-      ! Any other number returns sunlai (not scaled to canopy)
+   !    integer(i_4),intent(in) :: fs !function mode:
+   !    ! 1  == f4sun   --->  to gross assimilation
+   !    ! 2  == f4shade --->  too
+   !    ! 90 == sun LAI
+   !    ! 20 == shade LAI
+   !    ! Any other number returns sunlai (not scaled to canopy)
 
-      real(r_8),dimension(3),intent(in) :: f1 ! carbon in leaf (kg m-2)
-      real(r_8) :: lai_ss           ! leaf area index (m2 m-2)
+   !    real(r_8),dimension(3),intent(in) :: f1 ! carbon in leaf (kg m-2)
+   !    real(r_8) :: lai_ss           ! leaf area index (m2 m-2)
 
-      real(r_8) :: lai
-      real(r_8) :: sunlai
-      real(r_8) :: shadelai
+   !    real(r_8) :: lai
+   !    real(r_8) :: sunlai
+   !    real(r_8) :: shadelai
 
-      lai = leaf_area_index_photo(f1(:))
+   !    lai = leaf_area_index_photo(f1(:))
 
-      sunlai = (1.0D0-(dexp(-p26*lai)))/p26
-      shadelai = lai - sunlai
+   !    sunlai = (1.0D0-(dexp(-p26*lai)))/p26
+   !    shadelai = lai - sunlai
 
-      lai_ss = sunlai
+   !    lai_ss = sunlai
 
-      if (fs .eq. 90) then
-         return
-      endif
-      if (fs .eq. 20) then
-         lai_ss = shadelai
-         return
-      endif
+   !    if (fs .eq. 90) then
+   !       return
+   !    endif
+   !    if (fs .eq. 20) then
+   !       lai_ss = shadelai
+   !       return
+   !    endif
 
-      !Scaling-up to canopy level (dimensionless)
-      !------------------------------------------
-      !Sun/Shade approach to canopy scaling !Based in de Pury & Farquhar (1997)
-      !------------------------------------------------------------------------
-      if(fs .eq. 1) then
-         ! f4sun
-         lai_ss = (1.0-(dexp(-p26*sunlai)))/p26 !sun decl 90 degrees
-         return
-      endif
+   !    !Scaling-up to canopy level (dimensionless)
+   !    !------------------------------------------
+   !    !Sun/Shade approach to canopy scaling !Based in de Pury & Farquhar (1997)
+   !    !------------------------------------------------------------------------
+   !    if(fs .eq. 1) then
+   !       ! f4sun
+   !       lai_ss = (1.0-(dexp(-p26*sunlai)))/p26 !sun decl 90 degrees
+   !       return
+   !    endif
 
-      if(fs .eq. 2) then
-         !f4shade
-         lai_ss = (1.0-(dexp(-p27*shadelai)))/p27 !sun decl ~20 degrees
-         return
-      endif
-   end function f_four_photo
+   !    if(fs .eq. 2) then
+   !       !f4shade
+   !       lai_ss = (1.0-(dexp(-p27*shadelai)))/p27 !sun decl ~20 degrees
+   !       return
+   !    endif
+   ! end function f_four_photo
 
-   !=================================================================
-   !=================================================================
+   ! !=================================================================
+   ! !=================================================================
 
    function psi_fifty(dwood_aux,cawood) result(psi_50)
 
@@ -802,30 +804,30 @@ contains
 
       ! return tl * (n_in * 0.7)
 
-   !function nrubisco(leaf_t,n_in) result(nb)
-      !use types
-      !real(r_8), intent(in) :: leaf_t
-      !real(r_8), intent(in) :: n_in
-      !real(r_8) :: nb, tl
-      !real(r_8) :: e = 2.718281828459045D0
-
-      !tl = e**(-(leaf_t + 1.2)) + 0.04
-
-      !nb = tl * n_in
-
-   !end function nrubisco
-
    function nrubisco(leaf_t,n_in) result(nb)
-      !based in Menezes et al., 2021
       use types
       real(r_8), intent(in) :: leaf_t
       real(r_8), intent(in) :: n_in
       real(r_8) :: nb, tl
-      
-      tl = -0.12 * (leaf_t - 0.7) + 1.31
+      real(r_8) :: e = 2.718281828459045D0
+
+      tl = e**(-(leaf_t + 1.2)) + 0.04
+
       nb = tl * n_in
 
    end function nrubisco
+
+   ! function nrubisco(leaf_t,n_in) result(nb)
+   !    !based in Menezes et al., 2021
+   !    use types
+   !    real(r_8), intent(in) :: leaf_t
+   !    real(r_8), intent(in) :: n_in
+   !    real(r_8) :: nb, tl
+      
+   !    tl = -0.12 * (leaf_t - 0.7) + 1.31
+   !    nb = tl * n_in
+
+   ! end function nrubisco
 
    !=================================================================
    !=================================================================
@@ -883,8 +885,10 @@ contains
       real(r_8) :: coeffa, coeffb
 
       ! Calculating Fraction of leaf Nitrogen that is lignin
+      nbio2 = nbio
+      !pbio2 = pbio
       nbio2 = nrubisco(leaf_turnover, nbio) !nbio
-      pbio2 = pbio !nrubisco(leaf_turnover, pbio)
+      pbio2 = nrubisco(leaf_turnover, pbio)
 
       if (nbio2 .lt. 0.01D0) nbio2 = 0.01D0
       if (pbio2 .lt. 0.01D0) pbio2 = 0.01D0

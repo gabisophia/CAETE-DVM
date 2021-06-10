@@ -77,7 +77,7 @@ module photo_par
         p15 = 1.20D0         ,&          !Michaelis-Menten constant for O2
         p19 = 0.90D0         ,&          !Maximum ratio of internal to external CO2
         p20 = 0.10D0         ,&          !Critical humidity deficit (kg/kg)
-        p25 = 0.000008       ,&          !Maximum gross photosynthesis rate (molCO2/m2/s)  8.0D-5
+        p25 = 8.0D-5         ,&          !Maximum gross photosynthesis rate (molCO2/m2/s)  8.0D-5  0.000008
         p26 = 0.50D0         ,&          !light extinction coefficient for IPAR/sun (0.5/sen90)
         p27 = 1.50D0         ,&          !light extinction coefficient for IPAR/shade (0.5/sen20)
         alphap = 0.0913D0    ,&          ! 0.0913 parameter for v4m. Hard to explain. See Chen et al. 1994
@@ -99,7 +99,7 @@ module allometry_par
          k_allom2 = 36.0      ,&
          k_allom3 = 0.22      ,&
          dw = 0.85            ,&          !value for testing purpose (DW will be a variant trait) g/cm-3
-         spec_leaf = 132      ,&          ! cm2/g - value for testing purpose (SLA is already calculate in the model; SLA will be a variant trait)
+         spec_leaf = 0.002    ,&          ! cm2/g - value for testing purpose (SLA is already calculate in the model; SLA will be a variant trait)
          klatosa = 6000.0     ,&   
          ltor = 0.77302587552347657 ,&    !ratio between increment in leaf and root
          tol = 0.0000001      ,&
