@@ -886,9 +886,9 @@ contains
 
       ! Calculating Fraction of leaf Nitrogen that is lignin
       nbio2 = nbio
-      !pbio2 = pbio
-      nbio2 = nrubisco(leaf_turnover, nbio) !nbio
-      pbio2 = nrubisco(leaf_turnover, pbio)
+      pbio2 = pbio
+      !nbio2 = nrubisco(leaf_turnover, nbio) !nbio
+      !pbio2 = nrubisco(leaf_turnover, pbio)
 
       if (nbio2 .lt. 0.01D0) nbio2 = 0.01D0
       if (pbio2 .lt. 0.01D0) pbio2 = 0.01D0
