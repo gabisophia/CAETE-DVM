@@ -104,6 +104,7 @@ contains
     real(r_8) :: age_crit
     real(r_8) :: cl_total              !Carbon sum of all the cohots (kg/m2)
     real(r_4) :: rc_pot, rc_aux
+    real(r_4) :: laia_photo, ph_photo
     real(r_8) :: e_pot
     integer(i_4) :: i
 
@@ -245,6 +246,10 @@ contains
 
     laia = leaf_area_index(cl1_prod(:), sla_var)
     !print*,'lai:',laia,'cl1_prod(1):',cl1_prod(1),'cl1_prod(2):',cl1_prod(2),'cl1_prod(3):',cl1_prod(3),'sla:',sla_var
+    print*,'lai:',laia
+
+    laia_photo = leaf_area_index_photo(f1(:))
+    print*,'lai_2:',laia_photo
 
     rc = rc_aux !* real(laia,kind=r_4) ! RCM -!s m-1 ! CANOPY SCALING --
 
@@ -252,6 +257,10 @@ contains
 !     =======================================x
 
     ph = gross_ph(f1(:),cl1_prod(:), sla_var)        ! kg m-2 year-1
+    print*,'gpp:',ph
+
+    ph_photo = gross_ph_2(f1)
+    print*,'gpp_2:',ph_photo
 
 !     Autothrophic respiration
 !     ========================
@@ -275,6 +284,7 @@ contains
     else
        ar = 0.0               !Temperature above/below respiration windown
     endif
+    
 !     Net primary productivity(kgC/m2/yr)
 !     ====================================
     nppa = ph - ar
