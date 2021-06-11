@@ -533,10 +533,9 @@ contains
       use global_par, only: rcmin, rcmax
       use types, only: r_4 ,r_8
 
-
       !implicit none
 
-      real(r_8),intent(in) :: f1_in    !Photosynthesis (molCO2/m2/s)
+      real(r_8),dimension(3),intent(in) :: f1_in    !Photosynthesis (molCO2/m2/s)
       real(r_4),intent(in) :: vpd_in   !hPa
       real(r_8),intent(in) :: g1       ! model m (slope) (sqrt(kPa))
       real(r_8),intent(in) :: ca
@@ -544,6 +543,7 @@ contains
 
       !     Internal
       !     --------
+      real(r_8),dimension(3) :: gs_aux       
       real(r_8) :: gs       !Canopy conductance (molCO2 m-2 s-1)
       real(r_8) :: D1       !sqrt(kPA)
       real(r_4) :: vapour_p_d
@@ -557,7 +557,8 @@ contains
       ! endif
 
       D1 = sqrt(vapour_p_d)
-      gs = 0.003 + 1.6D0 * (1.0D0 + (g1/D1)) * ((f1_in * 1.0e6)/ca) ! mol m-2 s-1
+      gs_aux(:) = 0.003 + 1.6D0 * (1.0D0 + (g1/D1)) * ((f1_in(:) * 1.0e6)/ca) ! mol m-2 s-1
+      gs = sum(gs_aux(:))
       gs = gs * (1.0D0 / 44.6D0)! convrt from  mol/m²/s to m s-1
       rc2_in = real( 1.0D0 / gs, r_4)  !  s m-1
 
@@ -852,23 +853,25 @@ contains
       integer(i_4),intent(in) :: c4 ! is C4 Photosynthesis pathway?
       real(r_8),intent(in) :: leaf_turnover   ! y
       ! O
-      real(r_8),intent(out) :: f1ab ! Gross CO2 Assimilation Rate mol m-2 s-1
-      real(r_8),intent(out) :: vm   ! PLS Vcmax mol m-2 s-1
+      real(r_8),dimension(3),intent(out) :: f1ab ! Gross CO2 Assimilation Rate mol m-2 s-1
+      real(r_8),dimension(3),intent(out) :: vm   ! PLS Vcmax mol m-2 s-1
       real(r_8),intent(out) :: amax ! light saturated PH rate
 
       real(r_8) :: f2,f3            !Michaelis-Menten CO2/O2 constant (Pa)
-      real(r_8) :: mgama,vm_in      !Photo-respiration compensation point (Pa)
+      real(r_8) :: mgama
+      real(r_8), dimension(3) :: vm_in      !Photo-respiration compensation point (Pa)
       real(r_8) :: rmax, r
       real(r_8) :: ci
-      real(r_8) :: jp1
-      real(r_8) :: jp2
-      real(r_8) :: jp
-      real(r_8) :: jc
-      real(r_8) :: jl
-      real(r_8) :: je,jcl
-      real(r_8) :: b,c,c2,b2,es,j1,j2
-      real(r_8) :: delta, delta2,aux_ipar
-      real(r_8) :: f1a
+      real(r_8),dimension(3) :: jp1
+      real(r_8),dimension(3) :: jp2
+      real(r_8),dimension(3) :: jp
+      real(r_8),dimension(3) :: jc
+      real(r_8) :: jl,jcl,aux_ipar,es
+      real(r_8),dimension(3) :: je
+      real(r_8),dimension(3) :: j1,j2
+      real(r_8),dimension(3) :: b,c,b2,c2
+      real(r_8),dimension(3) :: delta, delta2
+      real(r_8),dimension(3) :: f1a
 
       ! new vars C4 PHOTOSYNTHESIS
       real(r_8) :: ipar1
@@ -884,6 +887,25 @@ contains
       real(r_8) :: nmgg, pmgg
       real(r_8) :: coeffa, coeffb
 
+      real(r_8), dimension(3) :: umol_penalties = (/-0.4, 1.0, 0.6/) !Penalization in photosynthesis for each cohort, defined by Wu et al (2016) and Albert et al (2018)
+      real(r_8), dimension(3) :: leaf_age
+      real(r_8), dimension(3) :: penalization_by_age
+      real(r_8) :: age_crit
+      integer(i_4) :: i
+
+      !Simulation of leaf demography
+      !Obtain critical age
+      age_crit = (leaf_turnover / 3.0) * 2.0
+
+      !Obtain leaf age (a) - middle age of each cohort
+      leaf_age(1) = (leaf_turnover * (1.0/12.0))
+      leaf_age(2) = (leaf_turnover * (1.0/2.0))
+      leaf_age(3) = (leaf_turnover * (5.0/6.0))
+
+      do i = 1, 3
+         penalization_by_age(i) = leaf_age_factor(umol_penalties(i), age_crit, leaf_age(i))
+      enddo
+  
       ! Calculating Fraction of leaf Nitrogen that is lignin
       nbio2 = nbio
       pbio2 = pbio
@@ -910,15 +932,22 @@ contains
       coeffb = 0.55D0
 
       vm_nutri = coeffa + (coeffb * dlog10(nmgg))
-      vm =  10**vm_nutri * 1D-6
-      if(vm + 1 .eq. vm) vm = p25 - 5.0D-5
-      if(vm .gt. p25) vm = p25
+      do i = 1, 3
+         vm(i) =  (10**vm_nutri * 1D-6) * penalization_by_age(i)
+      enddo
+      print*,'vm1',vm(1),'vm2',vm(2),'vm3',vm(3)
+      if(vm(i) + 1 .eq. vm(i)) vm(i) = p25 - 5.0D-5
+      if(vm(i) .gt. p25) vm(i) = p25
 
 
       ! Rubisco Carboxilation Rate - temperature dependence
-      vm_in = (vm*2.0D0**(0.1D0*(temp-25.0D0)))/(1.0D0+dexp(0.3D0*(temp-36.0)))
-      if(vm_in + 1 .eq. vm_in) vm_in = p25 - 5.0D-5
-      if(vm_in .gt. p25) vm_in = p25
+      vm_in(:) = (vm(:)*2.0D0**(0.1D0*(temp-25.0D0)))/(1.0D0+dexp(0.3D0*(temp-36.0)))
+      if(vm_in(1) + 1 .eq. vm_in(1)) vm_in(1) = p25 - 5.0D-5
+      if(vm_in(2) + 1 .eq. vm_in(2)) vm_in(2) = p25 - 5.0D-5
+      if(vm_in(3) + 1 .eq. vm_in(3)) vm_in(3) = p25 - 5.0D-5
+      if(vm_in(1) .gt. p25) vm_in(1) = p25
+      if(vm_in(2) .gt. p25) vm_in(2) = p25
+      if(vm_in(3) .gt. p25) vm_in(3) = p25
 
       if(c4 .eq. 0) then
          !====================-C3 PHOTOSYNTHESIS-===============================
@@ -937,7 +966,7 @@ contains
          !Internal leaf CO2 partial pressure (Pa)
          ci = p19* (1.-(r/p20)) * ((c_atm/9.901)-mgama) + mgama
          !Rubisco carboxilation limited photosynthesis rate (molCO2/m2/s)
-         jc = vm_in*((ci-mgama)/(ci+(f2*(1.+(p3/f3)))))
+         jc(:) = vm_in(:)*((ci-mgama)/(ci+(f2*(1.+(p3/f3)))))
          !Light limited photosynthesis rate (molCO2/m2/s)
          if (ll) then
             aux_ipar = ipar
@@ -949,29 +978,31 @@ contains
 
          ! Transport limited photosynthesis rate (molCO2/m2/s) (RuBP) (re)generation
          ! ---------------------------------------------------
-         je = p7*vm_in
+         je(:) = p7*vm_in(:)
 
          !Jp (minimum between jc and jl)
          !------------------------------
-         b = (-1.)*(jc+jl)
-         c = jc*jl
-         delta = (b**2)-4.0*a*c
-         jp1 = (-b-(sqrt(delta)))/(2.0*a)
-         jp2 = (-b+(sqrt(delta)))/(2.0*a)
-         jp = dmin1(jp1,jp2)
+         b(:) = (-1.)*(jc(:)+jl)
+         c(:) = jc(:)*jl
+         delta(:) = (b(:)**2)-4.0*a*c(:)
+         jp1(:) = (-b(:)-(sqrt(delta)))/(2.0*a)
+         jp2(:) = (-b(:)+(sqrt(delta)))/(2.0*a)
+         jp(:) = dmin1(jp1,jp2)
 
          !Leaf level gross photosynthesis (minimum between jc, jl and je)
          !---------------------------------------------------------------
-         b2 = (-1.)*(jp+je)
-         c2 = jp*je
-         delta2 = (b2**2)-4.0*a2*c2
-         j1 = (-b2-(sqrt(delta2)))/(2.0d0*a2)
-         j2 = (-b2+(sqrt(delta2)))/(2.0d0*a2)
-         f1a = dmin1(j1,j2)
+         b2(:) = (-1.)*(jp+je(:))
+         c2(:) = jp*je(:)
+         delta2(:) = (b2(:)**2)-4.0*a2*c2(:)
+         j1(:) = (-b2(:)-(sqrt(delta2)))/(2.0d0*a2)
+         j2(:) = (-b2(:)+(sqrt(delta2)))/(2.0d0*a2)
+         f1a(:) = dmin1(j1(:),j2(:))
 
 
-         f1ab = f1a
-         if(f1ab .lt. 0.0D0) f1ab = 0.0D0
+         f1ab(:) = f1a(:)
+         if(f1ab(1) .lt. 0.0D0) f1ab(1) = 0.0D0
+         if(f1ab(2) .lt. 0.0D0) f1ab(2) = 0.0D0
+         if(f1ab(3) .lt. 0.0D0) f1ab(3) = 0.0D0
          return
       else
          !===========================-C4 PHOTOSYNTHESIS-=============================
@@ -1023,7 +1054,9 @@ contains
 
 
          f1ab = f1a
-         if(f1ab .lt. 0.0D0) f1ab = 0.0D0
+         if(f1ab(1) .lt. 0.0D0) f1ab(1) = 0.0D0
+         if(f1ab(2) .lt. 0.0D0) f1ab(2) = 0.0D0
+         if(f1ab(3) .lt. 0.0D0) f1ab(3) = 0.0D0
          return
       endif
    end subroutine photosynthesis_rate

@@ -75,7 +75,7 @@ contains
     real(r_4), intent(out) :: c_defcit                !Carbon deficit gm-2 if it is positive, aresp was greater than npp + sto2(1)
     real(r_8), intent(out) :: sla
     real(r_8), intent(out) :: e                       !transpiration (molm2s)
-    real(r_8), intent(out) :: vm_out
+    real(r_8), dimension(3), intent(out) :: vm_out
 
 
 !     Internal
@@ -97,7 +97,7 @@ contains
     real(r_8) :: jl_out
 
     real(r_8), dimension(3) :: f1      !Leaf level gross photosynthesis (molCO2/m2/s)
-    real(r_8) :: f1a                   !auxiliar_f1
+    real(r_8), dimension(3) :: f1a                   !auxiliar_f1
     real(r_8), dimension(3) :: umol_penalties = (/-0.4, 1.0, 0.6/) !Penalization in photosynthesis for each cohort, defined by Wu et al (2016) and Albert et al (2018)
     real(r_8), dimension(3) :: leaf_age
     real(r_8), dimension(3) :: penalization_by_age
@@ -164,7 +164,7 @@ contains
 !   rate (molCO2/m2/s)
 
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,tleaf,n2cl,&
-         & p2cl,cl1_prod(:),f1a,vm_out,jl_out)
+         & p2cl,cl1_prod(:),f1a(:),vm_out(:),jl_out)
 
     ! VPD
     !========
@@ -172,7 +172,7 @@ contains
 
     !Stomatal resistence
     !===================
-    rc_pot = canopy_resistence_pot(vpd, f1a, g1, catm) ! Potential RCM leaf level - s m-1
+    rc_pot = canopy_resistence_pot(vpd, f1a(:), g1, catm) ! Potential RCM leaf level - s m-1
 
     e_pot = transpiration(rc_pot, p0, vpd, 1)
     !print*, 'e_pot:',e_pot
@@ -223,12 +223,18 @@ contains
 
 !     Photosysthesis minimum and maximum temperature
 !     ----------------------------------------------
+    ! if ((temp.ge.-10.0).and.(temp.le.50.0)) then
+    !     do i = 1,3
+    !         f1(i) = f1a * f5 * penalization_by_age(i) ! water stress factor and factor age ! Ancient floating-point underflow spring (from CPTEC-PVM2)
+    !     enddo
+    ! else
+    !     f1 = 0.0      !Temperature above/below photosynthesis windown
+    ! endif
+
     if ((temp.ge.-10.0).and.(temp.le.50.0)) then
-        do i = 1,3
-            f1(i) = f1a * f5 * penalization_by_age(i) ! water stress factor and factor age ! Ancient floating-point underflow spring (from CPTEC-PVM2)
-        enddo
+        f1(:) = f1a(:) * f5 ! water stress factor and factor age ! Ancient floating-point underflow spring (from CPTEC-PVM2)
     else
-        f1 = 0.0      !Temperature above/below photosynthesis windown
+        f1(:) = 0.0      !Temperature above/below photosynthesis windown
     endif
 
     rc_aux = canopy_resistence_real(vpd, f1(:), g1, catm)  ! RCM leaf level -!s m-1
@@ -246,7 +252,7 @@ contains
 
     laia = leaf_area_index(cl1_prod(:), sla_var)
     !print*,'lai:',laia,'cl1_prod(1):',cl1_prod(1),'cl1_prod(2):',cl1_prod(2),'cl1_prod(3):',cl1_prod(3),'sla:',sla_var
-    print*,'lai:',laia,'cl2',cl1_prod(2),'sla',sla_var
+    !print*,'lai:',laia,'cl2',cl1_prod(2),'sla',sla_var
 
     !laia_photo = leaf_area_index_photo(f1(:))
     !print*,'lai_2:',laia_photo
