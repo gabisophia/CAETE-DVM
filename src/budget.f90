@@ -92,7 +92,7 @@ contains
       real(r_8),intent(out) :: rgavg          !maintenance/growth respiration (Kg m-2 y-1)
       real(r_8),intent(out) :: wueavg         ! Water use efficiency
       real(r_8),intent(out) :: cueavg         ! [0-1]
-      real(r_8),dimension(3),intent(out) :: vcmax_1        ! µmol m-2 s-1
+      real(r_8),intent(out) :: vcmax_1        ! µmol m-2 s-1
       real(r_8),intent(out) :: specific_la_1  ! m2 g(C)-1
       real(r_8),intent(out) :: c_defavg       ! kg(C) m-2 Carbon deficit due to negative NPP - i.e. ph < ar
       real(r_8),intent(out) :: litter_l_1     ! g m-2
@@ -171,7 +171,7 @@ contains
       real(r_8),dimension(:),allocatable :: cf2
       real(r_8),dimension(:),allocatable :: ca2    ! carbon pos-allocation
       real(r_8),dimension(:,:),allocatable :: day_storage      ! D0=3 g m-2
-      real(r_8),dimension(:,:),allocatable   :: vcmax            ! µmol m-2 s-1
+      real(r_8),dimension(:),allocatable   :: vcmax            ! µmol m-2 s-1
       real(r_8),dimension(:),allocatable   :: specific_la      ! m2 g(C)-1
       real(r_8),dimension(:,:),allocatable :: nupt             !d0 =2      ! g m-2 (1) from Soluble (2) from organic
       real(r_8),dimension(:,:),allocatable :: pupt             !d0 =3      ! g m-2
@@ -270,7 +270,7 @@ contains
       allocate(wue(nlen))
       allocate(cue(nlen))
       allocate(c_def(nlen))
-      allocate(vcmax(3,nlen))
+      allocate(vcmax(nlen))
       allocate(specific_la(nlen))
       allocate(storage_out_bdgt(3, nlen))
       allocate(tra(nlen))
@@ -317,7 +317,7 @@ contains
                &, cl1_pft(:,ri), ca1_pft(ri), cf1_pft(ri), dleaf(ri), dwood(ri), droot(ri)&
                &, soil_sat, psi_soil, p50(p), klm(p), krcm(p), pxylem(p), kxyl(p), knor(p)&
                &, ph(p), ar(p), nppa(p), laia(p), f5(p), vpd(p), rm(p), rg(p), rc2(p)&
-               &, wue(p), c_def(p), vcmax(:,p), specific_la(p), tra(p))
+               &, wue(p), c_def(p), vcmax(p), specific_la(p), tra(p))
 
          !print*,'survivors',p, 'cawood:',ca1_pft(ri), 'cfroot:',cf1_pft(ri), 'cleaf j:',cl1_pft(1,ri), 'cleaf m:',cl1_pft(2,ri), 'cleaf s:',cl1_pft(3,ri),&
          !& 'LAI:',laia(p), 'SLA:',specific_la(p), 'GPP:',ph(P),'NPP:',nppa(p)
@@ -451,7 +451,7 @@ contains
       cwd_1 = 0.0D0
       litter_fr_1 = 0.0D0
       c_defavg = 0.0D0
-      vcmax_1(:) = 0.0D0
+      vcmax_1 = 0.0D0
       specific_la_1 = 0.0D0
       lit_nut_content_1(:) = 0.0D0
       nupt_1(:) = 0.0D0
@@ -491,9 +491,7 @@ contains
       wueavg = sum(real(wue, kind=r_8) * ocp_coeffs, mask= .not. isnan(wue))
       cueavg = sum(real(cue, kind=r_8) * ocp_coeffs, mask= .not. isnan(cue))
       c_defavg = sum(real(c_def, kind=r_8) * ocp_coeffs, mask= .not. isnan(c_def)) / 2.73791
-      vcmax_1(1) = sum(vcmax(1,:) * ocp_coeffs, mask= .not. isnan(vcmax(1,:)))
-      vcmax_1(2) = sum(vcmax(2,:) * ocp_coeffs, mask= .not. isnan(vcmax(2,:)))
-      vcmax_1(3) = sum(vcmax(3,:) * ocp_coeffs, mask= .not. isnan(vcmax(3,:)))
+      vcmax_1 = sum(vcmax * ocp_coeffs, mask= .not. isnan(vcmax))
       specific_la_1 = sum(specific_la * ocp_coeffs, mask= .not. isnan(specific_la))
       litter_l_1 = sum(litter_l * ocp_coeffs, mask= .not. isnan(litter_l))
       cwd_1 = sum(cwd * ocp_coeffs, mask= .not. isnan(cwd))

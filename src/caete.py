@@ -348,7 +348,7 @@ class grd:
         self.cdef = np.zeros(shape=(n,), order='F')
         self.nmin = np.zeros(shape=(n,), order='F')
         self.pmin = np.zeros(shape=(n,), order='F')
-        self.vcmax = np.zeros(shape=(3,n), order='F')
+        self.vcmax = np.zeros(shape=(n,), order='F')
         self.specific_la = np.zeros(shape=(n,), order='F')
         self.nupt = np.zeros(shape=(2, n), order='F')
         self.pupt = np.zeros(shape=(3, n), order='F')
@@ -420,9 +420,7 @@ class grd:
                      'cdef': self.cdef,
                      'nmin': self.nmin,
                      'pmin': self.pmin,
-                     'vcmax_j': self.vcmax[0],
-                     'vcmax_m': self.vcmax[1],
-                     'vcmax_s': self.vcmax[2],
+                     'vcmax': self.vcmax,
                      'specific_la': self.specific_la,
                      'nupt': self.nupt,
                      'pupt': self.pupt,
@@ -1012,9 +1010,7 @@ class grd:
                     self.wue[step]=daily_output['wueavg']
                     self.cue[step]=daily_output['cueavg']
                     self.cdef[step]=daily_output['c_defavg']
-                    self.vcmax[0,step]=daily_output['vcmax'][0]
-                    self.vcmax[1,step]=daily_output['vcmax'][1]
-                    self.vcmax[2,step]=daily_output['vcmax'][2]
+                    self.vcmax[step]=daily_output['vcmax']
                     self.specific_la[step]=daily_output['specific_la']
                     self.cleaf[0, step] = daily_output['cleafavg'][0]
                     self.cleaf[1, step] = daily_output['cleafavg'][1]

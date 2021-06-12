@@ -75,7 +75,7 @@ contains
     real(r_4), intent(out) :: c_defcit                !Carbon deficit gm-2 if it is positive, aresp was greater than npp + sto2(1)
     real(r_8), intent(out) :: sla
     real(r_8), intent(out) :: e                       !transpiration (molm2s)
-    real(r_8), dimension(3), intent(out) :: vm_out
+    real(r_8), intent(out) :: vm_out
 
 
 !     Internal
@@ -164,7 +164,7 @@ contains
 !   rate (molCO2/m2/s)
 
     call photosynthesis_rate(catm,temp,p0,ipar,light_limit,c4_int,tleaf,n2cl,&
-         & p2cl,cl1_prod(:),f1a(:),vm_out(:),jl_out)
+         & p2cl,cl1_prod(:),f1a(:),vm_out,jl_out)
 
     ! VPD
     !========
@@ -263,7 +263,7 @@ contains
 !     =======================================x
 
     ph = gross_ph(f1(:),cl1_prod(:), sla_var)        ! kg m-2 year-1
-    print*,'gpp:',ph
+    !print*,'gpp:',ph
 
     !ph_photo = gross_ph_2(f1)
     !print*,'gpp_2:',ph_photo
